@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>LDR (Light Dependent Resistor) | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ffee44;--accent2:#ffff88;--accent-rgb:255,238,68}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">09 / 150</span>
+    <span class="dev-name">LDR (Light Dependent Resistor)</span>
+    <span class="dev-cat">Sensor · Photoresistor</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">09 LDR</div>
+<div id="body">
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">LDR — Light → Resistance</div>
+    <div class="canvas-overlay" id="badge">—</div>
+  </div>
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Live Values</div>
+      <div class="kvgrid cols3">
+        <div class="kv"><label>Illuminance</label><div class="val c1" id="dE">—</div></div>
+        <div class="kv"><label>R_LDR</label><div class="val c2" id="dR">—</div></div>
+        <div class="kv"><label>Vout</label><div class="val c3" id="dVout">—</div></div>
+        <div class="kv"><label>Current</label><div class="val c4" id="dI">—</div></div>
+        <div class="kv"><label>Sensitivity</label><div class="val c5" id="dSens">—</div></div>
+        <div class="kv"><label>Power</label><div class="val c6" id="dP">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">R = k·E<sup>-γ</sup></div><div class="fd">LDR Model</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">V<sub>out</sub> = V<sub>cc</sub>·R₂/(R+R₂)</div><div class="fd">Voltage Divider</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">γ ≈ 0.7–0.9</div><div class="fd">Gamma Coeff</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Controls</div>
+      <div class="srow">
+        <span class="sl">Lux</span>
+        <input type="range" id="sLux" min="0" max="5" value="2" step="0.01">
+        <span class="sval" id="vLux">100 lx</span>
+      </div>
+      <div class="srow">
+        <span class="sl">R_dark</span>
+        <input type="range" id="sRdark" min="4" max="7" value="6" step="0.01">
+        <span class="sval" id="vRdark">1.00 MΩ</span>
+      </div>
+      <div class="srow">
+        <span class="sl">γ</span>
+        <input type="range" id="sGamma" min="0.7" max="0.9" value="0.8" step="0.01">
+        <span class="sval" id="vGamma">0.80</span>
+      </div>
+      <div class="srow">
+        <span class="sl">R₂</span>
+        <input type="range" id="sR2" min="3" max="5" value="4" step="0.01">
+        <span class="sval" id="vR2">10.0 kΩ</span>
+      </div>
+      <div class="ptitle" style="margin-top:8px">Supply Voltage</div>
+      <div class="btn-row">
+        <button class="mbt on" id="btn33" onclick="setVcc(3.3,this)">3.3V</button>
+        <button class="mbt" id="btn5" onclick="setVcc(5,this)">5V</button>
+        <button class="mbt" id="btn12" onclick="setVcc(12,this)">12V</button>
+      </div>
+    </div>
+
+    <div class="panel curve-panel-main">
+      <div class="ptitle">R vs Illuminance (log-log)</div>
+      <canvas id="curve1" class="chart-canvas" style="height:140px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Teaching Points</div>
+      <div class="facts">
+        · LDR uses <span>CdS (Cadmium Sulfide)</span> as photosensitive material<br>
+        · Resistance drops from <span>MΩ (dark)</span> to <span>kΩ (bright)</span><br>
+        · γ determines sensitivity slope on log-log graph<br>
+        · Response time: <span>~10ms</span> (slower than photodiodes)<br>
+        · Used in <span>light-activated switches</span> and cameras<br>
+        · Voltage divider: increase R₂ for higher Vout at low light
+      </div>
+    </div>
+
+  </div>
+  <div id="curve-section">
+    <div class="panel" style="flex:1;display:flex;flex-direction:column">
+      <div class="ptitle">R vs Illuminance (log-log)</div>
+      <canvas id="curve1-desk" class="chart-canvas" style="flex:1;min-height:0"></canvas>
+    </div>
+  </div>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+/* ── STATE ── */
+let lux = 100, rdark = 1e6, gamma = 0.8, R2 = 1e4, Vcc = 3.3;
+let glowLight, discMesh, pivot;
+let lastTS = 0, rotX = 0.3, rotY = 0;
+
+/* ── 3D SCENE ── */
+const { renderer, scene, camera } = EL.initScene('c3d');
+EL.initLights(scene, '#ffee44');
+pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+scene.add(pivot);
+
+// LDR disc body
+const discGeo = new THREE.CylinderGeometry(1.2, 1.2, 0.18, 32);
+discMesh = new THREE.Mesh(discGeo, new THREE.MeshPhongMaterial({ color: 0x8ac4e8, shininess: 40 }));
+pivot.add(discMesh);
+
+// Zigzag pattern on top face using small boxes
+const zigGeo = new THREE.BoxGeometry(0.12, 0.04, 0.28);
+const zigMat = new THREE.MeshPhongMaterial({ color: 0xffd700, shininess: 80 });
+const cols = 7, rows = 4;
+for (let c = 0; c < cols; c++) {
+  for (let r = 0; r < rows; r++) {
+    const seg = new THREE.Mesh(zigGeo, zigMat);
+    seg.position.set(-0.7 + c * 0.23, 0.12, -0.45 + r * 0.3 + (c % 2) * 0.15);
+    pivot.add(seg);
+  }
+}
+// Connecting horizontal bars
+const hGeo = new THREE.BoxGeometry(0.23, 0.04, 0.06);
+for (let c = 0; c < cols - 1; c++) {
+  for (let r = 0; r < rows; r++) {
+    const bar = new THREE.Mesh(hGeo, zigMat);
+    const zOff = (c % 2 === 0) ? 0.3 : 0;
+    bar.position.set(-0.585 + c * 0.23, 0.12, -0.45 + r * 0.3 + zOff);
+    pivot.add(bar);
+  }
+}
+
+// Leads
+const leadGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.2, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+const lead1 = new THREE.Mesh(leadGeo, leadMat);
+lead1.position.set(-0.5, -0.7, 0); pivot.add(lead1);
+const lead2 = new THREE.Mesh(leadGeo, leadMat);
+lead2.position.set(0.5, -0.7, 0); pivot.add(lead2);
+
+// Glow light
+glowLight = new THREE.PointLight(0xffee44, 0, 4);
+glowLight.position.set(0, 0.5, 0);
+pivot.add(glowLight);
+
+camera.position.set(0, 1, 5.5);
+
+/* ── PHYSICS ── */
+function calcK(rdark, gamma) {
+  // k such that R(1 lux) = rdark * 1^(-gamma) roughly, calibrate at 1 lux
+  return rdark;
+}
+
+function recalc() {
+  const k = calcK(rdark, gamma);
+  const Rldr = k * Math.pow(lux, -gamma);
+  const Vout = Vcc * R2 / (Rldr + R2);
+  const I = Vcc / (Rldr + R2);
+  const sens = EL.clamp((1 - Rldr / (rdark)) * 100, 0, 100);
+  const P = I * I * Rldr;
+
+  document.getElementById('dE').textContent = lux >= 1000 ? (lux/1000).toFixed(1)+' klx' : lux.toFixed(1)+' lx';
+  document.getElementById('dR').textContent = EL.fmtR(Rldr);
+  document.getElementById('dVout').textContent = EL.fmtV(Vout);
+  document.getElementById('dI').textContent = EL.fmtI(I);
+  document.getElementById('dSens').textContent = sens.toFixed(1) + ' %';
+  document.getElementById('dP').textContent = EL.fmtP(P);
+  document.getElementById('badge').textContent = EL.fmtR(Rldr);
+
+  // Update glow
+  const brightFrac = EL.clamp(Math.log10(lux + 1) / 5, 0, 1);
+  glowLight.intensity = brightFrac * 3;
+  discMesh.material.color.setRGB(
+    0.54 + brightFrac * 0.46,
+    0.77 + brightFrac * 0.23,
+    0.91 - brightFrac * 0.5
+  );
+
+  drawAll();
+}
+
+/* ── CONTROLS ── */
+function setVcc(v, btn) {
+  Vcc = v;
+  document.querySelectorAll('.btn-row .mbt').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  recalc();
+}
+
+EL.bindSlider('sLux', v => {
+  lux = Math.pow(10, v);
+  document.getElementById('vLux').textContent = lux >= 1000 ? (lux/1000).toFixed(1)+' klx' : lux.toFixed(1)+' lx';
+  recalc();
+});
+EL.bindSlider('sRdark', v => {
+  rdark = Math.pow(10, v);
+  document.getElementById('vRdark').textContent = EL.fmtR(rdark);
+  recalc();
+});
+EL.bindSlider('sGamma', v => {
+  gamma = v;
+  document.getElementById('vGamma').textContent = v.toFixed(2);
+  recalc();
+});
+EL.bindSlider('sR2', v => {
+  R2 = Math.pow(10, v);
+  document.getElementById('vR2').textContent = EL.fmtR(R2);
+  recalc();
+});
+
+/* ── CHART ── */
+function drawChart(cvs) {
+  if (!cvs || cvs.offsetWidth === 0) return;
+  const { ctx, w, h } = EL.setupChart(cvs, '#ffee44');
+  const pad = { l: 44, r: 10, t: 10, b: 30 };
+  ctx.clearRect(0, 0, w, h);
+  EL.drawGrid(ctx, w, h, pad);
+  EL.drawAxes(ctx, w, h, pad, 'Illuminance (lx) →', 'R (Ω)');
+
+  // Axis labels log scale
+  const logMin = 0, logMax = 5;
+  ctx.fillStyle = 'rgba(160,130,200,0.6)';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'center';
+  ['0.1', '1', '10', '100', '1k', '10k', '100k'].forEach((lb, i) => {
+    const lv = -1 + i;
+    const x = pad.l + (lv - logMin) / (logMax - logMin) * (w - pad.l - pad.r);
+    if (x >= pad.l && x <= w - pad.r) ctx.fillText(lb, x, h - 4);
+  });
+
+  const k = calcK(rdark, gamma);
+  const rMin = k * Math.pow(1e5, -gamma), rMax = k * Math.pow(0.1, -gamma);
+  const logRMin = Math.log10(Math.max(rMin, 1));
+  const logRMax = Math.log10(Math.max(rMax, 1));
+
+  // Draw R vs lux line
+  ctx.beginPath();
+  ctx.strokeStyle = '#ffee44';
+  ctx.lineWidth = 2;
+  for (let px = 0; px <= w - pad.l - pad.r; px++) {
+    const logE = logMin + px / (w - pad.l - pad.r) * (logMax - logMin);
+    const E = Math.pow(10, logE);
+    const R = k * Math.pow(E, -gamma);
+    const logR = Math.log10(Math.max(R, 1));
+    const x = pad.l + px;
+    const y = pad.t + (1 - (logR - logRMin) / (logRMax - logRMin)) * (h - pad.t - pad.b);
+    if (px === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Operating point
+  const logE_op = Math.log10(lux);
+  const R_op = k * Math.pow(lux, -gamma);
+  const logR_op = Math.log10(Math.max(R_op, 1));
+  const opX = pad.l + (logE_op - logMin) / (logMax - logMin) * (w - pad.l - pad.r);
+  const opY = pad.t + (1 - (logR_op - logRMin) / (logRMax - logRMin)) * (h - pad.t - pad.b);
+  EL.drawOpPoint(ctx, opX, opY, '#ffee44');
+}
+
+function drawAll() {
+  drawChart(document.getElementById('curve1'));
+  drawChart(document.getElementById('curve1-desk'));
+}
+
+/* ── ANIMATION ── */
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+  pivot.rotation.y += 0.4 * dt;
+  renderer.render(scene, camera);
+  if (ts % 80 < 20) drawAll();
+}
+
+recalc();
+animate(0);
+</script>
+<script src="../shared/nav.js"></script>
+</body>
+</html>

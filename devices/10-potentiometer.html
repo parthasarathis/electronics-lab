@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>Potentiometer | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#44aaff;--accent2:#88ccff;--accent-rgb:68,170,255}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">10 / 150</span>
+    <span class="dev-name">Potentiometer</span>
+    <span class="dev-cat">Passive · Variable Resistor</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">10 Potentiometer</div>
+<div id="body">
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">POT — Adjustable Voltage Divider</div>
+    <div class="canvas-overlay" id="badge">—</div>
+  </div>
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Live Values</div>
+      <div class="kvgrid cols3">
+        <div class="kv"><label>Position</label><div class="val c1" id="dPos">—</div></div>
+        <div class="kv"><label>R_total</label><div class="val c2" id="dRtot">—</div></div>
+        <div class="kv"><label>R_wiper</label><div class="val c3" id="dRw">—</div></div>
+        <div class="kv"><label>Vout (NL)</label><div class="val c4" id="dVnl">—</div></div>
+        <div class="kv"><label>Vout (Load)</label><div class="val c5" id="dVl">—</div></div>
+        <div class="kv"><label>Load Err</label><div class="val c6" id="dErr">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">V<sub>out</sub> = V<sub>in</sub>·k</div><div class="fd">Linear Taper</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">V<sub>out</sub> = V<sub>in</sub>·k²</div><div class="fd">Log Taper</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">R<sub>w</sub> = R·k</div><div class="fd">Wiper Resistance</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Controls</div>
+      <div class="srow">
+        <span class="sl">Pos</span>
+        <input type="range" id="sPos" min="0" max="100" value="50" step="1">
+        <span class="sval" id="vPos">50%</span>
+      </div>
+      <div class="srow">
+        <span class="sl">R_total</span>
+        <input type="range" id="sRtot" min="2" max="6" value="4" step="0.01">
+        <span class="sval" id="vRtot">10.0 kΩ</span>
+      </div>
+      <div class="srow">
+        <span class="sl">V_in</span>
+        <input type="range" id="sVin" min="0" max="24" value="5" step="0.1">
+        <span class="sval" id="vVin">5.0 V</span>
+      </div>
+      <div class="srow">
+        <span class="sl">R_load</span>
+        <input type="range" id="sRload" min="3" max="6" value="4" step="0.01">
+        <span class="sval" id="vRload">10.0 kΩ</span>
+      </div>
+      <div class="ptitle" style="margin-top:8px">Taper Type</div>
+      <div class="btn-row">
+        <button class="mbt on" id="btnLin" onclick="setTaper('linear',this)">Linear</button>
+        <button class="mbt" id="btnLog" onclick="setTaper('log',this)">Log</button>
+        <button class="mbt" id="btnAnti" onclick="setTaper('antilog',this)">Anti-log</button>
+      </div>
+    </div>
+
+    <div class="panel curve-panel-main">
+      <div class="ptitle">Vout vs Position</div>
+      <canvas id="curve1" class="chart-canvas" style="height:140px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Teaching Points</div>
+      <div class="facts">
+        · Linear taper: Vout proportional to position<br>
+        · Log (audio) taper: mimics <span>human hearing perception</span><br>
+        · Loading error increases when R_load ≈ R_wiper<br>
+        · Rule of thumb: R_load should be <span>&gt; 10× R_total</span><br>
+        · Anti-log = reverse log response curve<br>
+        · Precision pots: <span>±0.1%</span> linearity achievable
+      </div>
+    </div>
+
+  </div>
+  <div id="curve-section">
+    <div class="panel" style="flex:1;display:flex;flex-direction:column">
+      <div class="ptitle">Vout vs Position</div>
+      <canvas id="curve1-desk" class="chart-canvas" style="flex:1;min-height:0"></canvas>
+    </div>
+  </div>
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+/* ── STATE ── */
+let pos = 50, Rtot = 1e4, Vin = 5, Rload = 1e4, taper = 'linear';
+let wiperDot, shaft, pivot;
+let lastTS = 0;
+
+/* ── 3D SCENE ── */
+const { renderer, scene, camera } = EL.initScene('c3d');
+EL.initLights(scene, '#44aaff');
+pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+scene.add(pivot);
+
+// Pot body (flat grey cylinder)
+const bodyGeo = new THREE.CylinderGeometry(1.4, 1.4, 0.5, 32);
+const bodyMat = new THREE.MeshPhongMaterial({ color: 0x444455, shininess: 30 });
+const body = new THREE.Mesh(bodyGeo, bodyMat);
+pivot.add(body);
+
+// Shaft
+const shaftGeo = new THREE.CylinderGeometry(0.15, 0.15, 1.2, 16);
+shaft = new THREE.Mesh(shaftGeo, new THREE.MeshPhongMaterial({ color: 0xaaaacc, shininess: 60 }));
+shaft.position.set(0, 0.85, 0);
+pivot.add(shaft);
+
+// Wiper dot on face
+const dotGeo = new THREE.SphereGeometry(0.18, 12, 12);
+wiperDot = new THREE.Mesh(dotGeo, new THREE.MeshPhongMaterial({ color: 0x44aaff, emissive: 0x224488 }));
+pivot.add(wiperDot);
+
+// Terminals (3 pins at bottom)
+const pinGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.9, 8);
+const pinMat = new THREE.MeshPhongMaterial({ color: 0xddddaa });
+[-0.8, 0, 0.8].forEach((x, i) => {
+  const pin = new THREE.Mesh(pinGeo, pinMat);
+  pin.position.set(x, -0.7, 0);
+  pivot.add(pin);
+});
+
+camera.position.set(0, 1.5, 5.5);
+
+function updateWiperDot() {
+  const angle = (pos / 100) * Math.PI * 1.4 - Math.PI * 0.7;
+  const r = 0.9;
+  wiperDot.position.set(Math.sin(angle) * r, 0.28, Math.cos(angle) * r);
+  shaft.rotation.y = -angle;
+}
+
+/* ── PHYSICS ── */
+function taperK(k, type) {
+  if (type === 'linear') return k;
+  if (type === 'log') return k <= 0 ? 0 : Math.pow(k, 2);
+  return k <= 0 ? 0 : 1 - Math.pow(1 - k, 2); // antilog
+}
+
+function recalc() {
+  const k = pos / 100;
+  const tk = taperK(k, taper);
+  const Rw = Rtot * k;          // actual resistance from A to wiper
+  const Vnl = Vin * tk;
+  // With load: parallel of (Rtot*(1-k)) and Rload, then divider
+  const Rbottom = Rtot * (1 - k);
+  const Rpar = (Rbottom * Rload) / (Rbottom + Rload);
+  const Vl = Vin * Rpar / (Rtot * k + Rpar);
+  const loadErr = Vnl > 0 ? Math.abs((Vnl - Vl) / Vnl) * 100 : 0;
+
+  document.getElementById('dPos').textContent = pos.toFixed(0) + ' %';
+  document.getElementById('dRtot').textContent = EL.fmtR(Rtot);
+  document.getElementById('dRw').textContent = EL.fmtR(Rw);
+  document.getElementById('dVnl').textContent = EL.fmtV(Vnl);
+  document.getElementById('dVl').textContent = EL.fmtV(Vl);
+  document.getElementById('dErr').textContent = loadErr.toFixed(1) + ' %';
+  document.getElementById('badge').textContent = EL.fmtV(Vnl);
+
+  updateWiperDot();
+  drawAll();
+}
+
+/* ── CONTROLS ── */
+function setTaper(t, btn) {
+  taper = t;
+  document.querySelectorAll('.btn-row .mbt').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  recalc();
+}
+
+EL.bindSlider('sPos', v => { pos = v; document.getElementById('vPos').textContent = v.toFixed(0)+'%'; recalc(); });
+EL.bindSlider('sRtot', v => { Rtot = Math.pow(10, v); document.getElementById('vRtot').textContent = EL.fmtR(Rtot); recalc(); });
+EL.bindSlider('sVin', v => { Vin = v; document.getElementById('vVin').textContent = v.toFixed(1)+' V'; recalc(); });
+EL.bindSlider('sRload', v => { Rload = Math.pow(10, v); document.getElementById('vRload').textContent = EL.fmtR(Rload); recalc(); });
+
+/* ── CHART ── */
+function drawChart(cvs) {
+  if (!cvs || cvs.offsetWidth === 0) return;
+  const { ctx, w, h } = EL.setupChart(cvs, '#44aaff');
+  const pad = { l: 42, r: 10, t: 10, b: 30 };
+  ctx.clearRect(0, 0, w, h);
+  EL.drawGrid(ctx, w, h, pad);
+  EL.drawAxes(ctx, w, h, pad, 'Position (%) →', 'Vout (V)');
+
+  const colors = { linear: '#44aaff', log: '#ff8844', antilog: '#44ff88' };
+
+  ['linear', 'log', 'antilog'].forEach(tp => {
+    ctx.beginPath();
+    ctx.strokeStyle = colors[tp];
+    ctx.lineWidth = tp === taper ? 2.5 : 1;
+    ctx.globalAlpha = tp === taper ? 1 : 0.45;
+    for (let px = 0; px <= w - pad.l - pad.r; px++) {
+      const k = px / (w - pad.l - pad.r);
+      const tk = taperK(k, tp);
+      const v = Vin * tk;
+      const x = pad.l + px;
+      const y = pad.t + (1 - v / Math.max(Vin, 0.001)) * (h - pad.t - pad.b);
+      if (px === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  });
+
+  // Op point for active taper
+  const k_op = pos / 100;
+  const tk_op = taperK(k_op, taper);
+  const v_op = Vin * tk_op;
+  const opX = pad.l + k_op * (w - pad.l - pad.r);
+  const opY = pad.t + (1 - v_op / Math.max(Vin, 0.001)) * (h - pad.t - pad.b);
+  EL.drawOpPoint(ctx, opX, opY, '#44aaff');
+
+  // Legend
+  ctx.font = '7px Courier New'; ctx.textAlign = 'left';
+  Object.entries(colors).forEach(([tp, col], i) => {
+    ctx.fillStyle = col;
+    ctx.fillRect(pad.l + 2, pad.t + i * 14, 14, 3);
+    ctx.fillText(tp, pad.l + 18, pad.t + i * 14 + 4);
+  });
+}
+
+function drawAll() {
+  drawChart(document.getElementById('curve1'));
+  drawChart(document.getElementById('curve1-desk'));
+}
+
+/* ── ANIMATION ── */
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+  pivot.rotation.y += 0.3 * dt;
+  renderer.render(scene, camera);
+  if (ts % 80 < 20) drawAll();
+}
+
+recalc();
+animate(0);
+</script>
+<script src="../shared/nav.js"></script>
+</body>
+</html>

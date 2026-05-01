@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>Transformer | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ff8844;--accent2:#ffaa66;--accent-rgb:255,136,68}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">04 / 150</span>
+    <span class="dev-name">Transformer</span>
+    <span class="dev-cat">Passive · Electromagnetic Coupling</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">04 Transformer</div>
+
+<div id="body">
+
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">T — Mutual Inductance</div>
+    <div class="canvas-overlay" id="badge">n = 1:1</div>
+  </div>
+
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Live Values</div>
+      <div class="kvgrid cols3">
+        <div class="kv"><label>Primary V</label><div class="val c1" id="dVp">—</div></div>
+        <div class="kv"><label>Secondary V</label><div class="val c2" id="dVs">—</div></div>
+        <div class="kv"><label>Primary I</label><div class="val c3" id="dIp">—</div></div>
+        <div class="kv"><label>Secondary I</label><div class="val c4" id="dIs">—</div></div>
+        <div class="kv"><label>Output Power</label><div class="val c5" id="dPout">—</div></div>
+        <div class="kv"><label>Efficiency η</label><div class="val c6" id="dEta">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">Vs/Vp = Ns/Np = n</div><div class="fd">Turns ratio</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">Ip/Is = Ns/Np</div><div class="fd">Current ratio</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">η = Pout/Pin</div><div class="fd">Efficiency</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Controls</div>
+      <div class="srow">
+        <span class="sl">Turn Ratio n</span>
+        <input type="range" id="sRatio" min="1" max="20" value="4" step="1">
+        <span class="sval" id="vRatio">1:4</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Primary V</span>
+        <input type="range" id="sVp" min="1" max="240" value="120" step="1">
+        <span class="sval" id="vVp">120 V</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Load R (Ω)</span>
+        <input type="range" id="sLoad" min="0" max="100" value="40" step="1">
+        <span class="sval" id="vLoad">100 Ω</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Efficiency %</span>
+        <input type="range" id="sEta" min="80" max="99" value="95" step="1">
+        <span class="sval" id="vEta">95%</span>
+      </div>
+    </div>
+
+    <div class="panel curve-panel-main">
+      <div class="ptitle">Vs vs Turn Ratio n</div>
+      <canvas class="chart-canvas" id="curve1" style="flex:1;min-height:140px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">About Transformers</div>
+      <div class="facts">
+        • Ideal transformer: <span>Lossless, perfect coupling</span><br>
+        • Core loss: <span>Hysteresis + eddy current losses</span><br>
+        • Magnetizing current: <span>Needed to establish flux</span><br>
+        • Isolation voltage: <span>Primary-secondary galvanic isolation</span><br>
+        • EI core: <span>Cheap, common in power supply</span><br>
+        • Toroidal: <span>Low EMI, high efficiency, quiet</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="curve-section">
+    <div class="panel" style="flex:1;display:flex;flex-direction:column">
+      <div class="ptitle">Vs vs Turn Ratio n — Vs = Vp · n</div>
+      <canvas class="chart-canvas" id="curve1-desk" style="flex:1;min-height:160px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Power Flow</div>
+      <div class="kv"><label>Input Power</label><div class="val c1" id="dPin">—</div></div>
+      <div class="kv"><label>Output Power</label><div class="val c5" id="dPout2">—</div></div>
+      <div class="kv"><label>Core Loss</label><div class="val c6" id="dLoss">—</div></div>
+      <div class="bar-wrap"><div class="bar-fill" id="ebar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── STATE
+let nRatio = 4, vpV = 120, loadLog = 40, etaPct = 95;
+
+function getLoad() {
+  return Math.pow(10, EL.mapRange(loadLog, 0, 100, 1, 4));
+}
+
+// ── THREE.JS SCENE
+const { renderer, scene, camera } = EL.initScene('c3d');
+EL.initLights(scene, '#ff8844');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+scene.add(pivot);
+
+// E-core (ferrite dark brown)
+const coreMat = new THREE.MeshPhongMaterial({ color: 0x3a2010, shininess: 20 });
+
+// E-core: 3 legs
+const legGeo = new THREE.BoxGeometry(0.35, 2.2, 0.9);
+for (let i = -1; i <= 1; i++) {
+  const leg = new THREE.Mesh(legGeo, coreMat);
+  leg.position.set(i * 0.9, 0, 0);
+  pivot.add(leg);
+}
+// Top & bottom bars
+const barGeo = new THREE.BoxGeometry(2.5, 0.35, 0.9);
+const topBar = new THREE.Mesh(barGeo, coreMat);
+topBar.position.y = 1.1;
+pivot.add(topBar);
+const botBar = new THREE.Mesh(barGeo, coreMat);
+botBar.position.y = -1.1;
+pivot.add(botBar);
+
+// Primary winding (yellow)
+const priMat = new THREE.MeshPhongMaterial({ color: 0xffdd00, shininess: 70 });
+for (let i = 0; i < 10; i++) {
+  const turnGeo = new THREE.TorusGeometry(0.38, 0.055, 8, 20, Math.PI * 2);
+  const turn = new THREE.Mesh(turnGeo, priMat);
+  turn.position.set(-0.9, EL.lerp(-0.7, 0.7, i / 9), 0);
+  turn.rotation.y = Math.PI / 2;
+  pivot.add(turn);
+}
+
+// Secondary winding (orange)
+const secMat = new THREE.MeshPhongMaterial({ color: 0xff7722, shininess: 70 });
+for (let i = 0; i < 14; i++) {
+  const turnGeo = new THREE.TorusGeometry(0.38, 0.055, 8, 20, Math.PI * 2);
+  const turn = new THREE.Mesh(turnGeo, secMat);
+  turn.position.set(0.9, EL.lerp(-0.8, 0.8, i / 13), 0);
+  turn.rotation.y = Math.PI / 2;
+  pivot.add(turn);
+}
+
+// Flux arrows (InstancedMesh)
+const fluxCount = 30;
+const fGeo = new THREE.SphereGeometry(0.055, 6, 6);
+const fMat = new THREE.MeshPhongMaterial({ color: 0xff8844, emissive: 0xaa4422, transparent: true, opacity: 0.8 });
+const fInst = new THREE.InstancedMesh(fGeo, fMat, fluxCount);
+fInst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+pivot.add(fInst);
+
+const glow = new THREE.PointLight(0xff8844, 1, 5);
+pivot.add(glow);
+
+let lastTS = 0, phase = 0;
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+  phase += dt;
+
+  pivot.rotation.y += 0.003;
+
+  const dummy = new THREE.Object3D();
+  // Flux flows through E-core center leg up, outer legs down
+  for (let i = 0; i < fluxCount; i++) {
+    const t = ((i / fluxCount) + phase * 0.35) % 1;
+    let x, y;
+    if (t < 0.33) {
+      // Center leg going up
+      x = 0; y = EL.lerp(-0.9, 0.9, t / 0.33);
+    } else if (t < 0.5) {
+      // Top bar right
+      x = EL.lerp(0, -0.9, (t - 0.33) / 0.17); y = 0.95;
+    } else if (t < 0.67) {
+      // Left leg down
+      x = -0.9; y = EL.lerp(0.9, -0.9, (t - 0.5) / 0.17);
+    } else if (t < 0.83) {
+      // Bottom bar center
+      x = EL.lerp(-0.9, 0.9, (t - 0.67) / 0.16); y = -0.95;
+    } else {
+      // Right leg join
+      x = 0.9; y = EL.lerp(-0.9, 0, (t - 0.83) / 0.17);
+    }
+    dummy.position.set(x, y, 0);
+    dummy.scale.setScalar(0.8);
+    dummy.updateMatrix();
+    fInst.setMatrixAt(i, dummy.matrix);
+  }
+  fInst.instanceMatrix.needsUpdate = true;
+
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(animate);
+
+// ── CALC
+function recalc() {
+  const n = nRatio;
+  const Vp = vpV;
+  const Vs = Vp * n;
+  const R = getLoad();
+  const eta = etaPct / 100;
+  const Is = Vs / R;
+  const Pout = Vs * Is;
+  const Pin = Pout / eta;
+  const Ip = Pin / Vp;
+  const Ploss = Pin - Pout;
+
+  document.getElementById('dVp').textContent = EL.fmtV(Vp);
+  document.getElementById('dVs').textContent = EL.fmtV(Vs);
+  document.getElementById('dIp').textContent = EL.fmtI(Ip);
+  document.getElementById('dIs').textContent = EL.fmtI(Is);
+  document.getElementById('dPout').textContent = EL.fmtP(Pout);
+  document.getElementById('dEta').textContent = (eta * 100).toFixed(0) + '%';
+  document.getElementById('badge').textContent = '1:' + n;
+
+  const dPin = document.getElementById('dPin');
+  if (dPin) dPin.textContent = EL.fmtP(Pin);
+  const dPout2 = document.getElementById('dPout2');
+  if (dPout2) dPout2.textContent = EL.fmtP(Pout);
+  const dLoss = document.getElementById('dLoss');
+  if (dLoss) dLoss.textContent = EL.fmtP(Ploss);
+  const ebar = document.getElementById('ebar');
+  if (ebar) {
+    ebar.style.width = (eta * 100) + '%';
+    ebar.style.background = eta > 0.9 ? 'var(--accent)' : eta > 0.8 ? '#ffcc33' : '#ff4444';
+  }
+
+  drawCurve();
+}
+
+function drawCurve() {
+  ['curve1', 'curve1-desk'].forEach(id => {
+    const cvs = document.getElementById(id);
+    if (!cvs || !cvs.offsetWidth || !cvs.offsetHeight) return;
+    const w = cvs.offsetWidth, h = cvs.offsetHeight;
+    cvs.width = w * (devicePixelRatio || 1);
+    cvs.height = h * (devicePixelRatio || 1);
+    const ctx = cvs.getContext('2d');
+    ctx.scale(devicePixelRatio || 1, devicePixelRatio || 1);
+    const pad = { l: 46, r: 10, t: 12, b: 30 };
+    ctx.clearRect(0, 0, w, h);
+    EL.drawGrid(ctx, w, h, pad);
+    EL.drawAxes(ctx, w, h, pad, 'Turn Ratio n (1:n)', 'Secondary Voltage (V)');
+
+    const Vp = vpV;
+    const nMax = 20;
+    const vsMax = Vp * nMax;
+
+    ctx.fillStyle = 'rgba(160,130,200,0.7)';
+    ctx.font = '8px Courier New';
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= 4; i++) {
+      const y = pad.t + (h - pad.t - pad.b) * (1 - i / 4);
+      ctx.fillText(EL.fmtV(vsMax * i / 4), pad.l - 2, y + 3);
+    }
+    ctx.textAlign = 'center';
+    for (let i = 0; i <= 4; i++) {
+      const x = pad.l + (w - pad.l - pad.r) * i / 4;
+      ctx.fillText('1:' + Math.round(nMax * i / 4), x, h - pad.b + 12);
+    }
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#ff8844';
+    ctx.lineWidth = 2;
+    for (let i = 0; i <= 60; i++) {
+      const ni = nMax * i / 60;
+      const vs = Vp * ni;
+      const px = pad.l + (w - pad.l - pad.r) * (ni / nMax);
+      const py = pad.t + (h - pad.t - pad.b) * (1 - vs / vsMax);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    const opX = pad.l + (w - pad.l - pad.r) * (nRatio / nMax);
+    const opY = pad.t + (h - pad.t - pad.b) * (1 - (Vp * nRatio) / vsMax);
+    EL.drawOpPoint(ctx, opX, opY, '#ff8844');
+  });
+}
+
+document.getElementById('sRatio').addEventListener('input', e => {
+  nRatio = +e.target.value;
+  document.getElementById('vRatio').textContent = '1:' + nRatio;
+  recalc();
+});
+document.getElementById('sVp').addEventListener('input', e => {
+  vpV = +e.target.value;
+  document.getElementById('vVp').textContent = vpV + ' V';
+  recalc();
+});
+document.getElementById('sLoad').addEventListener('input', e => {
+  loadLog = +e.target.value;
+  document.getElementById('vLoad').textContent = EL.fmtR(getLoad());
+  recalc();
+});
+document.getElementById('sEta').addEventListener('input', e => {
+  etaPct = +e.target.value;
+  document.getElementById('vEta').textContent = etaPct + '%';
+  recalc();
+});
+
+recalc();
+document.getElementById('vLoad').textContent = EL.fmtR(getLoad());
+window.addEventListener('resize', drawCurve);
+</script>
+<script src="../shared/nav.js"></script>
+</body>
+</html>

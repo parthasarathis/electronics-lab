@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>Capacitor | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#33ffcc;--accent2:#88ffee;--accent-rgb:51,255,204}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">02 / 150</span>
+    <span class="dev-name">Capacitor</span>
+    <span class="dev-cat">Passive · Energy Storage</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">02 Capacitor</div>
+
+<div id="body">
+
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">C — Electric Field Storage</div>
+    <div class="canvas-overlay" id="badge">—</div>
+  </div>
+
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Live Values</div>
+      <div class="kvgrid cols3">
+        <div class="kv"><label>Capacitance</label><div class="val c1" id="dC">—</div></div>
+        <div class="kv"><label>Voltage</label><div class="val c2" id="dV">—</div></div>
+        <div class="kv"><label>Charge Q</label><div class="val c3" id="dQ">—</div></div>
+        <div class="kv"><label>Energy E</label><div class="val c4" id="dE">—</div></div>
+        <div class="kv"><label>Reactance Xc</label><div class="val c5" id="dXc">—</div></div>
+        <div class="kv"><label>Time Const τ</label><div class="val c6" id="dTau">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">Q = C·V</div><div class="fd">Charge</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">E = ½CV²</div><div class="fd">Energy</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">Xc = 1/(2πfC)</div><div class="fd">Reactance</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">τ = RC</div><div class="fd">Time Const</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Controls</div>
+      <div class="srow">
+        <span class="sl">Capacitance</span>
+        <input type="range" id="sCap" min="0" max="100" value="40" step="1">
+        <span class="sval" id="vCap">100 µF</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Voltage (V)</span>
+        <input type="range" id="sVolt" min="0" max="50" value="12" step="0.5">
+        <span class="sval" id="vVolt">12.0 V</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Frequency</span>
+        <input type="range" id="sFreq" min="0" max="100" value="30" step="1">
+        <span class="sval" id="vFreq">1.0 kHz</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Temperature</span>
+        <input type="range" id="sTemp" min="-40" max="85" value="25" step="1">
+        <span class="sval" id="vTemp">25 °C</span>
+      </div>
+    </div>
+
+    <div class="panel curve-panel-main">
+      <div class="ptitle">Charge/Discharge Curve</div>
+      <canvas class="chart-canvas" id="curve1" style="flex:1;min-height:140px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">About Capacitors</div>
+      <div class="facts">
+        • Electrolytic: <span>High C, polarized, 1µF–10mF</span><br>
+        • Ceramic (MLCC): <span>Non-polarized, fast, pF–10µF</span><br>
+        • Film: <span>Self-healing, low ESR, stable</span><br>
+        • Polarization: <span>Electrolytic reversed → failure</span><br>
+        • ESR: <span>Equivalent series resistance, key spec</span><br>
+        • Dielectric: <span>Ceramic, tantalum, polyester, PTFE</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="curve-section">
+    <div class="panel" style="flex:1;display:flex;flex-direction:column">
+      <div class="ptitle">Charge/Discharge Curve — V(t) = Vmax·(1−e^(−t/τ))</div>
+      <canvas class="chart-canvas" id="curve1-desk" style="flex:1;min-height:160px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Energy Bar</div>
+      <div class="kv"><label>Stored Energy</label><div class="val c4" id="dE2">—</div></div>
+      <div class="bar-wrap"><div class="bar-fill" id="ebar" style="width:0%"></div></div>
+      <div class="kv" style="margin-top:6px"><label>Charge Q</label><div class="val c1" id="dQ2">—</div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── STATE
+let capLog = 40; // 0-100 maps to 1nF-1000µF log
+let voltV = 12, freqLog = 30, tempC = 25;
+
+function getCap() {
+  // log scale: 0→1nF, 100→1000µF
+  return Math.pow(10, EL.mapRange(capLog, 0, 100, -9, -3));
+}
+function getFreq() {
+  return Math.pow(10, EL.mapRange(freqLog, 0, 100, 0, 6));
+}
+
+// ── THREE.JS SCENE
+const { renderer, scene, camera } = EL.initScene('c3d');
+EL.initLights(scene, '#33ffcc');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+scene.add(pivot);
+
+// Cap body — cylinder
+const capGeo = new THREE.CylinderGeometry(0.7, 0.7, 2.2, 32);
+const capMat = new THREE.MeshPhongMaterial({ color: 0x1a1a2e, shininess: 60 });
+const capMesh = new THREE.Mesh(capGeo, capMat);
+pivot.add(capMesh);
+
+// Top silver cap
+const topGeo = new THREE.CylinderGeometry(0.72, 0.72, 0.12, 32);
+const topMat = new THREE.MeshPhongMaterial({ color: 0xcccccc, shininess: 120 });
+const topMesh = new THREE.Mesh(topGeo, topMat);
+topMesh.position.y = 1.16;
+pivot.add(topMesh);
+
+// Polarity stripe
+const stripeGeo = new THREE.CylinderGeometry(0.71, 0.71, 2.2, 32, 1, true, 0, 0.6);
+const stripeMat = new THREE.MeshPhongMaterial({ color: 0xaaaaaa, side: THREE.BackSide });
+const stripeMesh = new THREE.Mesh(stripeGeo, stripeMat);
+pivot.add(stripeMesh);
+
+// Leads
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xdddddd, shininess: 80 });
+const leadGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.2, 8);
+const lead1 = new THREE.Mesh(leadGeo, leadMat);
+lead1.position.set(-0.25, -1.7, 0);
+pivot.add(lead1);
+const lead2 = new THREE.Mesh(leadGeo, leadMat);
+lead2.position.set(0.25, -1.7, 0);
+pivot.add(lead2);
+
+// E-field particles (InstancedMesh spheres between plates)
+const pCount = 40;
+const pGeo = new THREE.SphereGeometry(0.06, 8, 8);
+const pMat = new THREE.MeshPhongMaterial({
+  color: 0x33ffcc, emissive: 0x00aa88, transparent: true, opacity: 0.8
+});
+const pInst = new THREE.InstancedMesh(pGeo, pMat, pCount);
+pInst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+pivot.add(pInst);
+
+// Point light for glow
+const glow = new THREE.PointLight(0x33ffcc, 0, 4);
+pivot.add(glow);
+
+// ── ANIMATION
+let lastTS = 0, phase = 0;
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+  phase += dt;
+
+  // Rotate
+  if (!window._dragging) pivot.rotation.y += 0.004;
+
+  // Animate E-field particles inside the cap
+  const C = getCap();
+  const E = 0.5 * C * voltV * voltV;
+  const intensity = Math.min(voltV / 50, 1);
+  glow.intensity = intensity * 1.5;
+
+  const dummy = new THREE.Object3D();
+  for (let i = 0; i < pCount; i++) {
+    const t = (i / pCount + phase * 0.3) % 1;
+    const r = 0.55 * Math.sqrt(Math.random() < 0.01 ? Math.random() : (i % 10) / 10);
+    const ang = (i / pCount) * Math.PI * 2;
+    const y = EL.lerp(-0.8, 0.8, t);
+    dummy.position.set(
+      0.55 * Math.cos(ang + phase * 0.1),
+      y,
+      0.55 * Math.sin(ang + phase * 0.1)
+    );
+    const s = 0.5 + 0.5 * intensity;
+    dummy.scale.setScalar(s);
+    dummy.updateMatrix();
+    pInst.setMatrixAt(i, dummy.matrix);
+  }
+  pInst.instanceMatrix.needsUpdate = true;
+  pMat.opacity = 0.3 + 0.6 * intensity;
+
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(animate);
+
+// ── CALC
+function recalc() {
+  const C = getCap();
+  const V = voltV;
+  const f = getFreq();
+  const Q = C * V;
+  const E = 0.5 * C * V * V;
+  const Xc = 1 / (2 * Math.PI * f * C);
+  const R_ref = 1000; // 1kΩ reference
+  const tau = R_ref * C;
+
+  document.getElementById('dC').textContent = EL.fmtC(C);
+  document.getElementById('dV').textContent = EL.fmtV(V);
+  document.getElementById('dQ').textContent = EL.fmtC(Q); // Q in coulombs, same scale
+  document.getElementById('dE').textContent = EL.fmtP(E).replace('W','J');
+  document.getElementById('dXc').textContent = EL.fmtR(Xc);
+  document.getElementById('dTau').textContent = tau >= 1 ? tau.toFixed(2) + ' s' : tau >= 0.001 ? (tau * 1000).toFixed(1) + ' ms' : (tau * 1e6).toFixed(0) + ' µs';
+  document.getElementById('badge').textContent = EL.fmtC(C);
+
+  const dE2 = document.getElementById('dE2');
+  if (dE2) dE2.textContent = EL.fmtP(E).replace('W','J');
+  const dQ2 = document.getElementById('dQ2');
+  if (dQ2) dQ2.textContent = EL.fmtC(Q);
+  const ebar = document.getElementById('ebar');
+  if (ebar) {
+    const pct = Math.min(E / 0.125, 1); // rated: 0.125J
+    ebar.style.width = (pct * 100) + '%';
+    ebar.style.background = pct < 0.7 ? 'var(--accent)' : pct < 0.9 ? '#ffcc33' : '#ff4444';
+  }
+
+  drawCurve();
+}
+
+function drawCurve() {
+  ['curve1', 'curve1-desk'].forEach(id => {
+    const cvs = document.getElementById(id);
+    if (!cvs || !cvs.offsetWidth || !cvs.offsetHeight) return;
+    const w = cvs.offsetWidth, h = cvs.offsetHeight;
+    cvs.width = w * (devicePixelRatio || 1);
+    cvs.height = h * (devicePixelRatio || 1);
+    const ctx = cvs.getContext('2d');
+    ctx.scale(devicePixelRatio || 1, devicePixelRatio || 1);
+    const pad = { l: 42, r: 10, t: 12, b: 30 };
+    ctx.clearRect(0, 0, w, h);
+    EL.drawGrid(ctx, w, h, pad);
+    EL.drawAxes(ctx, w, h, pad, 'Time (τ)', 'Voltage (V)');
+
+    const C = getCap(), R_ref = 1000, tau = R_ref * C;
+    const Vmax = voltV;
+    const Npts = 80;
+    const tMax = 5 * tau;
+
+    // Axis labels
+    ctx.fillStyle = 'rgba(160,130,200,0.7)';
+    ctx.font = '8px Courier New';
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= 4; i++) {
+      const y = pad.t + (h - pad.t - pad.b) * (1 - i / 4);
+      ctx.fillText((Vmax * i / 4).toFixed(1) + 'V', pad.l - 2, y + 3);
+    }
+    ctx.textAlign = 'center';
+    for (let i = 0; i <= 5; i++) {
+      const x = pad.l + (w - pad.l - pad.r) * i / 5;
+      ctx.fillText(i + 'τ', x, h - pad.b + 12);
+    }
+
+    // Charge curve
+    ctx.beginPath();
+    ctx.strokeStyle = '#33ffcc';
+    ctx.lineWidth = 2;
+    for (let i = 0; i <= Npts; i++) {
+      const t = tMax * i / Npts;
+      const Vt = Vmax * (1 - Math.exp(-t / tau));
+      const px = pad.l + (w - pad.l - pad.r) * (t / tMax);
+      const py = pad.t + (h - pad.t - pad.b) * (1 - Vt / Vmax);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // Discharge curve (dashed)
+    ctx.beginPath();
+    ctx.setLineDash([4, 3]);
+    ctx.strokeStyle = 'rgba(136,255,238,0.5)';
+    ctx.lineWidth = 1.5;
+    for (let i = 0; i <= Npts; i++) {
+      const t = tMax * i / Npts;
+      const Vt = Vmax * Math.exp(-t / tau);
+      const px = pad.l + (w - pad.l - pad.r) * (t / tMax);
+      const py = pad.t + (h - pad.t - pad.b) * (1 - Vt / Vmax);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Op point at t = 1τ
+    const Vop = Vmax * (1 - Math.exp(-1));
+    const opX = pad.l + (w - pad.l - pad.r) * (1 / 5);
+    const opY = pad.t + (h - pad.t - pad.b) * (1 - Vop / Vmax);
+    EL.drawOpPoint(ctx, opX, opY, '#33ffcc');
+
+    // Label 63.2%
+    ctx.fillStyle = '#33ffcc';
+    ctx.font = '8px Courier New';
+    ctx.textAlign = 'left';
+    ctx.fillText('63.2% @ τ', opX + 5, opY - 4);
+  });
+}
+
+// ── SLIDER BINDINGS
+document.getElementById('sCap').addEventListener('input', e => {
+  capLog = +e.target.value;
+  const C = getCap();
+  document.getElementById('vCap').textContent = EL.fmtC(C);
+  recalc();
+});
+document.getElementById('sVolt').addEventListener('input', e => {
+  voltV = +e.target.value;
+  document.getElementById('vVolt').textContent = voltV.toFixed(1) + ' V';
+  recalc();
+});
+document.getElementById('sFreq').addEventListener('input', e => {
+  freqLog = +e.target.value;
+  document.getElementById('vFreq').textContent = EL.fmtF(getFreq());
+  recalc();
+});
+document.getElementById('sTemp').addEventListener('input', e => {
+  tempC = +e.target.value;
+  document.getElementById('vTemp').textContent = EL.fmtT(tempC);
+  recalc();
+});
+
+// Init
+recalc();
+document.getElementById('vCap').textContent = EL.fmtC(getCap());
+document.getElementById('vFreq').textContent = EL.fmtF(getFreq());
+
+// Redraw on resize
+window.addEventListener('resize', drawCurve);
+</script>
+<script src="../shared/nav.js"></script>
+</body>
+</html>

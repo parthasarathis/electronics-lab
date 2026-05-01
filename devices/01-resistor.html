@@ -2,668 +2,451 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<meta name="theme-color" content="#06080f">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="description" content="Resistor — Interactive 3D simulation for electronics students">
-<link rel="manifest" href="../manifest.json">
-<title>01 – Resistor | ElecLab</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>Resistor | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
 <style>
-:root{
-  --bg:#06080f;--panel:#0c1018;--panel2:#0f1520;--border:#182030;
-  --sub:#5a7090;--text:#ccd8f0;--text2:#8899bb;
-  --accent:#ff8c00;--accent2:#ffb347;--accent-rgb:255,140,0;
-  --shadow:rgba(0,0,0,.5);--radius:8px;
-}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{font-size:14px}
-body{background:var(--bg);color:var(--text);font-family:'Courier New',Courier,monospace;
-  overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
-#app{display:flex;flex-direction:column;height:100vh;width:100vw;overflow:hidden}
-#header{display:flex;align-items:center;justify-content:space-between;padding:7px 14px 6px;
-  border-bottom:1px solid var(--border);flex-shrink:0;
-  background:linear-gradient(90deg,var(--panel),#080f1a);min-height:48px;gap:8px;z-index:20}
-#header-left{display:flex;flex-direction:column;gap:2px}
-#header-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
-.dev-tag{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);
-  background:rgba(255,140,0,.1);border:1px solid rgba(255,140,0,.3);
-  padding:2px 8px;border-radius:10px;display:inline-block}
-.dev-name{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#fff;font-weight:normal}
-.dev-cat{font-size:7px;letter-spacing:2px;color:var(--sub);text-transform:uppercase}
-.dev-info{font-size:7px;color:var(--sub);letter-spacing:.5px}
-#header-compact{display:none;position:absolute;top:0;left:0;right:0;height:28px;
-  background:rgba(6,8,15,.85);align-items:center;justify-content:center;
-  font-size:8px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;z-index:30}
-#body{flex:1;display:flex;flex-direction:row;overflow:hidden;min-height:0}
-#canvas-section{position:relative;flex-shrink:0;width:100%;height:36vh;
-  background:radial-gradient(ellipse at 50% 40%,#0d1828 0%,#06080f 100%);overflow:hidden}
-#c3d{display:block;width:100%;height:100%}
-.canvas-badge{position:absolute;top:8px;left:50%;transform:translateX(-50%);
-  font-size:7px;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:10px;
-  white-space:nowrap;background:rgba(255,140,0,.1);border:1px solid rgba(255,140,0,.28);color:var(--accent2)}
-.canvas-overlay{position:absolute;top:8px;right:8px;font-size:9px;color:var(--accent2);
-  background:rgba(255,140,0,.1);border:1px solid rgba(255,140,0,.22);border-radius:8px;
-  padding:3px 8px;letter-spacing:.5px}
-#panels-section{flex:1;overflow-y:auto;padding:8px 10px 60px;display:flex;
-  flex-direction:column;gap:7px;-webkit-overflow-scrolling:touch}
-#panels-section::-webkit-scrollbar{width:3px}
-#panels-section::-webkit-scrollbar-track{background:transparent}
-#panels-section::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-#curve-section{display:none;flex-shrink:0;overflow-y:auto;padding:8px;border-left:1px solid var(--border);
-  flex-direction:column;gap:7px}
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
-  padding:8px 10px;flex-shrink:0}
-.panel-accent{border-color:rgba(255,140,0,.25);
-  background:linear-gradient(135deg,var(--panel),rgba(255,140,0,.04))}
-.ptitle{font-size:7.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--sub);
-  margin-bottom:7px;display:flex;align-items:center;gap:6px}
-.ptitle::before{content:'';display:block;width:12px;height:1px;background:var(--accent);opacity:.5}
-.kvgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.kvgrid.cols3{grid-template-columns:1fr 1fr 1fr}
-.kv label{font-size:7px;letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--sub);display:block;margin-bottom:2px}
-.kv .val{font-size:15px;font-weight:bold;letter-spacing:.5px}
-.kv .val.sm{font-size:11px}
-.c1{color:var(--accent)}.c2{color:#33ffcc}.c3{color:#ffcc33}.c4{color:#ff88aa}.c5{color:#88ff44}.c6{color:#ff8844}
-.frow{display:flex;justify-content:space-around;flex-wrap:wrap;gap:6px;
-  background:rgba(255,140,0,.05);border:1px solid rgba(255,140,0,.14);
-  border-radius:6px;padding:7px 4px}
-.fml{text-align:center;flex:1;min-width:80px}
-.fml .eq{font-size:12px;color:var(--accent2);line-height:1.4}
-.fml .fd{font-size:6.5px;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
-.fsep{color:var(--sub);font-size:14px;align-self:center}
-.srow{display:flex;align-items:center;gap:8px;margin-bottom:5px}
-.srow:last-child{margin-bottom:0}
-.srow .sl{font-size:7.5px;letter-spacing:1px;color:var(--sub);text-transform:uppercase;
-  min-width:22px;flex-shrink:0}
-.srow input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;outline:none;
-  cursor:pointer;background:var(--border)}
-.srow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;
-  border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,.75)}
-.sval{font-size:10px;min-width:64px;text-align:right;flex-shrink:0;letter-spacing:.3px}
-.btn-row{display:flex;gap:5px;flex-wrap:wrap}
-.mbt{flex:1;min-width:60px;padding:7px 4px;border-radius:18px;border:1px solid var(--border);
-  background:rgba(255,255,255,.03);color:var(--sub);font-size:8px;letter-spacing:.9px;
-  text-transform:uppercase;cursor:pointer;font-family:'Courier New',monospace;
-  transition:background .18s,border-color .18s,color .18s;-webkit-tap-highlight-color:transparent}
-.mbt.on{background:rgba(255,140,0,.14);border-color:rgba(255,140,0,.4);color:var(--accent2)}
-.mbt:active{opacity:.75}
-.bar-wrap{background:#111620;border-radius:3px;height:5px;overflow:hidden;margin-top:4px}
-.bar-fill{height:5px;border-radius:3px;transition:width .25s,background .25s}
-.chart-canvas{display:block;width:100%;border-radius:4px}
-.facts{font-size:8px;line-height:2.0;color:rgba(200,218,245,.55)}
-.facts span{color:var(--accent2)}
-@media(min-width:640px){
-  #body{flex-direction:row}
-  #canvas-section{width:48%;height:calc(100vh - 48px);border-right:1px solid var(--border)}
-  #panels-section{width:52%;height:calc(100vh - 48px)}
-  .dev-name{font-size:15px}.val{font-size:18px!important}.ptitle{font-size:8.5px!important}
-  .facts{font-size:9px}
-}
-@media(min-width:1024px){
-  #canvas-section{width:42%}
-  #panels-section{width:32%}
-  #curve-section{display:flex;width:26%;height:calc(100vh - 48px)}
-  .dev-name{font-size:16px}.val{font-size:20px!important}.kvgrid{gap:10px}
-  .panel{padding:10px 14px}.ptitle{font-size:9px!important}
-  .facts{font-size:9.5px;line-height:2.1}
-  .curve-panel-main{display:none}
-}
-@media(min-width:1440px){
-  #canvas-section{width:44%}#panels-section{width:30%}#curve-section{width:26%}
-  .val{font-size:22px!important}html{font-size:16px}
-}
-@media(max-height:500px) and (orientation:landscape){
-  #header{display:none}#header-compact{display:flex!important}
-  #body{flex-direction:row}
-  #canvas-section{width:45%;height:100vh;border-right:1px solid var(--border)}
-  #panels-section{width:55%;height:100vh;padding-top:30px}
-}
-@media(hover:none) and (pointer:coarse){
-  input[type=range]{height:6px}
-  input[type=range]::-webkit-slider-thumb{width:26px;height:26px}
-  .mbt{min-height:40px}
-}
-@media(-webkit-min-device-pixel-ratio:2){
-  .panel{border-width:.5px}#header{border-bottom-width:.5px}
-}
+:root{--accent:#ff6ec7;--accent2:#ffaadd;--accent-rgb:255,110,199}
+.band-legend{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.bleg{display:flex;align-items:center;gap:4px;font-size:7.5px;color:var(--sub);letter-spacing:.5px}
+.bleg span{width:12px;height:12px;border-radius:2px;display:block;flex-shrink:0}
 </style>
 </head>
 <body>
 <div id="app">
 
-  <div id="header-compact">01 — Resistor | ElecLab</div>
+<!-- HEADER -->
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">01 / 150</span>
+    <span class="dev-name">Resistor</span>
+    <span class="dev-cat">Passive · Ohmic Device</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
 
-  <div id="header">
-    <div id="header-left">
-      <div class="dev-tag">Device 01 / 150</div>
-      <div class="dev-name">Resistor</div>
+<div id="header-compact">01 Resistor</div>
+
+<!-- BODY -->
+<div id="body">
+
+  <!-- 3D CANVAS -->
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">R — Ohmic Element</div>
+    <div class="canvas-overlay" id="r-badge">—</div>
+  </div>
+
+  <!-- PANELS -->
+  <div id="panels-section">
+
+    <!-- LIVE VALUES -->
+    <div class="panel panel-accent">
+      <div class="ptitle">Live Values</div>
+      <div class="kvgrid cols3">
+        <div class="kv"><label>Resistance</label><div class="val c1" id="dR">—</div></div>
+        <div class="kv"><label>Current</label><div class="val c2" id="dI">—</div></div>
+        <div class="kv"><label>Voltage</label><div class="val c3" id="dV">—</div></div>
+        <div class="kv"><label>Power</label><div class="val c4" id="dP">—</div></div>
+        <div class="kv"><label>Temp</label><div class="val c5" id="dT">—</div></div>
+        <div class="kv"><label>Drift</label><div class="val c6" id="dD">—</div></div>
+      </div>
     </div>
-    <div id="header-right">
-      <div class="dev-cat">Passive Component</div>
-      <div class="dev-info">Symbol: R &nbsp;|&nbsp; Unit: Ω</div>
+
+    <!-- EQUATIONS -->
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">V = I·R</div><div class="fd">Ohm's Law</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">P = I²R</div><div class="fd">Power</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">R(T) = R₀(1+αΔT)</div><div class="fd">Tempco</div></div>
+      </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="panel">
+      <div class="ptitle">Controls</div>
+      <div class="srow">
+        <span class="sl">R-Base</span>
+        <input type="range" id="sBase" min="1" max="100" value="47" step="1">
+        <span class="sval" id="vBase">47 Ω</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Mult</span>
+        <input type="range" id="sMult" min="0" max="5" value="0" step="1">
+        <span class="sval" id="vMult">×1</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Voltage</span>
+        <input type="range" id="sVolt" min="0" max="120" value="50" step="1">
+        <span class="sval" id="vVolt">5.0 V</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Temp °C</span>
+        <input type="range" id="sTemp" min="-40" max="150" value="25" step="1">
+        <span class="sval" id="vTemp">25 °C</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Tolerance</span>
+        <input type="range" id="sTol" min="0" max="3" value="1" step="1">
+        <span class="sval" id="vTol">5%</span>
+      </div>
+    </div>
+
+    <!-- MULTIPLIER BUTTONS -->
+    <div class="panel">
+      <div class="ptitle">Multiplier</div>
+      <div class="btn-row" id="mbt-row">
+        <button class="mbt on" data-m="0">×1</button>
+        <button class="mbt" data-m="1">×10</button>
+        <button class="mbt" data-m="2">×100</button>
+        <button class="mbt" data-m="3">×1kΩ</button>
+        <button class="mbt" data-m="4">×10kΩ</button>
+        <button class="mbt" data-m="5">×1MΩ</button>
+      </div>
+    </div>
+
+    <!-- COLOR BANDS (mobile/tablet) -->
+    <div class="panel curve-panel-main">
+      <div class="ptitle">Color Bands</div>
+      <div id="band-disp" style="font-size:10px;letter-spacing:1px;color:var(--accent2)">—</div>
+      <div class="band-legend" id="band-legend"></div>
+    </div>
+
+    <!-- FACTS -->
+    <div class="panel">
+      <div class="ptitle">About Resistors</div>
+      <div class="facts">
+        • Carbon film: <span>α ≈ −200 ppm/°C</span><br>
+        • Metal film: <span>α ≈ ±50 ppm/°C</span><br>
+        • Wire-wound: <span>α ≈ ±10 ppm/°C</span><br>
+        • E24 series: <span>24 values per decade</span><br>
+        • Max power: <span>P = V²/R (derate above 70°C)</span><br>
+        • Parasitic: <span>L ≈ 1nH, C ≈ 0.1pF (axial)</span>
+      </div>
+    </div>
+
+  </div><!-- /panels-section -->
+
+  <!-- RIGHT CURVE PANEL (desktop ≥1024px) -->
+  <div id="curve-section">
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Color Bands</div>
+      <div id="band-disp2" style="font-size:10px;letter-spacing:1px;color:var(--accent2)">—</div>
+      <div class="band-legend" id="band-legend2"></div>
+    </div>
+    <div class="panel" style="flex:1;display:flex;flex-direction:column">
+      <div class="ptitle">I–V Curve</div>
+      <canvas class="chart-canvas" id="iv-chart" style="flex:1;min-height:120px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Power Bar</div>
+      <div class="kv" style="margin-bottom:4px"><label>Dissipation</label><div class="val c4" id="dP2">—</div></div>
+      <div class="bar-wrap"><div class="bar-fill" id="pbar" style="width:0%;background:var(--accent)"></div></div>
     </div>
   </div>
 
-  <div id="body">
-
-    <div id="canvas-section">
-      <canvas id="c3d"></canvas>
-      <div class="canvas-badge">3D View — Drag · Pinch to Zoom</div>
-      <div class="canvas-overlay" id="live-overlay">470 Ω</div>
-    </div>
-
-    <div id="panels-section">
-
-      <!-- PANEL A: Equations -->
-      <div class="panel panel-accent">
-        <div class="ptitle">Key Equations</div>
-        <div class="frow">
-          <div class="fml">
-            <div class="eq">V = I · R</div>
-            <div class="fd">Ohm's Law</div>
-          </div>
-          <div class="fsep">|</div>
-          <div class="fml">
-            <div class="eq">P = V²/R</div>
-            <div class="fd">Power</div>
-          </div>
-          <div class="fsep">|</div>
-          <div class="fml">
-            <div class="eq">G = 1/R</div>
-            <div class="fd">Conductance</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- PANEL B: Live Measurements -->
-      <div class="panel">
-        <div class="ptitle">Live Measurements</div>
-        <div class="kvgrid">
-          <div class="kv"><label>Resistance</label><div class="val c1" id="d1">470 Ω</div></div>
-          <div class="kv"><label>Voltage</label><div class="val c2" id="d2">5.00 V</div></div>
-          <div class="kv"><label>Current</label><div class="val c3" id="d3">10.6 mA</div></div>
-          <div class="kv"><label>Power</label><div class="val c4" id="d4">53.2 mW</div></div>
-        </div>
-        <div class="kvgrid cols3" style="margin-top:6px">
-          <div class="kv"><label>Conductance</label><div class="val sm c5" id="d5">2.13 mS</div></div>
-          <div class="kv"><label>Temp Coeff</label><div class="val sm" style="color:#aaa">100 ppm/°C</div></div>
-          <div class="kv"><label>Pwr Rating</label><div class="val sm c4">¼ W</div></div>
-        </div>
-        <div style="margin-top:8px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
-            <span style="font-size:7px;color:var(--sub);letter-spacing:1px;text-transform:uppercase" id="bar-label">Power Dissipation</span>
-            <span style="font-size:7px;color:var(--sub)" id="bar-pct">21%</span>
-          </div>
-          <div class="bar-wrap"><div class="bar-fill" id="bar-fill" style="width:21%;background:var(--accent)"></div></div>
-        </div>
-        <div id="pwr-warn" style="display:none;font-size:7.5px;color:#ff4444;text-align:center;
-          margin-top:6px;padding:4px;border:1px solid rgba(255,68,68,.3);border-radius:6px;
-          background:rgba(255,68,68,.06);letter-spacing:.5px">
-          ⚠ POWER RATING EXCEEDED — Risk of overheating
-        </div>
-      </div>
-
-      <!-- PANEL C: Controls -->
-      <div class="panel">
-        <div class="ptitle">Interactive Controls</div>
-        <div class="srow">
-          <span class="sl">R</span>
-          <input type="range" id="s1" min="10" max="10000" value="470" step="10">
-          <span class="sval c1" id="s1v">470 Ω</span>
-        </div>
-        <div class="srow">
-          <span class="sl">V</span>
-          <input type="range" id="s2" min="0" max="24" value="5" step="0.1">
-          <span class="sval c2" id="s2v">5.0 V</span>
-        </div>
-        <div class="srow">
-          <span class="sl">T</span>
-          <input type="range" id="s3" min="-40" max="125" value="25" step="1">
-          <span class="sval c3" id="s3v">25 °C</span>
-        </div>
-        <div class="btn-row" style="margin-top:6px">
-          <button class="mbt on" data-mult="1">×1 Ω</button>
-          <button class="mbt" data-mult="1000">×1 kΩ</button>
-          <button class="mbt" data-mult="1000000">×1 MΩ</button>
-        </div>
-      </div>
-
-      <!-- PANEL D: I-V Curve (mobile / tablet — hidden on desktop) -->
-      <div class="panel curve-panel-main">
-        <div class="ptitle">I–V Characteristic</div>
-        <canvas class="chart-canvas" id="curve1" style="height:90px"></canvas>
-      </div>
-
-      <!-- PANEL E: Color Code -->
-      <div class="panel">
-        <div class="ptitle">Resistor Color Code</div>
-        <div id="cc-bands" style="display:flex;gap:10px;align-items:flex-end;justify-content:center;padding:4px 0"></div>
-        <div style="text-align:center;margin-top:8px;font-size:8px;color:var(--text2);letter-spacing:.5px">
-          Band 1 · Band 2 · Multiplier · Tolerance (Gold ±5%)
-        </div>
-      </div>
-
-      <!-- PANEL F: Teaching Points -->
-      <div class="panel">
-        <div class="ptitle">Key Teaching Points</div>
-        <div class="facts">
-          ① <span>V = I·R</span> — Ohm's Law: current and voltage are linearly proportional.<br>
-          ② Power heats the resistor: <span>P = I²R = V²/R</span>. Must stay below the power rating.<br>
-          ③ <span>Temperature coefficient</span>: metal film ~100ppm/°C; carbon ~3000ppm/°C.<br>
-          ④ Color code: 4 bands — digit, digit, multiplier, tolerance (gold=±5%).<br>
-          ⑤ Series: <span>R<sub>T</sub> = R₁+R₂+…</span> &nbsp;|&nbsp; Parallel: <span>1/R<sub>T</sub> = 1/R₁+1/R₂+…</span><br>
-          ⑥ <span>Conductance G = 1/R</span> measured in Siemens (S) — ease of current flow.<br>
-          ⑦ Standard E12/E24/E96 series: 12, 24, or 96 preferred values per decade.
-        </div>
-      </div>
-
-      <div style="height:8px;flex-shrink:0"></div>
-    </div><!-- /panels-section -->
-
-    <!-- CURVE SECTION — desktop right column -->
-    <div id="curve-section">
-      <div class="panel">
-        <div class="ptitle">I–V Characteristic</div>
-        <canvas class="chart-canvas" id="curve1-desk" style="height:160px"></canvas>
-      </div>
-      <div class="panel">
-        <div class="ptitle">Power vs Voltage</div>
-        <canvas class="chart-canvas" id="curve2-desk" style="height:160px"></canvas>
-      </div>
-      <div class="panel">
-        <div class="ptitle">Device Information</div>
-        <div class="facts">
-          <span>Type:</span> Fixed film resistor (Metal Film)<br>
-          <span>Range:</span> 1Ω – 10MΩ<br>
-          <span>Tolerance:</span> ±5% (gold band)<br>
-          <span>Power:</span> ¼W (0.25W) standard<br>
-          <span>Tempco:</span> ±100ppm/°C<br>
-          <span>Package:</span> Through-hole axial<br>
-          <span>Noise:</span> &lt;0.1μV/V·√Hz
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /body -->
+</div><!-- /body -->
 </div><!-- /app -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
 <script>
-// ── 1. ACCENT ────────────────────────────────────────────────────
-document.documentElement.style.setProperty('--accent-rgb','255,140,0');
+// ── CONSTANTS
+const MULTS     = [1, 10, 100, 1e3, 1e4, 1e6];
+const MULT_L    = ['×1','×10','×100','×1kΩ','×10kΩ','×1MΩ'];
+const TOL_L     = ['1%','5%','10%','20%'];
+const TOL_BAND  = ['#b4b4b4','#c8ab37','#c84137','#b4b4b4'];
+const ALPHA     = 100e-6; // 100 ppm/°C
 
-// ── 2. THREE.JS SETUP ────────────────────────────────────────────
-const canvasEl  = document.getElementById('c3d');
-const canvasSec = document.getElementById('canvas-section');
-const scene     = new THREE.Scene();
-scene.background = new THREE.Color(0x06080f);
-scene.fog        = new THREE.FogExp2(0x06080f, 0.04);
+// ── STATE
+let rBase=47, multIdx=0, voltRaw=50, tempC=25, tolIdx=1;
 
-const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const COLORS = {
+  black:'#1a1a1a', brown:'#7b3a10', red:'#cc2222', orange:'#cc6600',
+  yellow:'#cccc00', green:'#228b22', blue:'#2255cc', violet:'#9922cc',
+  grey:'#888888', white:'#eeeeee',
+};
+const BAND_NAMES = ['black','brown','red','orange','yellow','green','blue','violet','grey','white'];
 
-const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 60);
-let camR = 6, camT = 0.4, camP = 0.28;
-function updCam() {
-  camera.position.set(
-    camR * Math.sin(camT) * Math.cos(camP),
-    camR * Math.sin(camP),
-    camR * Math.cos(camT) * Math.cos(camP)
-  );
-  camera.lookAt(0, 0, 0);
+function rEff()  { return rBase * MULTS[multIdx] * (1 + ALPHA * (tempC - 25)); }
+function voltV() { return voltRaw / 10; }  // slider 0-120 → 0-12 V
+
+// ── CALC & DISPLAY
+function updateCalc() {
+  const R = rEff(), V = voltV();
+  const I = V / R, P = V * I;
+  const R0    = rBase * MULTS[multIdx];
+  const drift = (R - R0) / R0 * 100;
+
+  document.getElementById('dR').textContent = EL.fmtR(R);
+  document.getElementById('dI').textContent = EL.fmtI(I);
+  document.getElementById('dV').textContent = EL.fmtV(V);
+  document.getElementById('dP').textContent = EL.fmtP(P);
+  document.getElementById('dT').textContent = EL.fmtT(tempC);
+  document.getElementById('dD').textContent = drift.toFixed(2) + '%';
+  const p2 = document.getElementById('dP2');
+  if (p2) p2.textContent = EL.fmtP(P);
+  document.getElementById('r-badge').textContent = EL.fmtR(R);
+
+  // Power bar (rated 0.25W)
+  const pbar = document.getElementById('pbar');
+  if (pbar) {
+    const pct = Math.min(P / 0.25, 1);
+    pbar.style.width = (pct * 100) + '%';
+    pbar.style.background = pct < 0.7 ? 'var(--accent)' : pct < 0.9 ? '#ffcc33' : '#ff4444';
+  }
+
+  updateBands();
+  drawIV();
 }
-updCam();
 
-scene.add(new THREE.AmbientLight(0x223344, 3.5));
-const dlMain = new THREE.DirectionalLight(0xffffff, 1.8);
-dlMain.position.set(5, 8, 6);
-scene.add(dlMain);
-const dlFill = new THREE.DirectionalLight(0xff8833, 0.4);
-dlFill.position.set(-4, -3, -4);
-scene.add(dlFill);
-const heatLight = new THREE.PointLight(0xff6600, 0, 5);
-scene.add(heatLight);
+// ── COLOR BANDS
+function updateBands() {
+  const d1   = Math.floor(rBase / 10) % 10;
+  const d2   = rBase % 10;
+  const tolNames = ['silver','gold','brown','none'];
+  const bands = [
+    { name: BAND_NAMES[d1],        col: COLORS[BAND_NAMES[d1]] },
+    { name: BAND_NAMES[d2],        col: COLORS[BAND_NAMES[d2]] },
+    { name: BAND_NAMES[multIdx],   col: COLORS[BAND_NAMES[multIdx]] },
+    { name: tolNames[tolIdx],      col: TOL_BAND[tolIdx] },
+  ];
+  const label = bands.map(b=>b.name).join(' / ') + ' — ' + EL.fmtR(rBase * MULTS[multIdx]) + ' ' + TOL_L[tolIdx];
 
-// ── 3. 3D MODEL ──────────────────────────────────────────────────
-// Body
-const bodyGeo = new THREE.CylinderGeometry(0.22, 0.22, 1.6, 32);
-const bodyMat = new THREE.MeshPhongMaterial({ color: 0xd4a060, shininess: 25 });
-const body    = new THREE.Mesh(bodyGeo, bodyMat);
-body.rotation.z = Math.PI / 2;
-scene.add(body);
+  ['band-disp','band-disp2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = label;
+  });
+  ['band-legend','band-legend2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const roles = ['1st','2nd','Mult','Tol'];
+    el.innerHTML = bands.map((b,i) =>
+      `<div class="bleg"><span style="background:${b.col};border:1px solid rgba(255,255,255,.2)"></span>${roles[i]}: ${b.name}</div>`
+    ).join('');
+  });
 
-// End caps
-const capGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.06, 32);
-const capMat = new THREE.MeshPhongMaterial({ color: 0xb8883a, shininess: 40 });
-[-0.77, 0.77].forEach(x => {
-  const c = new THREE.Mesh(capGeo, capMat.clone());
-  c.rotation.z = Math.PI / 2;
-  c.position.x = x;
-  scene.add(c);
+  // Update 3D band colors
+  if (bandMeshes.length) {
+    bands.forEach((b,i) => {
+      if (bandMeshes[i]) bandMeshes[i].material.color.set(b.col);
+    });
+  }
+}
+
+// ── I-V CHART
+function drawIV() {
+  const cvs = document.getElementById('iv-chart');
+  if (!cvs || !cvs.offsetWidth) return;
+  const w = cvs.offsetWidth, h = cvs.offsetHeight;
+  cvs.width  = w * (devicePixelRatio || 1);
+  cvs.height = h * (devicePixelRatio || 1);
+  const ctx = cvs.getContext('2d');
+  ctx.scale(devicePixelRatio || 1, devicePixelRatio || 1);
+  const pad = { l:38, r:10, t:10, b:28 };
+  ctx.clearRect(0, 0, w, h);
+  EL.drawGrid(ctx, w, h, pad);
+  EL.drawAxes(ctx, w, h, pad, 'Voltage (V)', 'Current');
+
+  const R = rEff(), Vmax = 12, Imax = Vmax / R;
+
+  ctx.fillStyle = 'rgba(160,130,200,0.7)';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'right';
+  for (let i=0;i<=4;i++) {
+    const y = pad.t + (h-pad.t-pad.b)*(1-i/4);
+    ctx.fillText(EL.fmtI(Imax*i/4), pad.l-2, y+3);
+  }
+  ctx.textAlign = 'center';
+  for (let i=0;i<=4;i++) {
+    const x = pad.l + (w-pad.l-pad.r)*i/4;
+    ctx.fillText((Vmax*i/4).toFixed(1), x, h-pad.b+12);
+  }
+
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(255,110,199,0.9)';
+  ctx.lineWidth = 2;
+  for (let i=0;i<=60;i++) {
+    const V = Vmax*i/60;
+    const px = pad.l + (w-pad.l-pad.r)*(V/Vmax);
+    const py = pad.t + (h-pad.t-pad.b)*(1-(V/R)/Imax);
+    i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+  }
+  ctx.stroke();
+
+  const V=voltV(), opX=pad.l+(w-pad.l-pad.r)*(V/Vmax), opY=pad.t+(h-pad.t-pad.b)*(1-(V/R)/Imax);
+  EL.drawOpPoint(ctx, opX, opY, '#ff6ec7');
+}
+
+// ── SLIDER BINDINGS
+document.getElementById('sBase').addEventListener('input', e => {
+  rBase = parseInt(e.target.value);
+  document.getElementById('vBase').textContent = rBase + ' Ω';
+  updateCalc();
 });
-
-// Leads
-const leadGeo = new THREE.CylinderGeometry(0.032, 0.032, 0.7, 8);
-const leadMat = new THREE.MeshPhongMaterial({ color: 0xbbbbcc, shininess: 120 });
-[-1.15, 1.15].forEach(x => {
-  const l = new THREE.Mesh(leadGeo, leadMat.clone());
-  l.rotation.z = Math.PI / 2;
-  l.position.x = x;
-  scene.add(l);
+document.getElementById('sMult').addEventListener('input', e => {
+  multIdx = parseInt(e.target.value);
+  document.getElementById('vMult').textContent = MULT_L[multIdx];
+  document.querySelectorAll('#mbt-row .mbt').forEach((b,i) => b.classList.toggle('on', i===multIdx));
+  updateCalc();
 });
-
-// Color bands
-const BAND_HEX = [
-  0x111111,0x8B4513,0xCC2222,0xFF6600,0xDDDD00,
-  0x228833,0x2255CC,0x7722AA,0x888888,0xEEEEEE,
-  0xFFD700,0xC0C0C0
-];
-const bandXPos = [-0.52, -0.26, 0.0, 0.40];
-const bandGeo  = new THREE.CylinderGeometry(0.227, 0.227, 0.115, 32);
-const bandMeshes = bandXPos.map(x => {
-  const m  = new THREE.MeshPhongMaterial({ color: 0xFFD700 });
-  const ms = new THREE.Mesh(bandGeo, m);
-  ms.rotation.z = Math.PI / 2;
-  ms.position.x = x;
-  scene.add(ms);
-  return ms;
+document.getElementById('sVolt').addEventListener('input', e => {
+  voltRaw = parseInt(e.target.value);
+  document.getElementById('vVolt').textContent = voltV().toFixed(1) + ' V';
+  updateCalc();
 });
-
-// Schematic symbol sprite
-{
-  const sc  = document.createElement('canvas');
-  sc.width  = 160; sc.height = 52;
-  const sx  = sc.getContext('2d');
-  sx.strokeStyle = '#ff8c00'; sx.lineWidth = 2.5; sx.lineCap = 'round';
-  sx.beginPath(); sx.moveTo(4,26); sx.lineTo(28,26); sx.stroke();
-  sx.beginPath(); sx.moveTo(132,26); sx.lineTo(156,26); sx.stroke();
-  sx.strokeRect(28, 14, 104, 24);
-  sx.fillStyle = 'rgba(255,140,0,0.06)';
-  sx.fillRect(28, 14, 104, 24);
-  sx.fillStyle = '#ffb347'; sx.font = 'bold 13px Courier New';
-  sx.textAlign = 'center'; sx.fillText('R', 80, 10);
-  const tex = new THREE.CanvasTexture(sc);
-  const sp  = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.75 }));
-  sp.scale.set(3.2, 1.0, 1);
-  sp.position.set(0, -1.9, 0);
-  scene.add(sp);
-}
-
-// ── 4. ELECTRON PARTICLES ────────────────────────────────────────
-const N_E  = 28;
-const eDum = new THREE.Object3D();
-const eGeo = new THREE.SphereGeometry(0.028, 6, 6);
-const eMat = new THREE.MeshBasicMaterial({ color: 0x44aaff, transparent: true, opacity: 0.85 });
-const elec = new THREE.InstancedMesh(eGeo, eMat, N_E);
-elec.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-scene.add(elec);
-let ePhase = 0, eSpeed = 0;
-
-function updateElectrons() {
-  ePhase = (ePhase + eSpeed) % 1;
-  for (let i = 0; i < N_E; i++) {
-    const t   = ((i / N_E + ePhase) % 1);
-    const x   = -0.7 + t * 1.4;
-    const ang = (i * 2.399) % (Math.PI * 2);
-    const rr  = 0.05 + 0.08 * (((i * 7) % 5) / 5);
-    eDum.position.set(x, rr * Math.sin(ang), rr * Math.cos(ang));
-    eDum.updateMatrix();
-    elec.setMatrixAt(i, eDum.matrix);
-  }
-  elec.instanceMatrix.needsUpdate = true;
-}
-updateElectrons();
-
-// ── 5. RESIZE ────────────────────────────────────────────────────
-function resize3() {
-  const w = canvasSec.clientWidth, h = canvasSec.clientHeight;
-  if (!w || !h) return;
-  renderer.setSize(w, h);
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-}
-resize3();
-window.addEventListener('resize', () => { resize3(); drawAll(); });
-
-// ── 6. CHART UTILITIES ───────────────────────────────────────────
-function getChartW(el) { return (el.parentElement ? el.parentElement.clientWidth - 20 : 260) || 260; }
-function setupCanvas(el, h) {
-  const pr = Math.min(window.devicePixelRatio, 2);
-  const w  = getChartW(el);
-  el.width = w * pr; el.height = h * pr;
-  el.style.width = w + 'px'; el.style.height = h + 'px';
-  const ctx = el.getContext('2d');
-  ctx.setTransform(pr, 0, 0, pr, 0, 0);
-  return { ctx, pw: w, ph: h };
-}
-function drawGrid(ctx, mx, my, mw, mh, nx, ny) {
-  ctx.strokeStyle = 'rgba(24,32,48,0.9)'; ctx.lineWidth = 0.5; ctx.setLineDash([2, 3]);
-  for (let i = 1; i < nx; i++) { const x = mx+mw*i/nx; ctx.beginPath(); ctx.moveTo(x,my); ctx.lineTo(x,my+mh); ctx.stroke(); }
-  for (let i = 1; i < ny; i++) { const y = my+mh*i/ny; ctx.beginPath(); ctx.moveTo(mx,y); ctx.lineTo(mx+mw,y); ctx.stroke(); }
-  ctx.setLineDash([]);
-}
-function drawAxes(ctx, mx, my, mw, mh, xl, yl) {
-  ctx.strokeStyle = 'rgba(90,112,144,0.5)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(mx,my-2); ctx.lineTo(mx,my+mh+1); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(mx-1,my+mh); ctx.lineTo(mx+mw,my+mh); ctx.stroke();
-  ctx.fillStyle = 'rgba(90,112,144,0.55)'; ctx.font = '6.5px Courier New';
-  ctx.textAlign = 'center'; ctx.fillText(yl,mx,my-3); ctx.fillText(xl,mx+mw,my+mh+10);
-}
-function drawOpPoint(ctx, x, y, col, ts) {
-  const r = 4.5 + Math.sin(ts * 0.006) * 1.8;
-  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fillStyle=col+'33'; ctx.fill();
-  ctx.beginPath(); ctx.arc(x,y,2.8,0,Math.PI*2); ctx.fillStyle=col; ctx.fill();
-}
-
-// ── 7. CHART DRAWING ─────────────────────────────────────────────
-function drawIV(id, h, ts) {
-  const el = document.getElementById(id); if (!el) return;
-  const {ctx,pw,ph} = setupCanvas(el, h);
-  ctx.fillStyle = '#06080f'; ctx.fillRect(0,0,pw,ph);
-  const mx=32,my=8,mw=pw-mx-6,mh=ph-my-16;
-  drawGrid(ctx,mx,my,mw,mh,6,4); drawAxes(ctx,mx,my,mw,mh,'V (volts)','I');
-  const Vmax=24, Imax=Math.max(Vmax/R_eff,1e-9);
-  ctx.beginPath(); ctx.strokeStyle='#ff8c00'; ctx.lineWidth=1.5;
-  ctx.shadowColor='#ff8c00'; ctx.shadowBlur=5;
-  for (let i=0; i<=mw; i++) {
-    const V=Vmax*i/mw, I=V/R_eff;
-    const y=my+mh-(I/Imax)*mh;
-    i===0 ? ctx.moveTo(mx+i,y) : ctx.lineTo(mx+i,y);
-  }
-  ctx.stroke(); ctx.shadowBlur=0;
-  ctx.fillStyle='rgba(90,112,144,0.6)'; ctx.font='6px Courier New';
-  ctx.textAlign='right'; ctx.fillText(fmtI(Imax),mx-2,my+6);
-  ctx.textAlign='center'; ctx.fillText('24',mx+mw,my+mh+10); ctx.fillText('0',mx,my+mh+10);
-  if (V_applied >= 0) drawOpPoint(ctx, mx+(V_applied/Vmax)*mw, my+mh-(I_cur/Imax)*mh, '#ff8c00', ts);
-}
-
-function drawPV(id, h, ts) {
-  const el = document.getElementById(id); if (!el) return;
-  const {ctx,pw,ph} = setupCanvas(el, h);
-  ctx.fillStyle = '#06080f'; ctx.fillRect(0,0,pw,ph);
-  const mx=32,my=8,mw=pw-mx-6,mh=ph-my-16;
-  drawGrid(ctx,mx,my,mw,mh,6,4); drawAxes(ctx,mx,my,mw,mh,'V (volts)','P');
-  const Vmax=24, Pmax=Math.max((Vmax*Vmax)/R_eff,1e-9);
-  ctx.beginPath(); ctx.strokeStyle='#ffcc33'; ctx.lineWidth=1.5;
-  ctx.shadowColor='#ffcc33'; ctx.shadowBlur=4;
-  for (let i=0; i<=mw; i++) {
-    const V=Vmax*i/mw, P=V*V/R_eff;
-    const y=my+mh-(P/Pmax)*mh;
-    i===0 ? ctx.moveTo(mx+i,y) : ctx.lineTo(mx+i,y);
-  }
-  ctx.stroke(); ctx.shadowBlur=0;
-  const Prated=0.25;
-  if (Prated < Pmax) {
-    const yr=my+mh-(Prated/Pmax)*mh;
-    ctx.beginPath(); ctx.strokeStyle='rgba(255,80,80,0.65)'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
-    ctx.moveTo(mx,yr); ctx.lineTo(mx+mw,yr); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle='rgba(255,80,80,0.65)'; ctx.font='6px Courier New'; ctx.textAlign='right';
-    ctx.fillText('¼W',mx-2,yr+3);
-  }
-  ctx.fillStyle='rgba(90,112,144,0.6)'; ctx.font='6px Courier New';
-  ctx.textAlign='right'; ctx.fillText(fmtP(Pmax),mx-2,my+6);
-  ctx.textAlign='center'; ctx.fillText('24',mx+mw,my+mh+10);
-  if (V_applied >= 0) drawOpPoint(ctx, mx+(V_applied/Vmax)*mw, my+mh-(P_cur/Pmax)*mh, '#ffcc33', ts);
-}
-
-function drawAll(ts=0) {
-  if (window.innerWidth >= 1024) {
-    drawIV('curve1-desk',160,ts);
-    drawPV('curve2-desk',160,ts);
-  } else {
-    drawIV('curve1',90,ts);
-  }
-}
-
-// ── 8. PHYSICS ───────────────────────────────────────────────────
-let R_eff=470, V_applied=5, I_cur=0, P_cur=0, G_cur=0;
-let R_base=470, mult=1, tempC=25;
-
-function fmtV(v){return v>=1000?`${(v/1000).toFixed(2)}kV`:v>=1?`${v.toFixed(2)}V`:`${(v*1000).toFixed(0)}mV`;}
-function fmtI(a){return a>=1?`${a.toFixed(2)}A`:a>=0.001?`${(a*1e3).toFixed(1)}mA`:`${(a*1e6).toFixed(0)}μA`;}
-function fmtR(r){return r>=1e6?`${(r/1e6).toFixed(2)}MΩ`:r>=1000?`${(r/1000).toFixed(1)}kΩ`:`${r.toFixed(0)}Ω`;}
-function fmtP(w){return w>=1?`${w.toFixed(2)}W`:w>=0.001?`${(w*1e3).toFixed(0)}mW`:`${(w*1e6).toFixed(0)}μW`;}
-function fmtG(s){return s>=1?`${s.toFixed(2)}S`:s>=0.001?`${(s*1e3).toFixed(1)}mS`:`${(s*1e6).toFixed(0)}μS`;}
-function slBg(p,c){return`linear-gradient(to right,${c} ${p}%,#182030 ${p}%)`;}
-
-function updateBands(R) {
-  if (R <= 0) R = 1;
-  const exp  = Math.floor(Math.log10(R));
-  const norm = R / Math.pow(10, exp);
-  const d1   = Math.min(9, Math.max(0, Math.floor(norm)));
-  const d2   = Math.min(9, Math.max(0, Math.floor((norm - d1) * 10)));
-  const mIdx = Math.max(0, Math.min(9, exp - 1));
-  bandMeshes[0].material.color.setHex(BAND_HEX[d1]);
-  bandMeshes[1].material.color.setHex(BAND_HEX[d2]);
-  bandMeshes[2].material.color.setHex(BAND_HEX[mIdx]);
-  bandMeshes[3].material.color.setHex(BAND_HEX[10]);
-
-  const names=['Black','Brown','Red','Orange','Yellow','Green','Blue','Violet','Gray','White','Gold','Silver'];
-  const css=['#111','#8B4513','#CC2222','#FF6600','#DDDD00','#228833','#2255CC','#7722AA','#888','#eee','#FFD700','#C0C0C0'];
-  const mults=['×1','×10','×100','×1k','×10k','×100k','×1M','×10M','×100M','×1G'];
-  const bIdx=[d1,d2,mIdx,10], bLbl=[String(d1),String(d2),mults[mIdx]||'×?','±5%'];
-  const cd = document.getElementById('cc-bands');
-  if (cd) cd.innerHTML = bIdx.map((b,i)=>`
-    <div style="text-align:center">
-      <div style="width:18px;height:${i===3?38:50}px;background:${css[b]};
-        border:1px solid rgba(255,255,255,${b===9?'.4':'.12'});border-radius:2px;margin:0 auto 4px"></div>
-      <div style="font-size:6.5px;color:var(--accent);letter-spacing:0">${bLbl[i]}</div>
-      <div style="font-size:5.5px;color:var(--sub);margin-top:1px">${names[b]}</div>
-    </div>`).join('') + `
-    <div style="text-align:center;margin-left:10px;align-self:center;border-left:1px solid var(--border);padding-left:10px">
-      <div style="font-size:13px;color:var(--accent2);font-weight:bold">${fmtR(R)}</div>
-      <div style="font-size:6px;color:var(--sub);margin-top:2px">±5%</div>
-    </div>`;
-}
-
-function recalc() {
-  R_base    = +document.getElementById('s1').value;
-  V_applied = +document.getElementById('s2').value;
-  tempC     = +document.getElementById('s3').value;
-
-  R_eff = R_base * mult * (1 + 100e-6 * (tempC - 25));
-  I_cur = V_applied / R_eff;
-  P_cur = V_applied * I_cur;
-  G_cur = 1 / R_eff;
-
-  document.getElementById('d1').textContent = fmtR(R_eff);
-  document.getElementById('d2').textContent = fmtV(V_applied);
-  document.getElementById('d3').textContent = fmtI(I_cur);
-  document.getElementById('d4').textContent = fmtP(P_cur);
-  document.getElementById('d5').textContent = fmtG(G_cur);
-  document.getElementById('live-overlay').textContent = fmtR(R_eff);
-
-  document.getElementById('s1v').textContent = fmtR(R_base * mult);
-  document.getElementById('s2v').textContent = `${V_applied.toFixed(1)} V`;
-  document.getElementById('s3v').textContent = `${tempC.toFixed(0)} °C`;
-
-  document.getElementById('s1').style.background = slBg((R_base-10)/(10000-10)*100,'#ff8c00');
-  document.getElementById('s2').style.background = slBg(V_applied/24*100,'#33ffcc');
-  document.getElementById('s3').style.background = slBg((tempC+40)/165*100,'#ffcc33');
-
-  const Prat = 0.25;
-  const pct  = Math.min(P_cur / Prat * 100, 100);
-  const bf   = document.getElementById('bar-fill');
-  bf.style.width      = pct + '%';
-  bf.style.background = pct > 80 ? '#ff4444' : pct > 50 ? '#ffcc33' : '#ff8c00';
-  document.getElementById('bar-pct').textContent = pct.toFixed(0) + '%';
-  document.getElementById('pwr-warn').style.display = P_cur > 0.25 ? 'block' : 'none';
-
-  heatLight.intensity = Math.min(P_cur / 0.25, 1.0) * 2.5;
-  heatLight.color.setHex(P_cur > 0.25 ? 0xff2200 : 0xff6600);
-
-  eSpeed = Math.min(I_cur / 0.05, 8) * 0.0025;
-
-  updateBands(R_eff);
-}
-
-// ── 9. SLIDER & BUTTON EVENTS ─────────────────────────────────────
-['s1','s2','s3'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('input', recalc);
+document.getElementById('sTemp').addEventListener('input', e => {
+  tempC = parseInt(e.target.value);
+  document.getElementById('vTemp').textContent = tempC + ' °C';
+  updateCalc();
 });
-document.querySelectorAll('.mbt').forEach(btn => {
-  btn.addEventListener('click', function() {
-    document.querySelectorAll('.mbt').forEach(b => b.classList.remove('on'));
-    this.classList.add('on');
-    mult = +this.dataset.mult;
-    recalc();
+document.getElementById('sTol').addEventListener('input', e => {
+  tolIdx = parseInt(e.target.value);
+  document.getElementById('vTol').textContent = TOL_L[tolIdx];
+  updateCalc();
+});
+document.querySelectorAll('#mbt-row .mbt').forEach(btn => {
+  btn.addEventListener('click', () => {
+    multIdx = parseInt(btn.dataset.m);
+    document.querySelectorAll('#mbt-row .mbt').forEach((b,i) => b.classList.toggle('on', i===multIdx));
+    document.getElementById('sMult').value = multIdx;
+    document.getElementById('vMult').textContent = MULT_L[multIdx];
+    updateCalc();
   });
 });
 
-// ── 10. CAMERA CONTROLS ──────────────────────────────────────────
-let drag=false,lx=0,ly=0,ld=0;
-canvasEl.addEventListener('touchstart',e=>{
-  if(e.touches.length===1){drag=true;lx=e.touches[0].clientX;ly=e.touches[0].clientY;}
-  if(e.touches.length===2) ld=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-},{passive:true});
-canvasEl.addEventListener('touchmove',e=>{
-  if(e.touches.length===1&&drag){
-    camT-=(e.touches[0].clientX-lx)*0.013;
-    camP=Math.max(0.04,Math.min(1.42,camP-(e.touches[0].clientY-ly)*0.010));
-    lx=e.touches[0].clientX;ly=e.touches[0].clientY;updCam();
-  }
-  if(e.touches.length===2){
-    const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-    camR=Math.max(3,Math.min(20,camR-(d-ld)*0.05));ld=d;updCam();
-  }
-},{passive:true});
-canvasEl.addEventListener('touchend',()=>drag=false);
-canvasEl.addEventListener('mousedown',e=>{drag=true;lx=e.clientX;ly=e.clientY;});
-canvasEl.addEventListener('mousemove',e=>{
-  if(!drag)return;
-  camT-=(e.clientX-lx)*0.010;
-  camP=Math.max(0.04,Math.min(1.42,camP-(e.clientY-ly)*0.008));
-  lx=e.clientX;ly=e.clientY;updCam();
-});
-canvasEl.addEventListener('mouseup',()=>drag=false);
-canvasEl.addEventListener('wheel',e=>{
-  camR=Math.max(3,Math.min(20,camR+e.deltaY*0.022));updCam();
-},{passive:true});
+// ══ THREE.JS ══════════════════════════════════════════════════════
+const canvas = document.getElementById('c3d');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-// ── 11. ANIMATION LOOP ────────────────────────────────────────────
-let lastTS=0, lastChart=0;
-function loop(ts) {
-  requestAnimationFrame(loop);
-  const dt = Math.min((ts-lastTS)/1000, 0.05); lastTS=ts;
-  if (!drag) { camT += 0.005; updCam(); }
-  updateElectrons();
-  if (ts-lastChart > 80) { drawAll(ts); lastChart=ts; }
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, 1, 0.01, 200);
+camera.position.set(0, 0.3, 5.5);
+
+function resizeRenderer() {
+  const w=canvas.clientWidth, h=canvas.clientHeight;
+  renderer.setSize(w,h,false);
+  camera.aspect = w/h;
+  camera.updateProjectionMatrix();
+}
+resizeRenderer();
+new ResizeObserver(resizeRenderer).observe(canvas);
+
+// Lights
+scene.add(new THREE.AmbientLight(0x221133, 0.7));
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+keyLight.position.set(5,8,6); keyLight.castShadow=true; scene.add(keyLight);
+const fillLight = new THREE.DirectionalLight(0xff44aa, 0.4);
+fillLight.position.set(-4,2,-3); scene.add(fillLight);
+scene.add(Object.assign(new THREE.DirectionalLight(0xffffff,0.25),{position:new THREE.Vector3(0,-5,-4)}));
+
+// Body (ceramic/carbon)
+const bodyMat  = new THREE.MeshPhongMaterial({ color:0xd4aa70, shininess:40 });
+const bodyMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 2.2, 32), bodyMat);
+bodyMesh.rotation.z = Math.PI/2;
+bodyMesh.castShadow = true;
+scene.add(bodyMesh);
+
+// Leads
+const leadMat = new THREE.MeshPhongMaterial({ color:0xcccccc, shininess:80 });
+[-1.8, 1.8].forEach(x => {
+  const lead = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 1.4, 16), leadMat);
+  lead.rotation.z = Math.PI/2;
+  lead.position.x = x;
+  scene.add(lead);
+});
+
+// Color bands — raised well above body radius 0.22 → band radius 0.265
+const BAND_POS = [-0.72, -0.24, 0.24, 0.84];
+const bandMeshes = BAND_POS.map(xPos => {
+  const mat  = new THREE.MeshPhongMaterial({ color:0xc8ab37, shininess:20 });
+  const mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.265, 0.265, 0.14, 32), mat);
+  mesh.rotation.z = Math.PI/2;
+  mesh.position.x = xPos;
+  scene.add(mesh);
+  return mesh;
+});
+
+// Electrons (InstancedMesh)
+const N_E = 40;
+const eMat  = new THREE.MeshPhongMaterial({ color:0xff88dd, emissive:0xcc44aa, emissiveIntensity:0.6, shininess:60 });
+const eInst = new THREE.InstancedMesh(new THREE.SphereGeometry(0.045,8,8), eMat, N_E);
+eInst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+scene.add(eInst);
+const eOffset = Array.from({length:N_E}, (_,i) => i/N_E);
+const eDummy  = new THREE.Object3D();
+
+// Orbit control
+let drag=false, lastX=0, lastY=0, rotX=0, rotY=0.4;
+canvas.addEventListener('mousedown',  e => { drag=true; lastX=e.clientX; lastY=e.clientY; });
+canvas.addEventListener('mousemove',  e => {
+  if(!drag) return;
+  rotY+=(e.clientX-lastX)*0.008; rotX+=(e.clientY-lastY)*0.008;
+  rotX=EL.clamp(rotX,-1.2,1.2); lastX=e.clientX; lastY=e.clientY;
+});
+canvas.addEventListener('mouseup',   ()=>drag=false);
+canvas.addEventListener('mouseleave',()=>drag=false);
+let t0x=0,t0y=0;
+canvas.addEventListener('touchstart',e=>{e.preventDefault();t0x=e.touches[0].clientX;t0y=e.touches[0].clientY;},{passive:false});
+canvas.addEventListener('touchmove', e=>{
+  e.preventDefault();
+  rotY+=(e.touches[0].clientX-t0x)*0.008; rotX+=(e.touches[0].clientY-t0y)*0.008;
+  rotX=EL.clamp(rotX,-1.2,1.2); t0x=e.touches[0].clientX; t0y=e.touches[0].clientY;
+},{passive:false});
+
+// ── RENDER LOOP
+let lastTS=0, ePhase=0;
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts-lastTS)/1000, 0.05);
+  lastTS = ts;
+
+  // Frame-rate independent electron speed
+  const I = voltV() / rEff();
+  const speed = EL.clamp(I*0.3, 0.004, 0.7);
+  ePhase = (ePhase + speed*dt) % 1;
+
+  for(let i=0;i<N_E;i++) {
+    const p = (ePhase + eOffset[i]) % 1;
+    const x = (p - 0.5) * 5.4;
+    const angle = (i/N_E)*Math.PI*2;
+    eDummy.position.set(x, Math.sin(angle)*0.14, Math.cos(angle)*0.14);
+    eDummy.updateMatrix();
+    eInst.setMatrixAt(i, eDummy.matrix);
+  }
+  eInst.instanceMatrix.needsUpdate = true;
+
+  // Glow with current
+  eMat.emissiveIntensity = 0.2 + EL.clamp(I/0.5, 0, 1)*0.8;
+
+  // Orbital rotation applied to body/bands
+  const ry = rotY, rx = rotX;
+  [bodyMesh, ...bandMeshes].forEach(m => {
+    m.rotation.set(rx, ry, m===bodyMesh ? Math.PI/2 : Math.PI/2);
+    // Body is cylinder along Z → rotation.z=PI/2 is baseline
+    // Orbit: we rotate around Y (horizontal drag) and X (vertical drag)
+  });
+  // Simpler: rotate all via a group
+  scene.rotation.x = rx;
+  scene.rotation.y = ry;
+
   renderer.render(scene, camera);
 }
+requestAnimationFrame(animate);
 
-// ── 12. INIT ─────────────────────────────────────────────────────
-function init() {
-  recalc();
-  drawAll();
-  requestAnimationFrame(loop);
-}
-init();
+// Init
+updateCalc();
 </script>
-
 <script src="../shared/nav.js"></script>
 </body>
 </html>

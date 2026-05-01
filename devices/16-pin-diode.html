@@ -1,0 +1,361 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a"><title>PIN Diode | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#5588ff;--accent2:#88aaff;--accent-rgb:85,136,255}
+#curve-section canvas,.curve-panel-main canvas{height:200px}
+</style>
+</head><body><div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">16 / 150</span>
+    <span class="dev-name">PIN Diode</span>
+    <span class="dev-cat">Semiconductor · RF Switch</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">16 PIN Diode</div>
+
+<div id="body">
+  <!-- 3D Canvas -->
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">↑↓ — PIN Structure · RF Switch</div>
+    <div class="canvas-overlay" id="badge">FWD</div>
+  </div>
+
+  <!-- Panels -->
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Controls</div>
+      <div class="srow"><span class="sl">If</span>
+        <input type="range" id="sIf" min="0" max="100" value="10" step="0.5">
+        <span class="sval" id="vIf">10.0 mA</span></div>
+      <div class="srow"><span class="sl">Vr</span>
+        <input type="range" id="sVr" min="0" max="100" value="0" step="0.5">
+        <span class="sval" id="vVr">0.0 V</span></div>
+      <div class="srow"><span class="sl">Freq</span>
+        <input type="range" id="sFreq" min="0" max="100" value="30" step="1">
+        <span class="sval" id="vFreq">1.00 GHz</span></div>
+      <div class="srow"><span class="sl">Wi</span>
+        <input type="range" id="sWi" min="10" max="500" value="100" step="5">
+        <span class="sval" id="vWi">100 µm</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Live Measurements</div>
+      <div class="kvgrid">
+        <div class="kv"><label>Cj (Junction)</label><div class="val c1" id="lCj">—</div></div>
+        <div class="kv"><label>Rs (RF)</label><div class="val c2" id="lRs">—</div></div>
+        <div class="kv"><label>Insert Loss</label><div class="val c3" id="lIL">—</div></div>
+        <div class="kv"><label>Isolation</label><div class="val c4" id="lIso">—</div></div>
+        <div class="kv"><label>Switch State</label><div class="val c5" id="lState">—</div></div>
+        <div class="kv"><label>Frequency</label><div class="val c6" id="lFreq">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Physics</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">Cj = ε·A/Wᵢ</div><div class="fd">Junction Cap</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">Rs = Wᵢ²/(μτI)</div><div class="fd">RF Resistance</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">IL = 20·log(…)</div><div class="fd">Insert Loss</div></div>
+      </div>
+    </div>
+
+    <!-- Mobile curve panel -->
+    <div class="panel curve-panel-main">
+      <div class="ptitle">Rs vs Forward Current</div>
+      <canvas id="curve1" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Teaching Points</div>
+      <div class="facts">
+        · Wide intrinsic (I) layer: low, <span>constant Cj</span> regardless of bias<br>
+        · Forward bias stores minority carriers → <span>low Rs</span> = closed switch<br>
+        · Reverse bias: no carriers → <span>high Rs</span> = open switch (isolation)<br>
+        · Switching speed limited by carrier lifetime τ<br>
+        · Used in RF switches, attenuators, phase shifters
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Desktop Curve Section -->
+  <div id="curve-section">
+    <div class="panel" style="flex:1">
+      <div class="ptitle">Rs vs Forward Current</div>
+      <canvas id="curve1-desk" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">PIN Switch Model</div>
+      <div class="facts">
+        · <span>FWD bias</span>: Rs → low (ON)<br>
+        · <span>REV bias</span>: Rs → high (OFF)<br>
+        · Cj independent of bias<br>
+        · Wi controls Cj &amp; τ
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── Physics State ──
+let If_mA = 10, Vr = 0, freqSlider = 30, Wi_um = 100;
+
+// Constants
+const eps0 = 8.854e-12, eps_r = 11.7;
+const A_m2 = 1e-6;   // active area 1 mm²
+const mu = 0.14;      // electron mobility m²/Vs
+const tau = 1e-7;     // carrier lifetime (100 ns)
+
+function calcPhysics() {
+  const Wi = Wi_um * 1e-6;
+  const freq = Math.pow(10, EL.mapRange(freqSlider, 0, 100, 6, 10)); // 1 MHz – 10 GHz
+  const Cj = eps0 * eps_r * A_m2 / Wi;  // F
+  const If_A = If_mA * 1e-3;
+  // Rs = Wi² / (mu * tau * If)  when forward biased
+  let Rs, state, insertionLoss_dB, isolation_dB;
+  const isFwd = If_A > 1e-4 && Vr < 0.5;
+  if (isFwd) {
+    Rs = Wi * Wi / (mu * tau * If_A);
+    state = 'ON (FWD)';
+    const ZL = 50; // 50 Ω system
+    const ratio = ZL / (ZL + Rs);
+    insertionLoss_dB = -20 * Math.log10(Math.abs(ratio));
+    isolation_dB = 0; // when ON, isolation is low
+  } else {
+    // Reverse biased: high Rs
+    const Xcj = 1 / (2 * Math.PI * freq * Cj);
+    Rs = Xcj * 10; // large
+    state = 'OFF (REV)';
+    insertionLoss_dB = 0;
+    // Isolation from capacitance
+    isolation_dB = 20 * Math.log10(1 + 50 / (2 * Xcj));
+    isolation_dB = Math.max(0, isolation_dB);
+  }
+  return { Cj, Rs, freq, insertionLoss_dB, isolation_dB, state, isFwd, Wi, If_A };
+}
+
+function updateUI() {
+  const { Cj, Rs, freq, insertionLoss_dB, isolation_dB, state } = calcPhysics();
+  document.getElementById('lCj').textContent = EL.fmtC(Cj);
+  document.getElementById('lRs').textContent = EL.fmtR(Rs < 1e6 ? Rs : 1e6);
+  document.getElementById('lIL').textContent = insertionLoss_dB.toFixed(2) + ' dB';
+  document.getElementById('lIso').textContent = isolation_dB.toFixed(1) + ' dB';
+  document.getElementById('lState').textContent = state;
+  document.getElementById('lFreq').textContent = EL.fmtF(freq);
+  document.getElementById('badge').textContent = state;
+  drawAll();
+}
+
+// ── 3D Scene ──
+const { renderer, scene, camera } = EL.initScene('c3d');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+EL.initLights(scene, '#5588ff');
+scene.add(pivot);
+
+// Diode body: cylindrical package
+const bodyGeo = new THREE.CylinderGeometry(0.45, 0.45, 2.0, 32);
+const bodyMat = new THREE.MeshPhongMaterial({ color: 0x1a1a2e, shininess: 60 });
+const body = new THREE.Mesh(bodyGeo, bodyMat);
+pivot.add(body);
+
+// P layer (top) - purple
+const pGeo = new THREE.CylinderGeometry(0.46, 0.46, 0.35, 32);
+const pMat = new THREE.MeshPhongMaterial({ color: 0x9933cc, shininess: 80 });
+const pLayer = new THREE.Mesh(pGeo, pMat);
+pLayer.position.y = 0.82;
+pivot.add(pLayer);
+
+// I layer (middle) - grey
+const iGeo = new THREE.CylinderGeometry(0.46, 0.46, 0.9, 32);
+const iMat = new THREE.MeshPhongMaterial({ color: 0x4a4a6a, shininess: 40, transparent: true, opacity: 0.85 });
+const iLayer = new THREE.Mesh(iGeo, iMat);
+iLayer.position.y = 0.0;
+pivot.add(iLayer);
+
+// N layer (bottom) - blue
+const nGeo = new THREE.CylinderGeometry(0.46, 0.46, 0.35, 32);
+const nMat = new THREE.MeshPhongMaterial({ color: 0x2244cc, shininess: 80 });
+const nLayer = new THREE.Mesh(nGeo, nMat);
+nLayer.position.y = -0.82;
+pivot.add(nLayer);
+
+// Leads
+const leadGeo = new THREE.CylinderGeometry(0.06, 0.06, 1.0, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+const leadTop = new THREE.Mesh(leadGeo, leadMat);
+leadTop.position.y = 1.5;
+pivot.add(leadTop);
+const leadBot = new THREE.Mesh(leadGeo, leadMat);
+leadBot.position.y = -1.5;
+pivot.add(leadBot);
+
+// Glow light inside i-layer
+const glowLight = new THREE.PointLight(0x5588ff, 0, 2);
+glowLight.position.set(0, 0, 0);
+pivot.add(glowLight);
+
+// RF signal particles (wavy line)
+const RF_COUNT = 40;
+const rfPositions = new Float32Array(RF_COUNT * 3);
+const rfGeo = new THREE.BufferGeometry();
+rfGeo.setAttribute('position', new THREE.BufferAttribute(rfPositions, 3));
+const rfMat = new THREE.PointsMaterial({ color: 0x88aaff, size: 0.08 });
+const rfParticles = new THREE.Points(rfGeo, rfMat);
+pivot.add(rfParticles);
+
+// Schematic sprite label below
+const spriteCanvas = document.createElement('canvas');
+spriteCanvas.width = 128; spriteCanvas.height = 64;
+const sCtx = spriteCanvas.getContext('2d');
+sCtx.fillStyle = 'rgba(85,136,255,0.9)';
+sCtx.font = 'bold 18px Courier New';
+sCtx.textAlign = 'center';
+sCtx.fillText('P-I-N', 64, 30);
+sCtx.font = '11px Courier New';
+sCtx.fillStyle = 'rgba(136,170,255,0.8)';
+sCtx.fillText('RF SWITCH', 64, 48);
+const spriteTex = new THREE.CanvasTexture(spriteCanvas);
+const spriteMat = new THREE.SpriteMaterial({ map: spriteTex, transparent: true });
+const sprite = new THREE.Sprite(spriteMat);
+sprite.position.set(0, -2.5, 0);
+sprite.scale.set(2, 1, 1);
+pivot.add(sprite);
+
+// ── Animation ──
+let lastTS = 0, rfPhase = 0, autoRotY = 0;
+
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+
+  autoRotY += dt * 0.4;
+  pivot.rotation.y = pivot.rotation.y || 0;
+  // gentle auto-rotate if not dragging
+  if (!window._pinDragging) pivot.rotation.y += dt * 0.4;
+
+  const { isFwd, If_A } = calcPhysics();
+  rfPhase += dt * (isFwd ? 6 : 2);
+
+  // Animate RF particles passing through
+  for (let i = 0; i < RF_COUNT; i++) {
+    const t = (i / RF_COUNT + rfPhase * 0.05) % 1;
+    const y = (t - 0.5) * 4;
+    const amp = isFwd ? 0.08 : 0.35;
+    const x = amp * Math.sin(y * 8 + rfPhase * 2);
+    rfPositions[i * 3] = x;
+    rfPositions[i * 3 + 1] = y;
+    rfPositions[i * 3 + 2] = amp * Math.cos(y * 5 + rfPhase);
+  }
+  rfGeo.attributes.position.needsUpdate = true;
+
+  // Glow based on forward current
+  glowLight.intensity = isFwd ? Math.min(If_A * 40, 2.0) : 0;
+  iMat.color.setHex(isFwd ? 0x334488 : 0x4a4a6a);
+
+  renderer.render(scene, camera);
+}
+animate(0);
+
+// ── Slider Events ──
+document.getElementById('sIf').addEventListener('input', e => {
+  If_mA = parseFloat(e.target.value);
+  document.getElementById('vIf').textContent = If_mA.toFixed(1) + ' mA';
+  updateUI();
+});
+document.getElementById('sVr').addEventListener('input', e => {
+  Vr = parseFloat(e.target.value);
+  document.getElementById('vVr').textContent = Vr.toFixed(1) + ' V';
+  updateUI();
+});
+document.getElementById('sFreq').addEventListener('input', e => {
+  freqSlider = parseFloat(e.target.value);
+  const freq = Math.pow(10, EL.mapRange(freqSlider, 0, 100, 6, 10));
+  document.getElementById('vFreq').textContent = EL.fmtF(freq);
+  updateUI();
+});
+document.getElementById('sWi').addEventListener('input', e => {
+  Wi_um = parseFloat(e.target.value);
+  document.getElementById('vWi').textContent = Wi_um + ' µm';
+  updateUI();
+});
+
+// ── Chart Drawing ──
+function drawChart(canvasEl) {
+  if (!canvasEl || canvasEl.offsetWidth === 0) return;
+  const { ctx, w, h } = EL.setupChart(canvasEl, '#5588ff');
+  const pad = { l: 48, r: 12, t: 16, b: 32 };
+
+  ctx.clearRect(0, 0, w, h);
+  EL.drawGrid(ctx, w, h, pad);
+  EL.drawAxes(ctx, w, h, pad, 'If (mA)', 'Rs (Ω)');
+
+  // Axis labels
+  ctx.fillStyle = 'rgba(160,130,200,0.7)';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'right';
+  ctx.fillText('1k', pad.l - 2, pad.t + 4);
+  ctx.fillText('10', pad.l - 2, pad.t + (h - pad.t - pad.b) * 0.5 + 4);
+  ctx.fillText('1', pad.l - 2, h - pad.b);
+  ctx.textAlign = 'left';
+  for (let i = 0; i <= 4; i++) {
+    const x = pad.l + (w - pad.l - pad.r) * i / 4;
+    ctx.fillText((i * 25) + '', x - 6, h - pad.b + 12);
+  }
+
+  // Draw Rs vs If curve (log scale)
+  const Wi = Wi_um * 1e-6;
+  ctx.beginPath();
+  ctx.strokeStyle = '#5588ff';
+  ctx.lineWidth = 2;
+  for (let px = 0; px <= w - pad.l - pad.r; px++) {
+    const If_mA_pt = px / (w - pad.l - pad.r) * 100;
+    const If_A_pt = Math.max(If_mA_pt * 1e-3, 1e-6);
+    const Rs_pt = Wi * Wi / (mu * tau * If_A_pt);
+    const logRs = Math.log10(Math.min(Rs_pt, 1000));
+    const yFrac = 1 - (logRs / 3); // 1..1000 -> log10 0..3
+    const x = pad.l + px;
+    const y = pad.t + EL.clamp(yFrac, 0, 1) * (h - pad.t - pad.b);
+    px === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Operating point
+  const { Rs, If_A } = calcPhysics();
+  const opIf = If_mA;
+  const opX = pad.l + (opIf / 100) * (w - pad.l - pad.r);
+  const logRsOp = Math.log10(Math.min(Rs, 1000));
+  const opY = pad.t + EL.clamp(1 - logRsOp / 3, 0, 1) * (h - pad.t - pad.b);
+  EL.drawOpPoint(ctx, opX, opY, '#88aaff');
+
+  // Label
+  ctx.fillStyle = '#88aaff';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'left';
+  ctx.fillText('Rs=' + EL.fmtR(Math.min(Rs, 999999)), pad.l + 4, pad.t + 12);
+}
+
+function drawAll() {
+  drawChart(document.getElementById('curve1'));
+  drawChart(document.getElementById('curve1-desk'));
+}
+
+updateUI();
+</script>
+<script src="../shared/nav.js"></script>
+</body></html>
