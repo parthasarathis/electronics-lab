@@ -11,6 +11,42 @@
 .band-legend{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
 .bleg{display:flex;align-items:center;gap:4px;font-size:7.5px;color:var(--sub);letter-spacing:.5px}
 .bleg span{width:12px;height:12px;border-radius:2px;display:block;flex-shrink:0}
+
+/* Pedagogical Additions */
+#schematic-overlay {
+  position: absolute; bottom: 10px; left: 10px;
+  width: 100px; height: 60px;
+  background: rgba(12, 16, 24, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 4px; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+#schematic-canvas { width: 80px; height: 30px; }
+.sch-label { font-size: 7px; color: var(--accent); letter-spacing: 1px; margin-top: 2px; }
+
+#challenge-box {
+  background: linear-gradient(135deg, #1a1525, #120e22);
+  border: 1px solid #443366;
+  padding: 10px; border-radius: var(--radius);
+  margin-bottom: 7px; position: relative; overflow: hidden;
+}
+.ch-title { font-size: 8px; color: #ccaaee; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+.ch-title::before { content: '★'; color: #ffcc33; }
+.ch-txt { font-size: 9px; color: var(--text2); line-height: 1.4; }
+.ch-status {
+  position: absolute; top: 0; right: 0; bottom: 0; width: 40px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,255,150,0.1); color: #00ffaa;
+  font-size: 14px; opacity: 0; transition: opacity 0.3s;
+}
+.ch-status.done { opacity: 1; }
+
+.burn-overlay {
+  position: absolute; inset: 0; background: rgba(255,0,0,0.1);
+  display: none; align-items: center; justify-content: center;
+  color: #ff4444; font-size: 10px; font-weight: bold; letter-spacing: 2px;
+  text-transform: uppercase; pointer-events: none; z-index: 5;
+}
 </style>
 </head>
 <body>
@@ -39,10 +75,26 @@
     <canvas id="c3d"></canvas>
     <div class="canvas-badge">R — Ohmic Element</div>
     <div class="canvas-overlay" id="r-badge">—</div>
+    
+    <!-- Schematic Overlay -->
+    <div id="schematic-overlay">
+      <canvas id="schematic-canvas"></canvas>
+      <div class="sch-label" id="sch-r-val">---</div>
+    </div>
+    
+    <!-- Burn Alert -->
+    <div class="burn-overlay" id="burn-msg">⚠ OVERLOAD / BURNING</div>
   </div>
 
   <!-- PANELS -->
   <div id="panels-section">
+
+    <!-- CHALLENGE -->
+    <div id="challenge-box">
+      <div class="ch-title">Learning Challenge</div>
+      <div class="ch-txt" id="ch-desc">Adjust the voltage so the current is exactly <b>10.0 mA</b> at 470 Ω.</div>
+      <div class="ch-status" id="ch-stat">✔</div>
+    </div>
 
     <!-- LIVE VALUES -->
     <div class="panel panel-accent">
@@ -205,6 +257,43 @@ function updateCalc() {
 
   updateBands();
   drawIV();
+  drawSchematic(R);
+  checkChallenge(I, R);
+}
+
+// ── SCHEMATIC DRAWING
+function drawSchematic(R) {
+  const cvs = document.getElementById('schematic-canvas');
+  const ctx = cvs.getContext('2d');
+  const w = cvs.width = 80;
+  const h = cvs.height = 30;
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle = '#ff6ec7';
+  ctx.lineWidth = 1.5;
+  
+  // Resistor zigzag
+  ctx.beginPath();
+  ctx.moveTo(5, h/2);
+  ctx.lineTo(20, h/2);
+  for(let i=0; i<6; i++) {
+    ctx.lineTo(23 + i*6, i%2===0 ? 5 : h-5);
+  }
+  ctx.lineTo(60, h/2);
+  ctx.lineTo(75, h/2);
+  ctx.stroke();
+  
+  document.getElementById('sch-r-val').textContent = EL.fmtR(R);
+}
+
+// ── CHALLENGE LOGIC
+function checkChallenge(I, R) {
+  const targetI = 0.01; // 10mA
+  const targetR = 470;
+  const isMatch = Math.abs(I - targetI) < 0.0002 && Math.abs(R - targetR) < 1;
+  document.getElementById('ch-stat').classList.toggle('done', isMatch);
+  if(isMatch) {
+    document.getElementById('ch-desc').innerHTML = "<b>Challenge Complete!</b> You found the 10mA operating point.";
+  }
 }
 
 // ── COLOR BANDS
@@ -357,6 +446,22 @@ bodyMesh.rotation.z = Math.PI/2;
 bodyMesh.castShadow = true;
 scene.add(bodyMesh);
 
+// Current Direction Arrows
+const arrowHelper = new THREE.ArrowHelper(
+  new THREE.Vector3(1, 0, 0),
+  new THREE.Vector3(-2.8, 0.4, 0),
+  1, 0xffffff, 0.15, 0.1
+);
+scene.add(arrowHelper);
+
+// Smoke Particles
+const smokeCount = 20;
+const smokeGeo = new THREE.BufferGeometry();
+const smokePos = new Float32Array(smokeCount * 3);
+const smokeMat = new THREE.PointsMaterial({ color: 0x888888, size: 0.1, transparent: true, opacity: 0 });
+const smokePoints = new THREE.Points(smokeGeo, smokeMat);
+scene.add(smokePoints);
+
 // Leads
 const leadMat = new THREE.MeshPhongMaterial({ color:0xcccccc, shininess:80 });
 [-1.8, 1.8].forEach(x => {
@@ -428,6 +533,38 @@ function animate(ts) {
 
   // Glow with current
   eMat.emissiveIntensity = 0.2 + EL.clamp(I/0.5, 0, 1)*0.8;
+
+  // Visual Failure (Burn-out)
+  const isOverload = P > 0.25;
+  const burnMsg = document.getElementById('burn-msg');
+  if (isOverload) {
+    bodyMat.emissive.setRGB(Math.min((P-0.25)*2, 0.8), 0, 0);
+    bodyMat.emissiveIntensity = 0.5 + Math.sin(ts*0.01)*0.2;
+    burnMsg.style.display = 'flex';
+    
+    // Animate smoke
+    smokeMat.opacity = Math.min((P-0.25)*3, 0.6);
+    const positions = smokePoints.geometry.attributes.position ? smokePoints.geometry.attributes.position.array : smokePos;
+    for(let i=0; i<smokeCount; i++) {
+      if(positions[i*3+1] > 1.5 || positions[i*3] === 0) {
+        positions[i*3] = (Math.random()-0.5)*1.5;
+        positions[i*3+1] = 0.2;
+        positions[i*3+2] = (Math.random()-0.5)*0.4;
+      }
+      positions[i*3+1] += 0.02 * (1 + Math.random());
+      positions[i*3] += (Math.random()-0.5)*0.01;
+    }
+    smokePoints.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  } else {
+    bodyMat.emissive.setHex(0);
+    burnMsg.style.display = 'none';
+    smokeMat.opacity = 0;
+  }
+
+  // Update Arrows
+  arrowHelper.scale.set(1, 1, Math.max(I*20, 0.1));
+  arrowHelper.visible = I > 0.0001;
+  arrowHelper.line.material.color.setHSL(0.9, 1, 0.5 + EL.clamp(I*10, 0, 0.4));
 
   // Orbital rotation applied to body/bands
   const ry = rotY, rx = rotX;
