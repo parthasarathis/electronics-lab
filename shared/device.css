@@ -57,7 +57,7 @@ body{background:var(--bg);color:var(--text);
 }
 
 /* ── BODY ── */
-#body{flex:1;display:flex;flex-direction:row;overflow:hidden;min-height:0}
+#body{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 
 /* ── 3D CANVAS ── */
 #canvas-section{
@@ -172,14 +172,14 @@ body{background:var(--bg);color:var(--text);
 /* ── RESPONSIVE ── */
 @media(min-width:640px){
   #body{flex-direction:row}
-  #canvas-section{width:48%;height:calc(100vh - 48px);border-right:1px solid var(--border)}
-  #panels-section{width:52%;height:calc(100vh - 48px)}
+  #canvas-section{width:48%;height:100%;border-right:1px solid var(--border)}
+  #panels-section{width:52%;height:100%}
   .dev-name{font-size:15px}.val{font-size:18px!important}.ptitle{font-size:8.5px!important}
   .facts{font-size:9px}
 }
 @media(min-width:1024px){
   #canvas-section{width:42%}#panels-section{width:32%}
-  #curve-section{display:flex;width:26%;height:calc(100vh - 48px)}
+  #curve-section{display:flex;width:26%;height:100%}
   .dev-name{font-size:16px}.val{font-size:20px!important}.kvgrid{gap:10px}
   .panel{padding:10px 14px}.ptitle{font-size:9px!important}
   .facts{font-size:9.5px;line-height:2.2}.curve-panel-main{display:none}

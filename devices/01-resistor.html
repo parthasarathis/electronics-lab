@@ -519,7 +519,10 @@ function animate(ts) {
   lastTS = ts;
 
   // Frame-rate independent electron speed
-  const I = voltV() / rEff();
+  const V = voltV();
+  const R = rEff();
+  const I = V / R;
+  const P = V * I;
   const speed = EL.clamp(I*0.3, 0.004, 0.7);
   ePhase = (ePhase + speed*dt) % 1;
 
