@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#06080f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Electronics Simulation Lab — 150 Interactive 3D Device Simulations by Pagadev Deeptech">
+<link rel="manifest" href="manifest.json">
+<title>ElecLab | Pagadev Deeptech</title>
+<style>
+:root {
+  --bg:      #06080f;
+  --panel:   #0c1018;
+  --panel2:  #0f1520;
+  --border:  #182030;
+  --sub:     #5a7090;
+  --text:    #ccd8f0;
+  --text2:   #8899bb;
+  --accent:  #8b34e8;
+  --accent2: #b06dff;
+  --accent-rgb: 139,52,232;
+  --pd-purple: #570d8a;
+  --pd-navy:   #052767;
+  --radius: 10px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:14px}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Courier New',Courier,monospace;
+  min-height:100vh;overflow-x:hidden;
+}
+
+/* ── GATE SCREEN ───────────────────────────────────────────────── */
+#gate-screen{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 30%,#0d0520 0%,#03050a 100%);
+  text-align:center;padding:32px;
+}
+.gate-logo{
+  height:52px;object-fit:contain;margin-bottom:32px;
+  filter:brightness(0) invert(1);opacity:0.9;
+}
+.gate-ring{
+  width:64px;height:64px;border-radius:50%;
+  border:1px solid rgba(139,52,232,0.4);
+  background:rgba(139,52,232,0.07);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;
+  box-shadow:0 0 24px rgba(139,52,232,0.12);
+}
+.gate-ring svg{width:26px;height:26px;fill:#8b34e8}
+.gate-tag{
+  font-size:8px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:12px;
+}
+.gate-title{
+  font-size:16px;letter-spacing:2px;color:#fff;
+  font-weight:bold;margin-bottom:14px;text-transform:uppercase;
+}
+.gate-msg{
+  font-size:11px;color:var(--text2);line-height:2;
+  max-width:280px;margin-bottom:32px;
+}
+.gate-msg b{color:var(--accent2)}
+.gate-divider{
+  width:40px;height:1px;
+  background:rgba(139,52,232,0.3);
+  margin:0 auto 20px;
+}
+.gate-brand{font-size:7px;letter-spacing:3px;color:var(--sub);text-transform:uppercase}
+.gate-brand b{color:rgba(139,52,232,0.7)}
+
+/* ── HEADER ────────────────────────────────────────────────────── */
+#header{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(90deg,rgba(57,8,90,0.97) 0%,rgba(5,39,103,0.97) 100%);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(139,52,232,0.3);
+  padding:9px 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  min-height:54px;
+}
+#hd-brand{display:flex;align-items:center;gap:10px;min-width:0}
+#hd-logo{height:34px;object-fit:contain;flex-shrink:0}
+#hd-titles{display:flex;flex-direction:column;gap:1px;min-width:0}
+.hd-co{font-size:6.5px;letter-spacing:2px;color:rgba(255,255,255,0.45);text-transform:uppercase}
+.hd-prod{
+  font-size:14px;letter-spacing:3px;color:#fff;
+  text-transform:uppercase;font-weight:bold;white-space:nowrap;
+}
+.hd-sub{font-size:6px;letter-spacing:1.5px;color:rgba(176,109,255,0.65);text-transform:uppercase}
+#hd-badge{
+  flex-shrink:0;
+  font-size:8px;letter-spacing:0.5px;
+  color:var(--accent2);
+  background:rgba(139,52,232,0.12);
+  border:1px solid rgba(139,52,232,0.28);
+  border-radius:20px;padding:4px 10px;white-space:nowrap;
+}
+
+/* ── CONTROLS ──────────────────────────────────────────────────── */
+#controls{
+  padding:10px 12px 8px;
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:54px;z-index:90;
+}
+#search-wrap{position:relative;margin-bottom:9px}
+#search-icon{
+  position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;fill:var(--sub);pointer-events:none;
+}
+#search{
+  width:100%;background:var(--panel2);
+  border:1px solid var(--border);border-radius:20px;
+  padding:8px 12px 8px 32px;
+  color:var(--text);font-family:'Courier New',monospace;font-size:12px;
+  outline:none;letter-spacing:0.5px;
+  transition:border-color 0.2s;
+}
+#search:focus{border-color:rgba(139,52,232,0.5)}
+#search::placeholder{color:var(--sub)}
+#search::-webkit-search-cancel-button{display:none}
+
+#cat-wrap{
+  display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+#cat-wrap::-webkit-scrollbar{display:none}
+.cf{
+  flex-shrink:0;padding:4px 10px;border-radius:14px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--sub);font-size:7.5px;letter-spacing:1px;
+  text-transform:uppercase;cursor:pointer;
+  font-family:'Courier New',monospace;
+  transition:all 0.15s;-webkit-tap-highlight-color:transparent;
+}
+.cf.on{
+  border-color:var(--cc,var(--accent));
+  color:var(--cc,var(--accent));
+  background:rgba(var(--cr,var(--accent-rgb)),0.09);
+}
+
+/* ── RESULT BAR ────────────────────────────────────────────────── */
+#res-bar{
+  padding:5px 12px;font-size:7px;color:var(--sub);
+  letter-spacing:1.5px;text-transform:uppercase;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(12,16,24,0.5);
+}
+#res-bar em{color:var(--accent2);font-style:normal}
+
+/* ── DEVICE GRID ───────────────────────────────────────────────── */
+#grid{
+  padding:10px 8px 72px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:7px;
+}
+
+/* ── DEVICE CARD ───────────────────────────────────────────────── */
+.dc{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:9px 10px 8px;
+  text-decoration:none;
+  display:flex;flex-direction:column;gap:4px;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:border-color 0.18s,background 0.18s;
+  -webkit-tap-highlight-color:transparent;
+}
+.dc::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--dcc,#333);opacity:0.75;
+  border-radius:var(--radius) var(--radius) 0 0;
+}
+.dc:active{opacity:0.7;transform:scale(0.98)}
+.dc-num{
+  font-size:7px;letter-spacing:1.5px;
+  color:var(--sub);display:flex;align-items:center;justify-content:space-between;
+}
+.dc-num span{
+  font-size:6.5px;color:var(--dcc,var(--sub));
+  background:rgba(0,0,0,0.3);padding:1px 5px;
+  border-radius:4px;border:1px solid rgba(255,255,255,0.06);
+}
+.dc-name{
+  font-size:11px;color:var(--text);
+  letter-spacing:0.3px;line-height:1.3;font-weight:bold;
+}
+.dc-cat{
+  font-size:6.5px;letter-spacing:1px;text-transform:uppercase;
+  padding:2px 6px;border-radius:8px;
+  display:inline-block;align-self:flex-start;margin-top:1px;
+}
+.dc-unit{font-size:7px;color:var(--sub);letter-spacing:0.3px}
+
+/* ── EMPTY STATE ───────────────────────────────────────────────── */
+#empty{
+  display:none;grid-column:1/-1;
+  text-align:center;padding:48px 20px;
+}
+#empty svg{width:36px;height:36px;fill:var(--border);margin-bottom:12px}
+#empty p{font-size:9px;color:var(--sub);letter-spacing:2px;text-transform:uppercase}
+
+/* ── FOOTER BAR ────────────────────────────────────────────────── */
+#footer{
+  position:fixed;bottom:0;left:0;right:0;
+  padding:8px 16px;
+  background:rgba(6,8,15,0.96);
+  border-top:1px solid var(--border);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:space-between;
+  z-index:80;
+}
+.ft-l{display:flex;flex-direction:column;gap:2px}
+.ft-brand{font-size:7px;letter-spacing:2.5px;color:var(--sub);text-transform:uppercase}
+.ft-brand b{color:rgba(139,52,232,0.75)}
+.ft-tag{font-size:5.5px;letter-spacing:1px;color:rgba(90,112,144,0.4);text-transform:uppercase}
+.ft-r{font-size:6.5px;color:rgba(90,112,144,0.4);letter-spacing:1px}
+
+/* ── PWA BANNER ────────────────────────────────────────────────── */
+#pwa-bar{
+  display:none;position:fixed;bottom:44px;left:10px;right:10px;
+  background:linear-gradient(135deg,rgba(57,8,90,0.96),rgba(5,39,103,0.96));
+  border:1px solid rgba(139,52,232,0.4);border-radius:10px;
+  padding:10px 12px;align-items:center;gap:10px;z-index:200;
+  backdrop-filter:blur(8px);
+}
+#pwa-bar.show{display:flex}
+.pwa-txt{flex:1;font-size:9px;letter-spacing:0.3px;color:var(--text2);line-height:1.6}
+.pwa-txt b{color:#fff}
+.pwa-btn{
+  flex-shrink:0;padding:6px 12px;
+  background:rgba(139,52,232,0.18);
+  border:1px solid rgba(139,52,232,0.5);
+  border-radius:14px;color:var(--accent2);
+  font-size:8px;letter-spacing:0.5px;cursor:pointer;
+  font-family:'Courier New',monospace;
+  -webkit-tap-highlight-color:transparent;
+}
+.pwa-x{color:var(--sub);font-size:16px;cursor:pointer;flex-shrink:0;line-height:1}
+
+/* ── RESPONSIVE ────────────────────────────────────────────────── */
+@media(min-width:480px){
+  #grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(min-width:700px){
+  #grid{grid-template-columns:repeat(4,1fr)}
+  #controls{top:56px}
+  .dc-name{font-size:12px}
+}
+@media(min-width:1024px){
+  #grid{grid-template-columns:repeat(5,1fr);gap:9px;padding:12px 16px 72px}
+  #header,#controls,#res-bar{padding-left:20px;padding-right:20px}
+  .hd-prod{font-size:15px}
+  .dc-name{font-size:12px}
+}
+@media(min-width:1440px){
+  #grid{grid-template-columns:repeat(6,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ TOKEN GATE ═══════════════════════════════════════════════ -->
+<div id="gate-screen">
+  <img class="gate-logo"
+       src="https://pagadev.in/assets/img/LOGO R-01-2.png" alt="Pagadev"
+       onerror="this.style.display='none'">
+  <div class="gate-ring">
+    <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+  </div>
+  <div class="gate-tag">Restricted Access</div>
+  <div class="gate-title">Electronics Lab</div>
+  <div class="gate-msg">
+    This content is exclusively available<br>
+    through the <b>Pagadev Electronics Lab</b><br>
+    mobile application.<br><br>
+    Open the app on your device to continue.
+  </div>
+  <div class="gate-divider"></div>
+  <div class="gate-brand"><b>PAGADEV</b> DEEPTECH PRIVATE LIMITED</div>
+</div>
+
+<!-- ══ MAIN APP ══════════════════════════════════════════════════ -->
+<div id="app" style="display:none">
+
+  <!-- HEADER -->
+  <div id="header">
+    <div id="hd-brand">
+      <img id="hd-logo"
+           src="https://pagadev.in/assets/img/LOGO R-01-2.png" alt="Pagadev"
+           onerror="this.style.display='none'">
+      <div id="hd-titles">
+        <div class="hd-co">Pagadev Deeptech</div>
+        <div class="hd-prod">Electronics Lab</div>
+        <div class="hd-sub">150 Interactive 3D Simulations</div>
+      </div>
+    </div>
+    <div id="hd-badge"><span id="vis-count">150</span> devices</div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div id="controls">
+    <div id="search-wrap">
+      <svg id="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input id="search" type="search" placeholder="Search device · name · number · category…" autocomplete="off" spellcheck="false">
+    </div>
+    <div id="cat-wrap">
+      <button class="cf on"  data-cat="all"        style="--cc:#8b34e8;--cr:139,52,232">All</button>
+      <button class="cf"     data-cat="Passive"     style="--cc:#ff8c00;--cr:255,140,0">Passive</button>
+      <button class="cf"     data-cat="Diode"       style="--cc:#ff4488;--cr:255,68,136">Diode</button>
+      <button class="cf"     data-cat="Transistor"  style="--cc:#44aaff;--cr:68,170,255">Transistor</button>
+      <button class="cf"     data-cat="Thyristor"   style="--cc:#ff6600;--cr:255,102,0">Thyristor</button>
+      <button class="cf"     data-cat="Opto"        style="--cc:#ffdd00;--cr:255,221,0">Opto</button>
+      <button class="cf"     data-cat="Sensor"      style="--cc:#44ffaa;--cr:68,255,170">Sensor</button>
+      <button class="cf"     data-cat="Actuator"    style="--cc:#ff8844;--cr:255,136,68">Actuator</button>
+      <button class="cf"     data-cat="Analog IC"   style="--cc:#aa44ff;--cr:170,68,255">Analog IC</button>
+      <button class="cf"     data-cat="Digital IC"  style="--cc:#44ddff;--cr:68,221,255">Digital IC</button>
+      <button class="cf"     data-cat="Memory"      style="--cc:#ffaa44;--cr:255,170,68">Memory</button>
+      <button class="cf"     data-cat="MCU"         style="--cc:#88ff44;--cr:136,255,68">MCU</button>
+      <button class="cf"     data-cat="Comms"       style="--cc:#44aaff;--cr:68,170,255">Comms</button>
+      <button class="cf"     data-cat="Power"       style="--cc:#ff4444;--cr:255,68,68">Power</button>
+      <button class="cf"     data-cat="Interface"   style="--cc:#ff44aa;--cr:255,68,170">Interface</button>
+    </div>
+  </div>
+
+  <!-- RESULT BAR -->
+  <div id="res-bar">
+    <div>Showing <em id="res-n">150</em> of 150 devices</div>
+    <div id="res-cat-lbl" style="color:var(--sub)">All Categories</div>
+  </div>
+
+  <!-- GRID -->
+  <div id="grid">
+    <div id="empty">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <p>No devices match</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div id="footer">
+    <div class="ft-l">
+      <div class="ft-brand"><b>PAGADEV</b> DEEPTECH PVT. LTD.</div>
+      <div class="ft-tag">Pioneering Advanced Global Automation &amp; Development</div>
+    </div>
+    <div class="ft-r">ElecLab v1.0</div>
+  </div>
+
+  <!-- PWA INSTALL BANNER -->
+  <div id="pwa-bar">
+    <div class="pwa-txt"><b>Install Electronics Lab</b><br>Add to home screen for offline access</div>
+    <button class="pwa-btn" id="pwa-install-btn">Install</button>
+    <span class="pwa-x" id="pwa-x">✕</span>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// ACCESS TOKEN GATE
+// Flutter app must inject this before page load via initialUserScripts:
+//   localStorage.setItem('pd_elec_access', 'PDEL_7x9K_2025');
+// ═══════════════════════════════════════════════════════════════════
+const TOKEN = 'PDEL_7x9K_2025';
+
+function checkAccess() {
+  const ok = localStorage.getItem('pd_elec_access') === TOKEN
+          || location.hostname === 'localhost'
+          || location.hostname === '127.0.0.1';
+  if (ok) {
+    document.getElementById('gate-screen').style.display = 'none';
+    document.getElementById('app').style.display         = 'block';
+  }
+  return ok;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DEVICE CATALOGUE
+// ═══════════════════════════════════════════════════════════════════
+const CATS = {
+  'Passive':    ['#ff8c00','255,140,0'],
+  'Diode':      ['#ff4488','255,68,136'],
+  'Transistor': ['#44aaff','68,170,255'],
+  'Thyristor':  ['#ff6600','255,102,0'],
+  'Opto':       ['#ffdd00','255,221,0'],
+  'Sensor':     ['#44ffaa','68,255,170'],
+  'Actuator':   ['#ff8844','255,136,68'],
+  'Analog IC':  ['#aa44ff','170,68,255'],
+  'Digital IC': ['#44ddff','68,221,255'],
+  'Memory':     ['#ffaa44','255,170,68'],
+  'MCU':        ['#88ff44','136,255,68'],
+  'Comms':      ['#44aaff','68,170,255'],
+  'Power':      ['#ff4444','255,68,68'],
+  'Interface':  ['#ff44aa','255,68,170'],
+};
+
+const D = [
+  // PASSIVE 01–10
+  [1,'Resistor','01-resistor.html','Passive','R','Ω'],
+  [2,'Capacitor','02-capacitor.html','Passive','C','F'],
+  [3,'Inductor','03-inductor.html','Passive','L','H'],
+  [4,'Transformer','04-transformer.html','Passive','T','—'],
+  [5,'Crystal / Resonator','05-crystal.html','Passive','X','Hz'],
+  [6,'Fuse','06-fuse.html','Passive','F','A'],
+  [7,'Varistor (VDR)','07-varistor.html','Passive','RV','V'],
+  [8,'Thermistor NTC/PTC','08-thermistor.html','Passive','RT','Ω'],
+  [9,'LDR','09-ldr.html','Passive','RL','Ω'],
+  [10,'Potentiometer','10-potentiometer.html','Passive','RV','Ω'],
+  // DIODES 11–21
+  [11,'P-N Junction Diode','11-pn-diode.html','Diode','D','V'],
+  [12,'Zener Diode','12-zener-diode.html','Diode','DZ','V'],
+  [13,'Schottky Diode','13-schottky-diode.html','Diode','DS','V'],
+  [14,'Tunnel Diode','14-tunnel-diode.html','Diode','DT','mA'],
+  [15,'Varactor Diode','15-varactor-diode.html','Diode','DV','pF'],
+  [16,'PIN Diode','16-pin-diode.html','Diode','DP','Ω'],
+  [17,'Photodiode','17-photodiode.html','Diode','PD','A/W'],
+  [18,'LED','18-led.html','Diode','D','nm'],
+  [19,'Laser Diode','19-laser-diode.html','Diode','LD','mW'],
+  [20,'Avalanche Diode','20-avalanche-diode.html','Diode','DA','V'],
+  [21,'Rectifier Diode','21-rectifier-diode.html','Diode','D','A'],
+  // TRANSISTORS 22–32
+  [22,'NPN BJT','22-npn-bjt.html','Transistor','Q','—'],
+  [23,'PNP BJT','23-pnp-bjt.html','Transistor','Q','—'],
+  [24,'N-Channel JFET','24-n-jfet.html','Transistor','J','mA'],
+  [25,'P-Channel JFET','25-p-jfet.html','Transistor','J','mA'],
+  [26,'NMOS Enhancement','26-nmos-enhancement.html','Transistor','M','A'],
+  [27,'PMOS Enhancement','27-pmos-enhancement.html','Transistor','M','A'],
+  [28,'Depletion MOSFET','28-depletion-mosfet.html','Transistor','M','A'],
+  [29,'Darlington Transistor','29-darlington.html','Transistor','Q','—'],
+  [30,'IGBT','30-igbt.html','Transistor','Q','A'],
+  [31,'Phototransistor','31-phototransistor.html','Transistor','QP','mA'],
+  [32,'UJT','32-ujt.html','Transistor','Q','—'],
+  // THYRISTORS 33–39
+  [33,'SCR','33-scr.html','Thyristor','SCR','A'],
+  [34,'TRIAC','34-triac.html','Thyristor','TR','A'],
+  [35,'DIAC','35-diac.html','Thyristor','D','V'],
+  [36,'GTO','36-gto.html','Thyristor','G','A'],
+  [37,'Power MOSFET','37-power-mosfet.html','Thyristor','M','A'],
+  [38,'SiC MOSFET','38-sic-mosfet.html','Thyristor','M','A'],
+  [39,'GaN Transistor','39-gan-transistor.html','Thyristor','M','A'],
+  // OPTOELECTRONICS 40–50
+  [40,'LED (Opto)','40-led-opto.html','Opto','D','lm'],
+  [41,'Infrared LED','41-ir-led.html','Opto','D','mW'],
+  [42,'Photodiode (Opto)','42-photodiode-opto.html','Opto','PD','A'],
+  [43,'Phototransistor (Opto)','43-phototransistor-opto.html','Opto','QP','mA'],
+  [44,'Optocoupler','44-optocoupler.html','Opto','OK','CTR'],
+  [45,'Solar Cell','45-solar-cell.html','Opto','PV','W'],
+  [46,'LCD','46-lcd.html','Opto','—','—'],
+  [47,'OLED','47-oled.html','Opto','—','cd/m²'],
+  [48,'7-Segment Display','48-seven-segment.html','Opto','—','—'],
+  [49,'Dot Matrix Display','49-dot-matrix.html','Opto','—','—'],
+  [50,'CCD Image Sensor','50-ccd-sensor.html','Opto','—','MP'],
+  // SENSORS 51–70
+  [51,'Temperature Sensor','51-temp-sensor.html','Sensor','—','°C'],
+  [52,'Humidity Sensor','52-humidity-sensor.html','Sensor','—','%RH'],
+  [53,'Pressure Sensor','53-pressure-sensor.html','Sensor','—','Pa'],
+  [54,'Ultrasonic Sensor','54-ultrasonic-sensor.html','Sensor','—','cm'],
+  [55,'IR Proximity Sensor','55-ir-proximity.html','Sensor','—','cm'],
+  [56,'Hall Effect Sensor','56-hall-effect.html','Sensor','—','T'],
+  [57,'Accelerometer MEMS','57-accelerometer.html','Sensor','—','g'],
+  [58,'Gyroscope MEMS','58-gyroscope.html','Sensor','—','°/s'],
+  [59,'Magnetometer','59-magnetometer.html','Sensor','—','μT'],
+  [60,'Strain Gauge','60-strain-gauge.html','Sensor','—','με'],
+  [61,'Load Cell','61-load-cell.html','Sensor','—','kg'],
+  [62,'Gas Sensor MQ','62-gas-sensor.html','Sensor','—','ppm'],
+  [63,'PIR Motion Sensor','63-pir-sensor.html','Sensor','—','—'],
+  [64,'Flex Sensor','64-flex-sensor.html','Sensor','—','Ω'],
+  [65,'Touch Sensor','65-touch-sensor.html','Sensor','—','pF'],
+  [66,'Color Sensor','66-color-sensor.html','Sensor','—','RGB'],
+  [67,'Current Sensor','67-current-sensor.html','Sensor','—','A'],
+  [68,'Rotary Encoder','68-rotary-encoder.html','Sensor','—','PPR'],
+  [69,'Microphone','69-microphone.html','Sensor','—','dB'],
+  [70,'Piezoelectric Sensor','70-piezo-sensor.html','Sensor','—','V/Pa'],
+  // ACTUATORS 71–81
+  [71,'DC Motor','71-dc-motor.html','Actuator','M','RPM'],
+  [72,'BLDC Motor','72-bldc-motor.html','Actuator','M','RPM'],
+  [73,'Stepper Motor','73-stepper-motor.html','Actuator','M','step'],
+  [74,'Servo Motor','74-servo-motor.html','Actuator','M','°'],
+  [75,'Solenoid','75-solenoid.html','Actuator','L','N'],
+  [76,'Relay','76-relay.html','Actuator','K','A'],
+  [77,'Solid State Relay','77-ssr.html','Actuator','SSR','A'],
+  [78,'Speaker / Buzzer','78-speaker.html','Actuator','LS','Hz'],
+  [79,'Piezo Buzzer','79-piezo-buzzer.html','Actuator','BZ','Hz'],
+  [80,'Linear Actuator','80-linear-actuator.html','Actuator','—','mm'],
+  [81,'Vibration Motor','81-vibration-motor.html','Actuator','M','Hz'],
+  // ANALOG IC 82–94
+  [82,'Op-Amp LM741','82-opamp.html','Analog IC','U','V/V'],
+  [83,'Comparator LM393','83-comparator.html','Analog IC','U','—'],
+  [84,'555 Timer IC','84-555-timer.html','Analog IC','U','Hz'],
+  [85,'Voltage Regulator 78xx','85-voltage-regulator.html','Analog IC','U','V'],
+  [86,'LDO Regulator','86-ldo-regulator.html','Analog IC','U','V'],
+  [87,'Instrumentation Amp','87-inamp.html','Analog IC','U','V/V'],
+  [88,'ADC','88-adc.html','Analog IC','U','bit'],
+  [89,'DAC','89-dac.html','Analog IC','U','bit'],
+  [90,'PLL','90-pll.html','Analog IC','U','Hz'],
+  [91,'VCO','91-vco.html','Analog IC','U','Hz'],
+  [92,'Sample & Hold','92-sample-hold.html','Analog IC','U','—'],
+  [93,'Multiplier IC','93-multiplier-ic.html','Analog IC','U','—'],
+  [94,'Audio Amp LM386','94-audio-amp.html','Analog IC','U','W'],
+  // DIGITAL IC 95–104
+  [95,'Logic Gates','95-logic-gates.html','Digital IC','—','—'],
+  [96,'Flip-Flops','96-flip-flops.html','Digital IC','—','—'],
+  [97,'Mux / Demux','97-mux-demux.html','Digital IC','—','—'],
+  [98,'Encoder / Decoder','98-encoder-decoder.html','Digital IC','—','—'],
+  [99,'Shift Register','99-shift-register.html','Digital IC','—','bit'],
+  [100,'Counter IC','100-counter-ic.html','Digital IC','—','—'],
+  [101,'Schmitt Trigger','101-schmitt-trigger.html','Digital IC','—','V'],
+  [102,'Latch','102-latch.html','Digital IC','—','—'],
+  [103,'Priority Encoder','103-priority-encoder.html','Digital IC','—','—'],
+  [104,'Full Adder / ALU','104-full-adder.html','Digital IC','—','—'],
+  // MEMORY 105–110
+  [105,'SRAM','105-sram.html','Memory','—','bit'],
+  [106,'DRAM','106-dram.html','Memory','—','bit'],
+  [107,'EEPROM','107-eeprom.html','Memory','—','KB'],
+  [108,'Flash Memory','108-flash-memory.html','Memory','—','MB'],
+  [109,'ROM / EPROM','109-rom-eprom.html','Memory','—','KB'],
+  [110,'SD Card Module','110-sd-card.html','Memory','—','GB'],
+  // MCU 111–120
+  [111,'Arduino ATmega328','111-arduino.html','MCU','—','—'],
+  [112,'ESP8266 / ESP32','112-esp32.html','MCU','—','—'],
+  [113,'STM32 ARM Cortex-M','113-stm32.html','MCU','—','—'],
+  [114,'RP2040 Raspberry Pi','114-rp2040.html','MCU','—','—'],
+  [115,'PIC Microcontroller','115-pic-mcu.html','MCU','—','—'],
+  [116,'AVR Microcontroller','116-avr-mcu.html','MCU','—','—'],
+  [117,'Raspberry Pi SBC','117-raspberry-pi.html','MCU','—','—'],
+  [118,'FPGA','118-fpga.html','MCU','—','LE'],
+  [119,'CPLD','119-cpld.html','MCU','—','—'],
+  [120,'DSP Processor','120-dsp.html','MCU','—','MIPS'],
+  // COMMS 121–132
+  [121,'UART / RS-232','121-uart.html','Comms','—','bps'],
+  [122,'I²C Bus','122-i2c.html','Comms','—','kHz'],
+  [123,'SPI','123-spi.html','Comms','—','MHz'],
+  [124,'CAN Bus','124-can-bus.html','Comms','—','Mbps'],
+  [125,'RS-485','125-rs485.html','Comms','—','bps'],
+  [126,'Bluetooth HC-05','126-bluetooth.html','Comms','—','dBm'],
+  [127,'Wi-Fi ESP8266','127-wifi-module.html','Comms','—','dBm'],
+  [128,'NRF24L01 2.4GHz','128-nrf24.html','Comms','—','dBm'],
+  [129,'LoRa SX1278','129-lora.html','Comms','—','km'],
+  [130,'GSM / 4G Module','130-gsm-module.html','Comms','—','dBm'],
+  [131,'GPS NEO-6M','131-gps-module.html','Comms','—','m'],
+  [132,'Zigbee Module','132-zigbee.html','Comms','—','m'],
+  // POWER 133–142
+  [133,'Bridge Rectifier','133-bridge-rectifier.html','Power','—','V'],
+  [134,'Boost Converter','134-boost-converter.html','Power','—','%'],
+  [135,'Buck Converter','135-buck-converter.html','Power','—','%'],
+  [136,'Buck-Boost Converter','136-buck-boost.html','Power','—','%'],
+  [137,'Flyback Converter','137-flyback-converter.html','Power','—','W'],
+  [138,'H-Bridge Driver','138-h-bridge.html','Power','—','A'],
+  [139,'Gate Driver IC','139-gate-driver.html','Power','—','A'],
+  [140,'Battery Management BMS','140-bms.html','Power','—','V'],
+  [141,'Supercapacitor','141-supercapacitor.html','Power','—','F'],
+  [142,'UPS Module','142-ups-module.html','Power','—','Wh'],
+  // INTERFACE 143–150
+  [143,'LCD Driver HD44780','143-lcd-driver.html','Interface','—','—'],
+  [144,'LED Driver WS2812','144-led-driver.html','Interface','—','mA'],
+  [145,'Servo Driver PCA9685','145-servo-driver.html','Interface','—','°'],
+  [146,'Motor Driver DRV8833','146-motor-driver.html','Interface','—','A'],
+  [147,'Stepper Driver A4988','147-stepper-driver.html','Interface','—','A'],
+  [148,'7-Seg Driver MAX7219','148-seven-seg-driver.html','Interface','—','—'],
+  [149,'Keyboard Scanner IC','149-keyboard-scanner.html','Interface','—','—'],
+  [150,'Touch Controller IC','150-touch-controller.html','Interface','—','—'],
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// STATE + RENDER
+// ═══════════════════════════════════════════════════════════════════
+let activeCat = 'all', query = '';
+
+function render() {
+  const q = query.toLowerCase().trim();
+  const list = D.filter(([n, name, , cat]) => {
+    const catOk = activeCat === 'all' || cat === activeCat;
+    const qOk   = !q || name.toLowerCase().includes(q) || String(n).includes(q) || cat.toLowerCase().includes(q);
+    return catOk && qOk;
+  });
+
+  document.getElementById('vis-count').textContent = list.length;
+  document.getElementById('res-n').textContent     = list.length;
+  document.getElementById('res-cat-lbl').textContent =
+    activeCat === 'all' ? 'All Categories' : activeCat;
+
+  const grid  = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+
+  // Remove existing cards
+  Array.from(grid.querySelectorAll('.dc')).forEach(el => el.remove());
+
+  if (!list.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  const frag = document.createDocumentFragment();
+  list.forEach(([n, name, file, cat, sym, unit]) => {
+    const [col, rgb] = CATS[cat] || ['#888', '136,136,136'];
+    const a = document.createElement('a');
+    a.className = 'dc';
+    a.href = 'devices/' + file;
+    a.style.setProperty('--dcc', col);
+    a.innerHTML =
+      `<div class="dc-num">#${String(n).padStart(2,'0')}<span>${sym}</span></div>` +
+      `<div class="dc-name">${name}</div>` +
+      `<div class="dc-cat" style="color:${col};background:rgba(${rgb},.1);border:1px solid rgba(${rgb},.22)">${cat}</div>` +
+      (unit !== '—' ? `<div class="dc-unit">Unit: ${unit}</div>` : '');
+    frag.appendChild(a);
+  });
+  grid.appendChild(frag);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EVENTS
+// ═══════════════════════════════════════════════════════════════════
+document.getElementById('search').addEventListener('input', function() {
+  query = this.value;
+  render();
+});
+
+document.getElementById('cat-wrap').addEventListener('click', e => {
+  const btn = e.target.closest('.cf');
+  if (!btn) return;
+  document.querySelectorAll('.cf').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  activeCat = btn.dataset.cat;
+  render();
+});
+
+// PWA install
+let deferredInstall;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstall = e;
+  setTimeout(() => document.getElementById('pwa-bar').classList.add('show'), 4000);
+});
+document.getElementById('pwa-install-btn').addEventListener('click', () => {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  deferredInstall.userChoice.then(() => {
+    deferredInstall = null;
+    document.getElementById('pwa-bar').classList.remove('show');
+  });
+});
+document.getElementById('pwa-x').addEventListener('click', () => {
+  document.getElementById('pwa-bar').classList.remove('show');
+});
+
+// Service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+if (checkAccess()) render();
+</script>
+</body>
+</html>
