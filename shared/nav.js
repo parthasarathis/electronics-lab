@@ -9,12 +9,15 @@
   // ── ACCESS GATE ──────────────────────────────────────────────────
   const TOKEN = 'PDEL_7x9K_2025';
   const isDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const urlParam = new URLSearchParams(location.search).get('app');
 
-  if (!isDev && localStorage.getItem('pd_elec_access') !== TOKEN) {
-    // Redirect to index — gate screen will show there
+  const hasAccess = isDev || localStorage.getItem('pd_elec_access') === TOKEN || urlParam === TOKEN;
+  if (!hasAccess) {
     location.replace('../index.html');
     return;
   }
+
+  const tokenSuffix = urlParam === TOKEN ? '?app=' + TOKEN : '';
 
   // ── DEVICE NUMBER FROM FILENAME ───────────────────────────────────
   const match = location.pathname.match(/\/(\d+)-/);
@@ -100,7 +103,7 @@
     '150-touch-controller',
   ];
 
-  function href(n) { return FILES[n] + '.html'; }
+  function href(n) { return FILES[n] + '.html' + tokenSuffix; }
 
   // ── INJECT NAV BAR ────────────────────────────────────────────────
   const nav = document.createElement('div');
@@ -137,7 +140,7 @@
   }
 
   function homeBtn() {
-    return `<a href="../index.html" style="
+    return `<a href="../index.html${tokenSuffix}" style="
       display:flex;flex-direction:column;align-items:center;
       text-decoration:none;padding:4px 8px;border-radius:8px;
       border:1px solid rgba(139,52,232,0.2);

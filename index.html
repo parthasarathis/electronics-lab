@@ -373,7 +373,9 @@ body{
 const TOKEN = 'PDEL_7x9K_2025';
 
 function checkAccess() {
+  const urlParam = new URLSearchParams(location.search).get('app');
   const ok = localStorage.getItem('pd_elec_access') === TOKEN
+          || urlParam === TOKEN
           || location.hostname === 'localhost'
           || location.hostname === '127.0.0.1';
   if (ok) {
