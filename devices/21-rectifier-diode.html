@@ -1,0 +1,357 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a"><title>Rectifier Diode | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ff4488;--accent2:#ff88bb;--accent-rgb:255,68,136}
+#curve-section canvas,.curve-panel-main canvas{height:200px}
+</style>
+</head><body><div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">21 / 150</span>
+    <span class="dev-name">Rectifier Diode</span>
+    <span class="dev-cat">Semiconductor Diode · Power Conversion</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">21 Rectifier Diode</div>
+
+<div id="body">
+  <!-- 3D Canvas -->
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">⚙ AC to DC Conversion · One-way Valve</div>
+    <div class="canvas-overlay" id="badge">Forward: 0.7V</div>
+  </div>
+
+  <!-- Panels -->
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Controls</div>
+      <div class="srow"><span class="sl">Vac</span>
+        <input type="range" id="sVac" min="0" max="100" value="50" step="1">
+        <span class="sval" id="vVac">50.0 V (peak)</span></div>
+      <div class="srow"><span class="sl">Load R</span>
+        <input type="range" id="sR" min="0" max="100" value="50" step="1">
+        <span class="sval" id="vR">100Ω</span></div>
+      <div class="srow"><span class="sl">Freq</span>
+        <input type="range" id="sFreq" min="0" max="100" value="30" step="1">
+        <span class="sval" id="vFreq">60 Hz</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Live Measurements</div>
+      <div class="kvgrid">
+        <div class="kv"><label>Vf (On-State)</label><div class="val c1" id="lVf">—</div></div>
+        <div class="kv"><label>Peak Forward I</label><div class="val c2" id="lIf">—</div></div>
+        <div class="kv"><label>Reverse Leakage</label><div class="val c3" id="lIr">—</div></div>
+        <div class="kv"><label>DC Output</div><div class="val c4" id="lVdc">—</div></div>
+        <div class="kv"><label>Ripple %</label><div class="val c5" id="lRipple">—</div></div>
+        <div class="kv"><label>PIV Rating</label><div class="val c6" id="lPIV">—</div></div>
+      </div>
+      <div style="margin-top:8px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+          <span style="font-size:7px;color:var(--sub);letter-spacing:1px;text-transform:uppercase;">Forward Power</span>
+          <span style="font-size:7px;color:var(--sub);" id="barPct">0%</span>
+        </div>
+        <div class="bar-wrap"><div class="bar-fill" id="barFill" style="width:0%;background:var(--accent);"></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Physics</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">I = Is(e^(V/Vt)-1)</div><div class="fd">Shockley Equation</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">Vdc ≈ Vpk/π</div><div class="fd">Half-Wave Avg</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">Ripple = Vpk/2Vdc</div><div class="fd">Ripple Factor</div></div>
+      </div>
+    </div>
+
+    <!-- Mobile curve panel -->
+    <div class="panel curve-panel-main">
+      <div class="ptitle">I-V Characteristic (Shockley)</div>
+      <canvas id="curve1" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Teaching Points</div>
+      <div class="facts">
+        · <span>Rectification</span>: converts AC to pulsating DC via one-way conduction<br>
+        · <span>Forward voltage</span> Vf ≈ 0.6–0.7V (Si), nearly constant (ideal diode ≈ 0V)<br>
+        · <span>Shockley equation</span>: I = Is(e^(V/Vt) - 1) governs I-V curve<br>
+        · <span>Peak Inverse Voltage (PIV)</span> = max reverse bias; must exceed supply peak<br>
+        · <span>Ripple voltage</span> inversely proportional to capacitor &amp; resistance<br>
+        · <span>Recovery time</span> trr ≈ 100–1000 ns limits switching frequency
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Desktop Curve Section -->
+  <div id="curve-section">
+    <div class="panel" style="flex:1">
+      <div class="ptitle">I-V Characteristic (Shockley)</div>
+      <canvas id="curve1-desk" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Rectifier Types</div>
+      <div class="facts">
+        · <span>1N4007</span>: 1A, 1000V (general-purpose)<br>
+        · <span>1N4148</span>: 200mA, 75V (fast switching)<br>
+        · <span>UF4007</span>: ultra-fast recovery<br>
+        · <span>Schottky</span>: lower Vf, faster (0.3V)
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── Physics State ──
+let Vac_peak = 50, R_load = 100, freq = 60;
+
+// Rectifier parameters
+const Vf = 0.70;  // forward voltage drop
+const Is = 1e-12;  // reverse saturation current (A)
+const Vt = 0.026;  // thermal voltage @ 25°C (k*T/q)
+const PIV_rated = 1000;  // peak inverse voltage rating
+
+function calcPhysics() {
+  // For a half-wave rectifier with resistive load
+  const Vpk = Vac_peak;
+  const omega = 2 * Math.PI * freq;
+
+  // Simplified rectifier model: conducts when Vac > Vf
+  // Output is (Vpk - Vf) averaged over the conducting half-cycle
+  const Vdc_ideal = (Vpk - Vf) / Math.PI;  // half-wave average
+
+  // Peak forward current when diode conducts
+  const If_peak = (Vpk - Vf) / R_load;
+
+  // Reverse saturation current (temperature 25°C)
+  const Ir = Is;
+
+  // PIV = Vpk (negative peak seen by diode during reverse half-cycle)
+  const PIV = Vpk;
+  const PIV_pct = (PIV / PIV_rated) * 100;
+
+  // Ripple voltage (rough approximation for unfiltered rectifier)
+  // Ripple = Vpk / (2 * f * R * C), but without capacitor, it's just the AC component
+  // For half-wave, ripple factor = Vpk / (2 * Vdc)
+  const ripple_factor = (Vpk / 2) / Math.max(0.1, Vdc_ideal);
+
+  // RMS values
+  const Vrms_ac = Vpk / Math.sqrt(2);
+  const Irms = Vrms_ac / (R_load + 1);  // rough
+
+  // Average power dissipated in diode
+  const Pdiode = Vf * If_peak / 2;  // averaged over cycle
+
+  return { Vdc_ideal, If_peak, Ir, PIV, PIV_pct, ripple_factor, Vrms_ac, Irms, Pdiode, Vf };
+}
+
+function updateUI() {
+  const { Vdc_ideal, If_peak, Ir, PIV, PIV_pct, ripple_factor, Vf } = calcPhysics();
+  document.getElementById('lVf').textContent = Vf.toFixed(2) + ' V';
+  document.getElementById('lIf').textContent = EL.fmtI(If_peak);
+  document.getElementById('lIr').textContent = EL.fmtI(Ir);
+  document.getElementById('lVdc').textContent = Vdc_ideal.toFixed(2) + ' V';
+  document.getElementById('lRipple').textContent = (ripple_factor * 100).toFixed(1) + '%';
+  document.getElementById('lPIV').textContent = PIV.toFixed(0) + ' V (' + PIV_pct.toFixed(0) + '%)';
+  document.getElementById('badge').textContent = `Vf: ${Vf.toFixed(2)}V`;
+
+  // Bar
+  const barPct = Math.min(100, PIV_pct);
+  document.getElementById('barFill').style.width = barPct + '%';
+  document.getElementById('barPct').textContent = barPct.toFixed(0) + '%';
+
+  drawAll();
+}
+
+// ── Sliders ──
+document.getElementById('sVac').addEventListener('input', e => {
+  Vac_peak = +e.target.value;
+  document.getElementById('vVac').textContent = Vac_peak.toFixed(1) + ' V (peak)';
+  updateUI();
+});
+document.getElementById('sR').addEventListener('input', e => {
+  R_load = 10 + +e.target.value * 1.9;  // 10-200 Ω
+  document.getElementById('vR').textContent = R_load.toFixed(0) + 'Ω';
+  updateUI();
+});
+document.getElementById('sFreq').addEventListener('input', e => {
+  freq = Math.floor(20 + +e.target.value * 2);  // 20-220 Hz
+  document.getElementById('vFreq').textContent = freq + ' Hz';
+  updateUI();
+});
+
+// ── 3D Scene ──
+const { renderer, scene, camera } = EL.initScene('c3d');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+EL.initLights(scene, '#ff4488');
+scene.add(pivot);
+
+// Diode body: axial package (like 1N4007)
+const bodyGeo = new THREE.CylinderGeometry(0.25, 0.25, 1.8, 32);
+const bodyMat = new THREE.MeshPhongMaterial({ color: 0x1a1a2e, shininess: 50 });
+const body = new THREE.Mesh(bodyGeo, bodyMat);
+pivot.add(body);
+
+// Cathode band (black stripe)
+const bandGeo = new THREE.CylinderGeometry(0.26, 0.26, 0.15, 32);
+const bandMat = new THREE.MeshPhongMaterial({ color: 0x000000 });
+const band = new THREE.Mesh(bandGeo, bandMat);
+band.position.y = 0.9;
+pivot.add(band);
+
+// P region (red, anode side)
+const pGeo = new THREE.CylinderGeometry(0.26, 0.26, 0.5, 32);
+const pMat = new THREE.MeshPhongMaterial({ color: 0xaa3344 });
+const pRegion = new THREE.Mesh(pGeo, pMat);
+pRegion.position.y = -0.65;
+pivot.add(pRegion);
+
+// N region (blue, cathode side)
+const nGeo = new THREE.CylinderGeometry(0.26, 0.26, 0.5, 32);
+const nMat = new THREE.MeshPhongMaterial({ color: 0x3344aa });
+const nRegion = new THREE.Mesh(nGeo, nMat);
+nRegion.position.y = 0.65;
+pivot.add(nRegion);
+
+// Leads
+const leadGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.0, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+const leadAnode = new THREE.Mesh(leadGeo, leadMat);
+leadAnode.position.y = -1.4;
+pivot.add(leadAnode);
+const leadCathode = new THREE.Mesh(leadGeo, leadMat);
+leadCathode.position.y = 1.4;
+pivot.add(leadCathode);
+
+// Current flow particles (animated during forward bias)
+const particleCount = 40;
+const particlesGeo = new THREE.BufferGeometry();
+const positions = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount; i++) {
+  positions[i*3+1] = -1.5 + Math.random() * 3;
+}
+particlesGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+const particleMat = new THREE.PointsMaterial({ color: 0xff4488, size: 0.1, sizeAttenuation: true });
+const particles = new THREE.Points(particlesGeo, particleMat);
+pivot.add(particles);
+
+// ── Charts ──
+function drawCurve1(ts) {
+  const canvas = document.getElementById('curve1');
+  if (!canvas) return;
+  const { ctx, w, h, accent } = EL.setupChart(canvas, '#ff4488');
+
+  ctx.fillStyle = '#06080f';
+  ctx.fillRect(0, 0, w, h);
+
+  const pad = { l: 36, r: 8, t: 8, b: 28 };
+  EL.drawGrid(ctx, w, h, pad);
+
+  // X: V (-2 to 1V), Y: I (log scale -1pA to 1mA)
+  const minV = -2, maxV = 1;
+  const minI_log = -12, maxI_log = -3;  // 1pA to 1mA
+
+  // Reverse side (V < 0): exponentially small current
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= 30; i++) {
+    const V = minV + (0 - minV) * i / 30;
+    const I = Is;  // constant reverse saturation
+    const logI = Math.log10(I);
+    const x = pad.l + (w - pad.l - pad.r) * (V - minV) / (maxV - minV);
+    const y = h - pad.b - (h - pad.t - pad.b) * (logI - minI_log) / (maxI_log - minI_log);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Forward side (V > 0): exponential curve via Shockley
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= 30; i++) {
+    const V = 0 + (maxV - 0) * i / 30;
+    const I = Is * (Math.exp(V / Vt) - 1);
+    const logI = Math.log10(Math.max(1e-12, I));
+    const x = pad.l + (w - pad.l - pad.r) * (V - minV) / (maxV - minV);
+    const y = h - pad.b - (h - pad.t - pad.b) * (logI - minI_log) / (maxI_log - minI_log);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Knee at Vf
+  const opI = Is * (Math.exp(Vf / Vt) - 1);
+  const opX = pad.l + (w - pad.l - pad.r) * (Vf - minV) / (maxV - minV);
+  const opY = h - pad.b - (h - pad.t - pad.b) * (Math.log10(opI) - minI_log) / (maxI_log - minI_log);
+  EL.drawOpPoint(ctx, opX, opY, accent, ts);
+
+  // Labels
+  ctx.fillStyle = 'rgba(200,221,245,0.6)';
+  ctx.font = '10px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText('Voltage (V)', w/2, h - 8);
+  ctx.save();
+  ctx.translate(12, h/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center';
+  ctx.fillText('Current (A, log)', 0, 0);
+  ctx.restore();
+}
+
+let time = 0;
+function drawAll(ts = 0) {
+  const canvas1 = document.getElementById('curve1');
+  const canvas1desk = document.getElementById('curve1-desk');
+  if (canvas1) drawCurve1(ts);
+  if (canvas1desk) drawCurve1(ts);
+
+  time += 0.016;
+  const { If_peak } = calcPhysics();
+  const omega = 2 * Math.PI * freq;
+
+  // Animate particles: flow through diode when forward biased
+  const Vac_inst = Vac_peak * Math.sin(omega * time);
+  const conducting = Vac_inst > 0;
+
+  const posAttr = particles.geometry.getAttribute('position');
+  const arr = posAttr.array;
+  for (let i = 0; i < particleCount; i++) {
+    arr[i*3+1] += (conducting ? 0.05 : 0.01);
+    if (arr[i*3+1] > 1.5) arr[i*3+1] = -1.5;
+  }
+  posAttr.needsUpdate = true;
+  particles.visible = conducting;
+}
+
+// ── Animation Loop ──
+function animate(ts) {
+  requestAnimationFrame(animate);
+  drawAll(ts);
+  renderer.render(scene, camera);
+}
+
+updateUI();
+animate();
+</script>
+
+<!-- Navigation bar -->
+<script src="../shared/nav.js"></script>
+</body>
+</html>

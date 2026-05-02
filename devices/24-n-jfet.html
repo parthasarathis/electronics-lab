@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>N-Channel JFET | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#44aaff;--accent2:#77bbff;--accent-rgb:68,170,255}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HEADER -->
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">24 / 150</span>
+    <span class="dev-name">N-Channel JFET</span>
+    <span class="dev-cat">Semiconductor · Field-Effect Transistor</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+
+<div id="header-compact">24 N-Channel JFET</div>
+
+<!-- BODY -->
+<div id="body">
+
+  <!-- 3D CANVAS -->
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">N-JFET — Field-Effect Transistor</div>
+    <div class="canvas-overlay" id="badge">—</div>
+  </div>
+
+  <!-- PANELS -->
+  <div id="panels-section">
+
+    <!-- LIVE VALUES -->
+    <div class="panel panel-accent">
+      <div class="ptitle">Live Values</div>
+      <div class="kvgrid cols3">
+        <div class="kv"><label>Vgs</label><div class="val c1" id="dVgs">—</div></div>
+        <div class="kv"><label>Id</label><div class="val c2" id="dId">—</div></div>
+        <div class="kv"><label>Vds</label><div class="val c3" id="dVds">—</div></div>
+        <div class="kv"><label>Vp</label><div class="val c4" id="dVp">—</div></div>
+        <div class="kv"><label>Power</label><div class="val c5" id="dPow">—</div></div>
+        <div class="kv"><label>Region</label><div class="val c6 sm" id="dReg">—</div></div>
+      </div>
+    </div>
+
+    <!-- EQUATIONS -->
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">Idss = 20 mA</div><div class="fd">Drain-Source sat. current</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">Vp = −4 V</div><div class="fd">Pinch-off voltage</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">Id = Idss(1−Vgs/Vp)²</div><div class="fd">Shichman-Hodges model</div></div>
+      </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="panel">
+      <div class="ptitle">Controls</div>
+      <div class="srow">
+        <span class="sl">Vgs</span>
+        <input type="range" id="sVgs" min="-5" max="0.5" value="-1" step="0.1">
+        <span class="sval" id="vVgs">−1.0 V</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Vds</span>
+        <input type="range" id="sVds" min="0" max="15" value="8" step="0.5">
+        <span class="sval" id="vVds">8.0 V</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Idss</span>
+        <input type="range" id="sIdss" min="5" max="50" value="20" step="1">
+        <span class="sval" id="vIdss">20.0 mA</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Vp</span>
+        <input type="range" id="sVp" min="-8" max="-1" value="-4" step="0.5">
+        <span class="sval" id="vVp">−4.0 V</span>
+      </div>
+      <div class="srow">
+        <span class="sl">λ (Early)</span>
+        <input type="range" id="sLambda" min="0" max="0.1" value="0.02" step="0.01">
+        <span class="sval" id="vLambda">0.02 V⁻¹</span>
+      </div>
+    </div>
+
+    <!-- MODE BUTTONS -->
+    <div class="panel">
+      <div class="ptitle">Operating Region Demo</div>
+      <div class="btn-row" id="region-btns">
+        <button class="mbt" data-mode="cutoff">Cutoff</button>
+        <button class="mbt on" data-mode="triode">Triode</button>
+        <button class="mbt" data-mode="saturation">Saturation</button>
+      </div>
+    </div>
+
+    <!-- MOBILE CHART -->
+    <div class="panel curve-panel-main">
+      <div class="ptitle">Output Characteristics (Id vs Vds)</div>
+      <canvas class="chart-canvas" id="iv-chart-m" style="height:160px"></canvas>
+    </div>
+
+    <!-- FACTS -->
+    <div class="panel">
+      <div class="ptitle">About N-Channel JFET</div>
+      <div class="facts">
+        • <span>Voltage-controlled</span> device (very high input impedance)<br>
+        • <span>Pinch-off</span> constricts channel at gate-source junction<br>
+        • Shichman-Hodges: Id = Idss(1−Vgs/Vp)² <span>for |Vgs| < |Vp|</span><br>
+        • Common examples: <span>2N4124, 2N5457, J176</span><br>
+        • Transconductance: gm = −2Idss(1−Vgs/Vp)/Vp<br>
+        • Output resistance: ro ≈ <span>VA/Idss (Early voltage ≈ 100 V)</span>
+      </div>
+    </div>
+
+  </div><!-- /panels-section -->
+
+  <!-- CURVE SECTION (desktop) -->
+  <div id="curve-section">
+    <div class="panel" style="flex:1;display:flex;flex-direction:column">
+      <div class="ptitle">Output Characteristics (Id vs Vds)</div>
+      <canvas class="chart-canvas" id="iv-chart" style="flex:1;min-height:120px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Power Dissipation</div>
+      <div class="kv" style="margin-bottom:4px"><label>Pd</label><div class="val c5" id="dPow2">—</div></div>
+      <div class="bar-wrap"><div class="bar-fill" id="pbar" style="width:0%;background:var(--accent)"></div></div>
+    </div>
+  </div>
+
+</div><!-- /body -->
+</div><!-- /app -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── STATE
+let sVgs = -1;      // V (gate-source voltage, negative for N-JFET)
+let sVds = 8;       // V (drain-source voltage)
+let sIdss = 20e-3;  // A (drain-source saturation current, 20 mA typical)
+let sVp = -4;       // V (pinch-off voltage, negative for N-JFET)
+let sLambda = 0.02; // V⁻¹ (channel length modulation / Early effect)
+
+// ── PHYSICS: JFET Shichman-Hodges Model
+function calcState() {
+  // Ensure Vgs is between 0 and Vp (pinch-off limit)
+  const vgs = EL.clamp(sVgs, sVp, 0);
+
+  // Saturation condition: |Vds| >= |Vgs - Vp|
+  const vdsatMag = Math.abs(vgs - sVp);
+  const vdsMag = Math.abs(sVds);
+
+  let Id, Vds_actual, region;
+
+  if (vgs <= sVp) {
+    // Cutoff: gate voltage below pinch-off
+    Id = 0;
+    Vds_actual = sVds;
+    region = 'Cutoff';
+  } else if (vdsMag < vdsatMag) {
+    // Triode (ohmic) region: |Vds| < |Vgs - Vp|
+    // Simplified: Id ≈ (2*Idss/Vp²) * [(Vgs - Vp)*Vds - Vds²/2]
+    const factor = 2 * sIdss / (sVp * sVp);
+    Id = factor * ((vgs - sVp) * sVds - sVds * sVds / 2);
+    Id = Math.max(0, Id); // Clamp to zero
+    Vds_actual = sVds;
+    region = 'Triode';
+  } else {
+    // Saturation region: |Vds| >= |Vgs - Vp|
+    // Id = Idss * (1 - Vgs/Vp)²
+    let IdMag = sIdss * Math.pow(1 - vgs / sVp, 2);
+    // Apply channel length modulation (Early effect): Id *= (1 + λ*Vds)
+    IdMag *= (1 + sLambda * vdsMag);
+    Id = IdMag;
+    Vds_actual = sVds;
+    region = 'Saturation';
+  }
+
+  const P = Math.abs(Id * sVds);
+  const gm = -2 * sIdss * (1 - vgs / sVp) / sVp; // Transconductance
+
+  return { Id, Vds: Vds_actual, region, Vgs: vgs, Vp: sVp, P, gm };
+}
+
+// ── UPDATE DISPLAY
+function recalc() {
+  const { Id, Vds, region, Vgs, Vp, P, gm } = calcState();
+
+  document.getElementById('dVgs').textContent = EL.fmtV(Vgs);
+  document.getElementById('dId').textContent = EL.fmtI(Id);
+  document.getElementById('dVds').textContent = EL.fmtV(Vds);
+  document.getElementById('dVp').textContent = EL.fmtV(Vp);
+  document.getElementById('dPow').textContent = EL.fmtP(P);
+  document.getElementById('dReg').textContent = region;
+  document.getElementById('badge').textContent = region;
+
+  const dP2 = document.getElementById('dPow2');
+  if (dP2) dP2.textContent = EL.fmtP(P);
+  const pbar = document.getElementById('pbar');
+  if (pbar) {
+    const pct = Math.min(P / 0.3, 1) * 100;
+    pbar.style.width = pct + '%';
+    pbar.style.background = pct < 60 ? 'var(--accent)' : pct < 85 ? '#ffcc33' : '#ff4444';
+  }
+
+  // Region button highlight
+  const rMap = { Cutoff: 'cutoff', Triode: 'triode', Saturation: 'saturation' };
+  document.querySelectorAll('#region-btns .mbt').forEach(b => {
+    b.classList.toggle('on', b.dataset.mode === rMap[region]);
+  });
+
+  // 3D particle flow intensity
+  particleActive = (region !== 'Cutoff' && Id > 0);
+  particleIntensity = EL.clamp(Id / sIdss, 0, 1);
+
+  drawAll();
+}
+
+// ── DRAW CHARTS
+function drawIVChart(canvasId) {
+  const cvs = document.getElementById(canvasId);
+  if (!cvs || !cvs.offsetWidth || !cvs.offsetHeight) return;
+  const w = cvs.offsetWidth, h = cvs.offsetHeight;
+  cvs.width  = w * (devicePixelRatio || 1);
+  cvs.height = h * (devicePixelRatio || 1);
+  const ctx = cvs.getContext('2d');
+  ctx.scale(devicePixelRatio || 1, devicePixelRatio || 1);
+
+  const pad = { l: 40, r: 10, t: 14, b: 28 };
+  ctx.clearRect(0, 0, w, h);
+  EL.drawGrid(ctx, w, h, pad);
+  EL.drawAxes(ctx, w, h, pad, 'Vds (V)', 'Id');
+
+  const Vdsmax = Math.max(sVds * 1.2, 12);
+  const Idmax = sIdss * 1.2;
+
+  // Axis tick labels
+  ctx.fillStyle = 'rgba(160,130,200,0.7)';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.t + (h - pad.t - pad.b) * (1 - i / 4);
+    ctx.fillText(EL.fmtI(Idmax * i / 4), pad.l - 2, y + 3);
+  }
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 4; i++) {
+    const x = pad.l + (w - pad.l - pad.r) * i / 4;
+    ctx.fillText((Vdsmax * i / 4).toFixed(1), x, h - pad.b + 12);
+  }
+
+  // Vgs curves
+  const vgsCurves = [sVp * 0.75, sVp * 0.5, sVp * 0.25, 0];
+  const colors = ['rgba(68,170,255,0.3)', 'rgba(68,170,255,0.5)', 'rgba(68,170,255,0.75)', 'rgba(68,170,255,0.95)'];
+
+  vgsCurves.forEach((vgs, ci) => {
+    ctx.beginPath();
+    ctx.strokeStyle = colors[ci];
+    ctx.lineWidth = ci === vgsCurves.length - 1 ? 2 : 1.5;
+
+    for (let n = 0; n <= 80; n++) {
+      const vds = Vdsmax * n / 80;
+      let id;
+
+      if (vgs <= sVp) {
+        id = 0;
+      } else {
+        const vdsatMag = Math.abs(vgs - sVp);
+        if (Math.abs(vds) < vdsatMag) {
+          // Triode
+          const factor = 2 * sIdss / (sVp * sVp);
+          id = factor * ((vgs - sVp) * vds - vds * vds / 2);
+          id = Math.max(0, id);
+        } else {
+          // Saturation
+          id = sIdss * Math.pow(1 - vgs / sVp, 2);
+          id *= (1 + sLambda * Math.abs(vds));
+        }
+      }
+
+      const px = pad.l + (w - pad.l - pad.r) * (vds / Vdsmax);
+      const py = pad.t + (h - pad.t - pad.b) * (1 - id / Idmax);
+      n === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // Vgs label
+    const labelX = w - pad.r - 2;
+    let idLabel;
+    if (vgs <= sVp) {
+      idLabel = 0;
+    } else {
+      idLabel = sIdss * Math.pow(1 - vgs / sVp, 2);
+      idLabel *= (1 + sLambda * Vdsmax * 0.5);
+    }
+    const labelY = pad.t + (h - pad.t - pad.b) * (1 - idLabel / Idmax) - 4;
+    ctx.fillStyle = colors[ci];
+    ctx.font = '7px Courier New';
+    ctx.textAlign = 'right';
+    ctx.fillText(EL.fmtV(vgs), labelX, EL.clamp(labelY, pad.t + 6, h - pad.b - 6));
+  });
+
+  // Operating point
+  const { Id, Vds } = calcState();
+  const opX = pad.l + (w - pad.l - pad.r) * (Math.abs(Vds) / Vdsmax);
+  const opY = pad.t + (h - pad.t - pad.b) * (1 - Id / Idmax);
+  EL.drawOpPoint(ctx, opX, EL.clamp(opY, pad.t, h - pad.b), '#44aaff');
+}
+
+function drawAll() {
+  drawIVChart('iv-chart');
+  drawIVChart('iv-chart-m');
+}
+
+// ── SLIDER BINDINGS
+document.getElementById('sVgs').addEventListener('input', e => {
+  sVgs = parseFloat(e.target.value);
+  document.getElementById('vVgs').textContent = EL.fmtV(sVgs);
+  recalc();
+});
+
+document.getElementById('sVds').addEventListener('input', e => {
+  sVds = parseFloat(e.target.value);
+  document.getElementById('vVds').textContent = EL.fmtV(sVds);
+  recalc();
+});
+
+document.getElementById('sIdss').addEventListener('input', e => {
+  sIdss = parseFloat(e.target.value) * 1e-3;
+  document.getElementById('vIdss').textContent = EL.fmtI(sIdss);
+  recalc();
+});
+
+document.getElementById('sVp').addEventListener('input', e => {
+  sVp = parseFloat(e.target.value);
+  document.getElementById('vVp').textContent = EL.fmtV(sVp);
+  recalc();
+});
+
+document.getElementById('sLambda').addEventListener('input', e => {
+  sLambda = parseFloat(e.target.value);
+  document.getElementById('vLambda').textContent = sLambda.toFixed(3) + ' V⁻¹';
+  recalc();
+});
+
+// ── REGION BUTTONS
+document.querySelectorAll('#region-btns .mbt').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const mode = btn.dataset.mode;
+    const vgsSlider = document.getElementById('sVgs');
+    const vdsSlider = document.getElementById('sVds');
+    if (mode === 'cutoff') {
+      sVgs = sVp - 0.5;
+      vgsSlider.value = sVgs;
+      sVds = 10;
+      vdsSlider.value = sVds;
+    } else if (mode === 'triode') {
+      sVgs = -1;
+      vgsSlider.value = sVgs;
+      sVds = 1;
+      vdsSlider.value = sVds;
+    } else { // saturation
+      sVgs = -1;
+      vgsSlider.value = sVgs;
+      sVds = 10;
+      vdsSlider.value = sVds;
+    }
+    document.getElementById('vVgs').textContent = EL.fmtV(sVgs);
+    document.getElementById('vVds').textContent = EL.fmtV(sVds);
+    recalc();
+  });
+});
+
+// ══ THREE.JS ══════════════════════════════════════════════════════
+const canvas3d = document.getElementById('c3d');
+const renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, 1, 0.01, 200);
+camera.position.set(0, 0.5, 6);
+
+function resizeRenderer() {
+  const w = canvas3d.clientWidth, h = canvas3d.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+resizeRenderer();
+new ResizeObserver(resizeRenderer).observe(canvas3d);
+
+// Lights
+scene.add(new THREE.AmbientLight(0x0a1a22, 0.8));
+const keyL = new THREE.DirectionalLight(0xffffff, 1.0);
+keyL.position.set(5, 8, 6); keyL.castShadow = true; scene.add(keyL);
+const fillL = new THREE.DirectionalLight(0x44aaff, 0.5);
+fillL.position.set(-4, 2, -3); scene.add(fillL);
+scene.add(Object.assign(new THREE.DirectionalLight(0xffffff, 0.25),
+  { position: new THREE.Vector3(0, -5, -4) }));
+
+const glow = new THREE.PointLight(0x44aaff, 0, 3);
+glow.position.set(0, 0.5, 0.5);
+scene.add(glow);
+
+// TO-92 package (JFET: G, D, S three leads)
+const bodyMat = new THREE.MeshPhongMaterial({ color: 0x111111, shininess: 60 });
+const body = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.55, 0.55, 1.4, 32),
+  bodyMat
+);
+body.castShadow = true;
+scene.add(body);
+
+const flatMat = new THREE.MeshPhongMaterial({ color: 0x1a1a1a, shininess: 30 });
+const flat = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.4), flatMat);
+flat.position.set(0, 0, 0.54);
+scene.add(flat);
+
+// Lead geometry (3 pins: G, D, S — left to right)
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xbbbbbb, shininess: 100 });
+const leadPositions = [-0.38, 0, 0.38]; // G, D, S
+const leadMeshes = leadPositions.map(x => {
+  const lead = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.04, 0.04, 1.6, 12),
+    leadMat
+  );
+  lead.position.set(x, -1.5, 0);
+  scene.add(lead);
+  return lead;
+});
+
+// Lead markers (G=blue, D=red, S=green)
+const labelColors = [0x44aaff, 0xff5555, 0x55ff55];
+['G', 'D', 'S'].forEach((label, i) => {
+  const marker = new THREE.Mesh(
+    new THREE.SphereGeometry(0.06, 8, 8),
+    new THREE.MeshPhongMaterial({ color: labelColors[i], emissive: labelColors[i], emissiveIntensity: 0.4 })
+  );
+  marker.position.set(leadPositions[i], -2.2, 0);
+  scene.add(marker);
+});
+
+// Electron particle flow (D←electrons, S→) — shown as blue particles
+const N_P = 50;
+const partMat = new THREE.MeshPhongMaterial({
+  color: 0x44aaff, emissive: 0x22aacc, emissiveIntensity: 0.8, shininess: 80
+});
+const partInst = new THREE.InstancedMesh(
+  new THREE.SphereGeometry(0.045, 6, 6),
+  partMat, N_P
+);
+partInst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+scene.add(partInst);
+const partOffset = Array.from({ length: N_P }, (_, i) => i / N_P);
+const pDummy = new THREE.Object3D();
+
+let particleActive = false;
+let particleIntensity = 0;
+let particlePhase = 0;
+
+// Orbit controls
+let drag = false, lastX = 0, lastY = 0, rotX = 0.2, rotY = 0.4;
+canvas3d.addEventListener('mousedown',  e => { drag = true; lastX = e.clientX; lastY = e.clientY; });
+canvas3d.addEventListener('mousemove',  e => {
+  if (!drag) return;
+  rotY += (e.clientX - lastX) * 0.008;
+  rotX += (e.clientY - lastY) * 0.008;
+  rotX = EL.clamp(rotX, -1.2, 1.2);
+  lastX = e.clientX; lastY = e.clientY;
+});
+canvas3d.addEventListener('mouseup',    () => drag = false);
+canvas3d.addEventListener('mouseleave', () => drag = false);
+let t0x = 0, t0y = 0;
+canvas3d.addEventListener('touchstart', e => {
+  e.preventDefault(); t0x = e.touches[0].clientX; t0y = e.touches[0].clientY;
+}, { passive: false });
+canvas3d.addEventListener('touchmove', e => {
+  e.preventDefault();
+  rotY += (e.touches[0].clientX - t0x) * 0.008;
+  rotX += (e.touches[0].clientY - t0y) * 0.008;
+  rotX = EL.clamp(rotX, -1.2, 1.2);
+  t0x = e.touches[0].clientX; t0y = e.touches[0].clientY;
+}, { passive: false });
+
+// ── ANIMATION LOOP
+let lastTS = 0;
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+
+  if (!drag) rotY += 0.3 * dt;
+  scene.rotation.x = rotX;
+  scene.rotation.y = rotY;
+
+  // Particle flow: Source (left) → Channel → Drain (right)
+  particlePhase = (particlePhase + (particleActive ? particleIntensity * 0.6 : 0.02) * dt) % 1;
+
+  for (let i = 0; i < N_P; i++) {
+    const p = (particlePhase + partOffset[i]) % 1;
+    // Travel from x=-0.38 (Source left lead) through channel to x=0.38 (Drain right lead)
+    const x = -0.38 + p * 0.76;
+    // Spread in the channel region
+    const channelRegion = p > 0.3 && p < 0.7;
+    const spread = channelRegion ? 0.2 : 0.05;
+    const angle = (i / N_P) * Math.PI * 2;
+    pDummy.position.set(
+      x,
+      0.5,
+      Math.sin(angle) * spread
+    );
+    pDummy.updateMatrix();
+    partInst.setMatrixAt(i, pDummy.matrix);
+  }
+  partInst.instanceMatrix.needsUpdate = true;
+
+  const targetGlow = particleActive ? particleIntensity * 2.5 : 0;
+  glow.intensity = EL.lerp(glow.intensity, targetGlow, 0.1);
+  partMat.emissiveIntensity = particleActive ? 0.4 + particleIntensity * 0.6 : 0.1;
+
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(animate);
+
+// ── INIT
+recalc();
+</script>
+<script src="../shared/nav.js"></script>
+</body>
+</html>

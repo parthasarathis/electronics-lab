@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>Crystal Oscillator | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ffdd00;--accent2:#ffee55;--accent-rgb:255,221,0}
+
+#challenge-box {
+  background: linear-gradient(135deg, #2a2a1f, #1a1a0e);
+  border: 1px solid #8b8b33;
+  padding: 12px;
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.ch-title {
+  font-size: 10px;
+  color: #ffff99;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ch-title::before {
+  content: '★';
+  color: #ffdd00;
+  font-size: 12px;
+}
+
+.ch-txt {
+  font-size: 11px;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.ch-status {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 255, 150, 0.1);
+  color: #00ffaa;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.ch-status.done {
+  opacity: 1;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">05 / 150</span>
+    <span class="dev-name">Crystal Oscillator</span>
+    <span class="dev-cat">Passive · Frequency Reference</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">05 Crystal Oscillator</div>
+
+<div id="body">
+
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">X — Frequency Reference</div>
+    <div class="canvas-overlay" id="badge">—</div>
+  </div>
+
+  <div id="panels-section">
+
+    <div id="challenge-box">
+      <div class="ch-title">Learning Challenge</div>
+      <div class="ch-txt" id="ch-desc">Adjust load capacitance to achieve exactly <b>32.768 kHz</b> (RTC frequency).</div>
+      <div class="ch-status" id="ch-stat">✔</div>
+    </div>
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Live Values</div>
+      <div class="kvgrid cols3">
+        <div class="kv"><label>Frequency</label><div class="val c1" id="dF">—</div></div>
+        <div class="kv"><label>Load Cap CL</label><div class="val c2" id="dCL">—</div></div>
+        <div class="kv"><label>Parallel C</label><div class="val c3" id="dCP">—</div></div>
+        <div class="kv"><label>Motional Z</label><div class="val c4" id="dZ">—</div></div>
+        <div class="kv"><label>Q Factor</label><div class="val c5" id="dQ">—</div></div>
+        <div class="kv"><label>Phase Error</label><div class="val c6" id="dPh">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">f = 1/(2π√LC)</div><div class="fd">Resonance</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">Q = ω₀L/R</div><div class="fd">Quality</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">Δf ∝ CL</div><div class="fd">Tuning</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Controls</div>
+      <div class="srow">
+        <span class="sl">Frequency</span>
+        <input type="range" id="sFreq" min="10" max="50" value="33" step="0.5">
+        <span class="sval" id="vFreq">32.768 kHz</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Load Cap CL</span>
+        <input type="range" id="sCL" min="0" max="100" value="50" step="1">
+        <span class="sval" id="vCL">20 pF</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Parallel Cap CP</span>
+        <input type="range" id="sCP" min="0" max="50" value="30" step="1">
+        <span class="sval" id="vCP">3.0 pF</span>
+      </div>
+      <div class="srow">
+        <span class="sl">ESR</span>
+        <input type="range" id="sESR" min="0" max="100" value="50" step="1">
+        <span class="sval" id="vESR">50 kΩ</span>
+      </div>
+    </div>
+
+    <div class="panel curve-panel-main">
+      <div class="ptitle">Frequency Response</div>
+      <canvas class="chart-canvas" id="curve1" style="flex:1;min-height:140px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">About Crystals</div>
+      <div class="facts">
+        • AT-cut: <span>freq stability, ≤30 ppm/°C</span><br>
+        • 32.768 kHz: <span>RTC/watch standard (2^15 Hz)</span><br>
+        • Q-factor: <span>10k–30k (very high)</span><br>
+        • Load cap CL: <span>15–20 pF typical</span><br>
+        • Tuning: <span>±50–100 ppm via CL</span><br>
+        • Aging: <span>10–50 ppm/year</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="curve-section">
+    <div class="panel" style="flex:1;display:flex;flex-direction:column">
+      <div class="ptitle">Impedance vs Frequency</div>
+      <canvas class="chart-canvas" id="curve1-desk" style="flex:1;min-height:160px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Stability</div>
+      <div class="kv"><label>Freq Error</label><div class="val c6" id="dPh2">—</div></div>
+      <div class="bar-wrap"><div class="bar-fill" id="fbar" style="width:0%;background:var(--accent)"></div></div>
+      <div class="kv" style="margin-top:6px"><label>ESR</label><div class="val c4" id="dZ2">—</div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── STATE
+let freqLog = 33, clLog = 50, cpLog = 30, esrLog = 50;
+
+function getFreq() {
+  return EL.mapRange(freqLog, 10, 50, 1e3, 100e6) * 1; // kHz → Hz
+}
+function getCL() {
+  return Math.pow(10, EL.mapRange(clLog, 0, 100, -12, -11)); // pF
+}
+function getCP() {
+  return Math.pow(10, EL.mapRange(cpLog, 0, 50, -12, -11.5));
+}
+function getESR() {
+  return Math.pow(10, EL.mapRange(esrLog, 0, 100, 2, 5)); // Ohms
+}
+
+// ── THREE.JS SCENE
+const { renderer, scene, camera } = EL.initScene('c3d');
+EL.initLights(scene, '#ffdd00');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+scene.add(pivot);
+
+// Crystal body — quartz plate
+const bodyGeo = new THREE.BoxGeometry(0.4, 2.0, 0.1);
+const bodyMat = new THREE.MeshPhongMaterial({ color: 0xccccff, shininess: 80 });
+const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+pivot.add(bodyMesh);
+
+// Metallic electrodes on sides
+const elecGeo = new THREE.BoxGeometry(0.4, 1.8, 0.02);
+const elecMat = new THREE.MeshPhongMaterial({ color: 0xffcc99, shininess: 100 });
+[-0.055, 0.055].forEach(z => {
+  const elec = new THREE.Mesh(elecGeo, elecMat);
+  elec.position.z = z;
+  pivot.add(elec);
+});
+
+// Wire leads
+const leadGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.8, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xdddddd, shininess: 100 });
+[-1.2, 1.2].forEach(y => {
+  const lead = new THREE.Mesh(leadGeo, leadMat);
+  lead.position.y = y;
+  lead.rotation.z = Math.PI / 2;
+  pivot.add(lead);
+});
+
+// Vibrating particles (showing oscillation)
+const vibCount = 8;
+const vibGeo = new THREE.SphereGeometry(0.04, 8, 8);
+const vibMat = new THREE.MeshPhongMaterial({
+  color: 0xffdd00, emissive: 0x888800, transparent: true, opacity: 0.7
+});
+const vibInst = new THREE.InstancedMesh(vibGeo, vibMat, vibCount);
+vibInst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+pivot.add(vibInst);
+
+// Glow light
+const glow = new THREE.PointLight(0xffdd00, 0.5, 4);
+pivot.add(glow);
+
+// ── ANIMATION
+let lastTS = 0, phase = 0;
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+  phase += dt;
+
+  if (!window._dragging) pivot.rotation.y += 0.003;
+
+  // Vibrate particles at crystal frequency
+  const f = getFreq();
+  const vibrateAmp = 0.15;
+  const dummy = new THREE.Object3D();
+  for (let i = 0; i < vibCount; i++) {
+    const angle = (i / vibCount) * Math.PI * 2;
+    const x = Math.cos(angle) * 0.3;
+    const y = Math.sin(phase * f * 0.000001) * vibrateAmp;
+    const z = Math.sin(angle) * 0.15;
+    dummy.position.set(x, y, z);
+    dummy.updateMatrix();
+    vibInst.setMatrixAt(i, dummy.matrix);
+  }
+  vibInst.instanceMatrix.needsUpdate = true;
+
+  glow.intensity = 0.3 + 0.3 * Math.sin(phase * f * 0.000001);
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(animate);
+
+// ── CALCULATIONS
+function updateCalc() {
+  const f = getFreq();
+  const fkHz = f / 1000;
+  const cl = getCL();
+  const cp = getCP();
+  const esr = getESR();
+
+  // L from resonance: f = 1/(2π√LC), so L = 1/(4π²f²C)
+  const C = cl;
+  const L = 1 / (4 * Math.PI * Math.PI * f * f * C);
+  const Z = 2 * Math.PI * f * L;
+  const Q = Z / esr;
+
+  // Typical 32.768 kHz reference is 32.768
+  const targetFreq = 32.768;
+  const phErr = ((fkHz - targetFreq) / targetFreq) * 100; // ppm
+
+  document.getElementById('dF').textContent = EL.fmtF(f);
+  document.getElementById('dCL').textContent = EL.fmtC(cl);
+  document.getElementById('dCP').textContent = EL.fmtC(cp);
+  document.getElementById('dZ').textContent = EL.fmtR(Z);
+  document.getElementById('dQ').textContent = Q.toFixed(0);
+  document.getElementById('dPh').textContent = phErr.toFixed(1) + ' ppm';
+
+  const p2 = document.getElementById('dPh2');
+  if (p2) p2.textContent = phErr.toFixed(1) + ' ppm';
+  const z2 = document.getElementById('dZ2');
+  if (z2) z2.textContent = EL.fmtR(esr);
+
+  document.getElementById('badge').textContent = EL.fmtF(f);
+
+  // Freq bar (target 32.768 kHz)
+  const fbar = document.getElementById('fbar');
+  if (fbar) {
+    const errPct = Math.abs(phErr) / 100; // normalize to ±100 ppm
+    fbar.style.width = Math.min(errPct * 100, 100) + '%';
+    fbar.style.background = errPct < 0.1 ? '#ffdd00' : errPct < 0.5 ? '#ffcc33' : '#ff6666';
+  }
+
+  drawFreqResponse();
+  checkChallenge(fkHz, targetFreq);
+}
+
+function checkChallenge(f, target) {
+  const isMatch = Math.abs(f - target) < 0.05; // Within 50 Hz of target
+  document.getElementById('ch-stat').classList.toggle('done', isMatch);
+  if (isMatch) {
+    document.getElementById('ch-desc').innerHTML = "<b>Challenge Complete!</b> You tuned to RTC frequency 32.768 kHz.";
+  }
+}
+
+// ── FREQUENCY RESPONSE CHART
+function drawFreqResponse() {
+  const cvs = document.getElementById('curve1');
+  if (!cvs || !cvs.offsetWidth) return;
+  const w = cvs.offsetWidth, h = cvs.offsetHeight;
+  cvs.width = w * (devicePixelRatio || 1);
+  cvs.height = h * (devicePixelRatio || 1);
+  const ctx = cvs.getContext('2d');
+  ctx.scale(devicePixelRatio || 1, devicePixelRatio || 1);
+
+  const pad = { l: 38, r: 10, t: 10, b: 28 };
+  ctx.clearRect(0, 0, w, h);
+  EL.drawGrid(ctx, w, h, pad);
+  EL.drawAxes(ctx, w, h, pad, 'Frequency (kHz)', 'Impedance');
+
+  const f = getFreq() / 1000;
+  const esr = getESR();
+  const Zmin = esr;
+  const Zmax = 100 * esr;
+
+  ctx.fillStyle = 'rgba(200,180,100,0.7)';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const z = Zmin + (Zmax - Zmin) * i / 4;
+    const y = pad.t + (h - pad.t - pad.b) * (1 - i / 4);
+    ctx.fillText(EL.fmtR(z), pad.l - 2, y + 3);
+  }
+  ctx.textAlign = 'center';
+  const fmin = f * 0.98, fmax = f * 1.02;
+  for (let i = 0; i <= 4; i++) {
+    const fi = fmin + (fmax - fmin) * i / 4;
+    const x = pad.l + (w - pad.l - pad.r) * i / 4;
+    ctx.fillText(fi.toFixed(3), x, h - pad.b + 12);
+  }
+
+  // Impedance curve
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(255,221,0,0.9)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i <= 60; i++) {
+    const ftest = fmin + (fmax - fmin) * i / 60;
+    const df = (ftest - f) / f;
+    const Q = 15000; // typical crystal Q
+    const Z = Zmin * (1 + Q * Q * df * df * 4 / (1 + Q * Q * df * df * df * df));
+    const zNorm = (Z - Zmin) / (Zmax - Zmin);
+    const px = pad.l + (w - pad.l - pad.r) * i / 60;
+    const py = pad.t + (h - pad.t - pad.b) * (1 - zNorm);
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Operating point
+  const opX = pad.l + (w - pad.l - pad.r) * 0.5;
+  const opY = pad.t + (h - pad.t - pad.b) * 0.5;
+  EL.drawOpPoint(ctx, opX, opY, '#ffdd00');
+}
+
+// ── SLIDER BINDINGS
+document.getElementById('sFreq').addEventListener('input', e => {
+  freqLog = parseFloat(e.target.value);
+  const f = getFreq() / 1000;
+  document.getElementById('vFreq').textContent = f.toFixed(3) + ' kHz';
+  updateCalc();
+});
+
+document.getElementById('sCL').addEventListener('input', e => {
+  clLog = parseInt(e.target.value);
+  const cl = getCL();
+  document.getElementById('vCL').textContent = EL.fmtC(cl);
+  updateCalc();
+});
+
+document.getElementById('sCP').addEventListener('input', e => {
+  cpLog = parseInt(e.target.value);
+  const cp = getCP();
+  document.getElementById('vCP').textContent = EL.fmtC(cp);
+  updateCalc();
+});
+
+document.getElementById('sESR').addEventListener('input', e => {
+  esrLog = parseInt(e.target.value);
+  const esr = getESR();
+  document.getElementById('vESR').textContent = EL.fmtR(esr);
+  updateCalc();
+});
+
+// Init
+updateCalc();
+</script>
+<script src="../shared/nav.js"></script>
+</body>
+</html>

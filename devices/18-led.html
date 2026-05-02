@@ -1,0 +1,390 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a"><title>LED | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ffdd00;--accent2:#ffee66;--accent-rgb:255,221,0}
+#curve-section canvas,.curve-panel-main canvas{height:200px}
+</style>
+</head><body><div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">18 / 150</span>
+    <span class="dev-name">LED</span>
+    <span class="dev-cat">Optoelectronics · Light Source</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">18 LED</div>
+
+<div id="body">
+  <!-- 3D Canvas -->
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">💡 Electroluminescence · Vf ≈ const</div>
+    <div class="canvas-overlay" id="badge">I: 0 mA</div>
+  </div>
+
+  <!-- Panels -->
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Controls</div>
+      <div class="srow"><span class="sl">If</span>
+        <input type="range" id="sIf" min="0" max="100" value="30" step="1">
+        <span class="sval" id="vIf">30.0 mA</span></div>
+      <div class="srow"><span class="sl">Color</span>
+        <input type="range" id="sColor" min="0" max="100" value="30" step="1">
+        <span class="sval" id="vColor">Red (650 nm)</span></div>
+      <div class="srow"><span class="sl">Tj</span>
+        <input type="range" id="sTj" min="-40" max="80" value="25" step="1">
+        <span class="sval" id="vTj">25°C</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Live Measurements</div>
+      <div class="kvgrid">
+        <div class="kv"><label>Forward Voltage</label><div class="val c1" id="lVf">—</div></div>
+        <div class="kv"><label>Brightness (cd)</label><div class="val c2" id="lLum">—</div></div>
+        <div class="kv"><label>Power Out (mW)</label><div class="val c3" id="lPout">—</div></div>
+        <div class="kv"><label>Efficiency</label><div class="val c4" id="lEff">—</div></div>
+        <div class="kv"><label>Wavelength</label><div class="val c5" id="lWave">—</div></div>
+        <div class="kv"><label>Power In</label><div class="val c6" id="lPin">—</div></div>
+      </div>
+      <div style="margin-top:8px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+          <span style="font-size:7px;color:var(--sub);letter-spacing:1px;text-transform:uppercase;">Light Output</span>
+          <span style="font-size:7px;color:var(--sub);" id="barPct">0%</span>
+        </div>
+        <div class="bar-wrap"><div class="bar-fill" id="barFill" style="width:0%;background:var(--accent);"></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Physics</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">Popt = η·e·If</div><div class="fd">Optical Power</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">Vf = Eg/e + …</div><div class="fd">Forward Drop</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">λ = hc/Eg</div><div class="fd">Peak Wavelength</div></div>
+      </div>
+    </div>
+
+    <!-- Mobile curve panel -->
+    <div class="panel curve-panel-main">
+      <div class="ptitle">I-V Characteristic</div>
+      <canvas id="curve1" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Teaching Points</div>
+      <div class="facts">
+        · Forward-biased P-N junction: electron-hole recombination emits <span>photons</span><br>
+        · <span>Bandgap energy</span> Eg determines color: hν ≈ Eg (red ~1.9V, blue ~3.4V)<br>
+        · <span>Forward voltage</span> Vf ≈ Eg/e, nearly independent of If (ideal diode)<br>
+        · <span>Luminous efficiency</span> η = Popt/(Vf·If), typically 5-40% depending on color<br>
+        · Temperature increases Vf slightly (≈ -2mV/°C), blue LEDs more temperature-sensitive<br>
+        · Series resistor needed: Rs ≈ (Vsupply - Vf) / If (e.g., 100Ω for 5V, 20mA)
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Desktop Curve Section -->
+  <div id="curve-section">
+    <div class="panel" style="flex:1">
+      <div class="ptitle">I-V Characteristic</div>
+      <canvas id="curve1-desk" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">LED Color Palette</div>
+      <div class="facts">
+        · <span>Red</span> (625–660 nm): Vf ≈ 1.6–2.0V<br>
+        · <span>Amber</span> (590–610 nm): Vf ≈ 2.0–2.2V<br>
+        · <span>Green</span> (490–520 nm): Vf ≈ 2.2–2.6V<br>
+        · <span>Blue</span> (450–470 nm): Vf ≈ 3.0–3.6V
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── Physics State ──
+let If_mA = 30, colorIdx = 30, Tj = 25;
+
+// LED color definitions: wavelength(nm), Vf0(V), η(%), color_hex
+const colors = [
+  { nm: 625, vf0: 1.8, eta: 15, hex: 0xdd0000, rgb: [255, 0, 0] },       // Red
+  { nm: 650, vf0: 1.9, eta: 20, hex: 0xff0000, rgb: [255, 0, 0] },       // Deep red
+  { nm: 660, vf0: 2.0, eta: 25, hex: 0xdd3333, rgb: [255, 60, 60] },     // Bright red
+  { nm: 590, vf0: 2.1, eta: 18, hex: 0xffaa00, rgb: [255, 170, 0] },     // Amber
+  { nm: 510, vf0: 2.3, eta: 30, hex: 0x00ff00, rgb: [0, 255, 0] },       // Green
+  { nm: 470, vf0: 3.2, eta: 35, hex: 0x0066ff, rgb: [0, 102, 255] },     // Blue
+  { nm: 365, vf0: 3.8, eta: 25, hex: 0x9900ff, rgb: [153, 0, 255] }      // Violet
+];
+
+function getColor(idx) {
+  const i = Math.floor(idx / 100 * (colors.length - 1));
+  return colors[Math.max(0, Math.min(i, colors.length - 1))];
+}
+
+function calcPhysics() {
+  const If = If_mA * 1e-3;  // convert to A
+  const color = getColor(colorIdx);
+  const k_boltz = 1.381e-23;  // J/K
+  const e = 1.602e-19;
+  const T = 273.15 + Tj;  // Absolute temperature
+
+  // Temperature coefficient: dVf/dT ≈ -2 mV/°C for red, -2.5 mV/°C for blue
+  const dVdT = -0.002 - (color.eta > 30 ? 0.0005 : 0);
+  const Vf = color.vf0 + dVdT * (Tj - 25);
+
+  // Optical power: Popt = η * e * If
+  const Popt_W = (color.eta / 100) * e * If;  // in Watts
+
+  // Luminous intensity (rough): Red ≈ 1 cd/A, Green ~2 cd/A, Blue~1.5 cd/A
+  const candelas = {625: 1.0, 650: 1.0, 660: 1.0, 590: 2.0, 510: 2.5, 470: 1.5, 365: 1.0};
+  const cd = (candelas[color.nm] || 1.0) * Math.max(0, If * 1000);
+
+  // Power input
+  const Pin = Vf * If;
+
+  // Wall-plug efficiency: Popt / Pin
+  const eff_pct = (Pin > 0) ? (Popt_W / Pin) * 100 : 0;
+
+  return { Vf, Popt_W, cd, Pin, eff_pct, wavelength: color.nm, color };
+}
+
+function updateUI() {
+  const { Vf, Popt_W, cd, Pin, eff_pct, wavelength, color } = calcPhysics();
+  document.getElementById('lVf').textContent = Vf.toFixed(2) + ' V';
+  document.getElementById('lLum').textContent = cd.toFixed(1) + ' cd';
+  document.getElementById('lPout').textContent = (Popt_W * 1000).toFixed(2) + ' mW';
+  document.getElementById('lEff').textContent = eff_pct.toFixed(1) + '%';
+  document.getElementById('lWave').textContent = wavelength + ' nm';
+  document.getElementById('lPin').textContent = EL.fmtP(Pin);
+  document.getElementById('badge').textContent = `I: ${If_mA.toFixed(0)} mA`;
+
+  // Bar
+  const barPct = Math.min(100, (cd / 30) * 100);
+  document.getElementById('barFill').style.width = barPct + '%';
+  document.getElementById('barPct').textContent = barPct.toFixed(0) + '%';
+
+  // Update 3D color
+  const chipMat = pivot.children.find(c => c.name === 'chip');
+  if (chipMat && chipMat.material) {
+    chipMat.material.color.setHex(color.hex);
+    chipMat.material.emissive.setHex(color.hex);
+    chipMat.material.emissiveIntensity = Math.min(1, If_mA / 50);
+  }
+
+  const glowLight = pivot.children.find(c => c instanceof THREE.Light);
+  if (glowLight) {
+    glowLight.color.setHex(color.hex);
+    glowLight.intensity = Math.min(1.5, If_mA / 40);
+  }
+
+  drawAll();
+}
+
+// ── Sliders ──
+document.getElementById('sIf').addEventListener('input', e => {
+  If_mA = +e.target.value * 2;
+  document.getElementById('vIf').textContent = If_mA.toFixed(1) + ' mA';
+  updateUI();
+});
+document.getElementById('sColor').addEventListener('input', e => {
+  colorIdx = +e.target.value;
+  const color = getColor(colorIdx);
+  document.getElementById('vColor').textContent = `${color.nm} nm`;
+  updateUI();
+});
+document.getElementById('sTj').addEventListener('input', e => {
+  Tj = +e.target.value;
+  document.getElementById('vTj').textContent = Tj.toFixed(0) + '°C';
+  updateUI();
+});
+
+// ── 3D Scene ──
+const { renderer, scene, camera } = EL.initScene('c3d');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+EL.initLights(scene, '#ffdd00');
+scene.add(pivot);
+
+// LED dome
+const domeGeo = new THREE.SphereGeometry(0.5, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+const domeMat = new THREE.MeshPhongMaterial({
+  color: 0xff0000,
+  shininess: 100,
+  emissive: 0xff0000,
+  emissiveIntensity: 0
+});
+const dome = new THREE.Mesh(domeGeo, domeMat);
+dome.name = 'chip';
+pivot.add(dome);
+
+// Substrate
+const substGeo = new THREE.CylinderGeometry(0.55, 0.55, 0.15, 32);
+const substMat = new THREE.MeshPhongMaterial({ color: 0x333333 });
+const substrate = new THREE.Mesh(substGeo, substMat);
+substrate.position.y = -0.08;
+pivot.add(substrate);
+
+// Leads
+const leadGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.0, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xccaa77 });
+const leadPos = new THREE.Mesh(leadGeo, leadMat);
+leadPos.position.set(0.28, -0.6, 0);
+pivot.add(leadPos);
+const leadNeg = new THREE.Mesh(leadGeo, leadMat);
+leadNeg.position.set(-0.28, -0.6, 0);
+pivot.add(leadNeg);
+
+// Glow point light
+const glowLight = new THREE.PointLight(0xff0000, 0, 3);
+glowLight.position.y = 0.3;
+pivot.add(glowLight);
+
+// Emitted photon particles
+const photonCount = 30;
+const photonsGeo = new THREE.BufferGeometry();
+const photonPos = new Float32Array(photonCount * 3);
+const photonVel = new Float32Array(photonCount * 3);
+for (let i = 0; i < photonCount; i++) {
+  const theta = Math.random() * Math.PI * 2;
+  const phi = Math.random() * Math.PI / 2;
+  photonPos[i*3] = Math.sin(phi) * Math.cos(theta) * 0.1;
+  photonPos[i*3+1] = Math.cos(phi) * 0.1;
+  photonPos[i*3+2] = Math.sin(phi) * Math.sin(theta) * 0.1;
+  photonVel[i*3] = Math.sin(phi) * Math.cos(theta) * 0.05;
+  photonVel[i*3+1] = Math.cos(phi) * 0.05;
+  photonVel[i*3+2] = Math.sin(phi) * Math.sin(theta) * 0.05;
+}
+photonsGeo.setAttribute('position', new THREE.BufferAttribute(photonPos, 3));
+const photonMat = new THREE.PointsMaterial({ color: 0xffdd00, size: 0.08, sizeAttenuation: true });
+const photons = new THREE.Points(photonsGeo, photonMat);
+pivot.add(photons);
+
+// ── Charts ──
+function drawCurve1(ts) {
+  const canvas = document.getElementById('curve1');
+  if (!canvas) return;
+  const { ctx, w, h, accent } = EL.setupChart(canvas, '#ffdd00');
+
+  ctx.fillStyle = '#06080f';
+  ctx.fillRect(0, 0, w, h);
+
+  const pad = { l: 36, r: 8, t: 8, b: 28 };
+  EL.drawGrid(ctx, w, h, pad);
+
+  // X: If 0-100mA, Y: Vf 0-4V (approximate)
+  const minIf = 0, maxIf = 100;
+  const minVf = 0, maxVf = 4;
+
+  // Draw multiple color curves
+  const testColors = [
+    { nm: 650, vf0: 1.9, label: 'Red' },
+    { nm: 510, vf0: 2.3, label: 'Green' },
+    { nm: 470, vf0: 3.2, label: 'Blue' }
+  ];
+
+  testColors.forEach((testColor, colorNum) => {
+    ctx.strokeStyle = colorNum === 0 ? '#ff4444' : colorNum === 1 ? '#44ff44' : '#4444ff';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 2]);
+    ctx.beginPath();
+    for (let i = 0; i <= 50; i++) {
+      const testIf = minIf + (maxIf - minIf) * i / 50;
+      const testVf = testColor.vf0 + 0.01 * Math.log(Math.max(1, testIf / 10));  // log behavior
+      const x = pad.l + (w - pad.l - pad.r) * testIf / maxIf;
+      const y = h - pad.b - (h - pad.t - pad.b) * Math.min(1, testVf / maxVf);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
+  // Highlight current color
+  const color = getColor(colorIdx);
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i <= 50; i++) {
+    const testIf = minIf + (maxIf - minIf) * i / 50;
+    const testVf = color.vf0 + 0.01 * Math.log(Math.max(1, testIf / 10));
+    const x = pad.l + (w - pad.l - pad.r) * testIf / maxIf;
+    const y = h - pad.b - (h - pad.t - pad.b) * Math.min(1, testVf / maxVf);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Operating point
+  const { Vf } = calcPhysics();
+  const opX = pad.l + (w - pad.l - pad.r) * If_mA / maxIf;
+  const opY = h - pad.b - (h - pad.t - pad.b) * Math.min(1, Vf / maxVf);
+  EL.drawOpPoint(ctx, opX, opY, accent, ts);
+
+  // Labels
+  ctx.fillStyle = 'rgba(200,221,245,0.6)';
+  ctx.font = '10px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText('Forward Current (mA)', w/2, h - 8);
+  ctx.save();
+  ctx.translate(12, h/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center';
+  ctx.fillText('Forward Voltage (V)', 0, 0);
+  ctx.restore();
+}
+
+function drawAll(ts = 0) {
+  const canvas1 = document.getElementById('curve1');
+  const canvas1desk = document.getElementById('curve1-desk');
+  if (canvas1) drawCurve1(ts);
+  if (canvas1desk) drawCurve1(ts);
+
+  // Animate photons
+  const posAttr = photons.geometry.getAttribute('position');
+  const arr = posAttr.array;
+  for (let i = 0; i < photonCount; i++) {
+    arr[i*3] += photonVel[i*3] * (If_mA / 30);
+    arr[i*3+1] += photonVel[i*3+1] * (If_mA / 30);
+    arr[i*3+2] += photonVel[i*3+2] * (If_mA / 30);
+
+    const dist = Math.hypot(arr[i*3], arr[i*3+1], arr[i*3+2]);
+    if (dist > 1.5) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI / 2;
+      arr[i*3] = Math.sin(phi) * Math.cos(theta) * 0.1;
+      arr[i*3+1] = Math.cos(phi) * 0.1;
+      arr[i*3+2] = Math.sin(phi) * Math.sin(theta) * 0.1;
+    }
+  }
+  posAttr.needsUpdate = true;
+}
+
+// ── Animation Loop ──
+function animate(ts) {
+  requestAnimationFrame(animate);
+  drawAll(ts);
+  renderer.render(scene, camera);
+}
+
+updateUI();
+animate();
+</script>
+
+<!-- Navigation bar -->
+<script src="../shared/nav.js"></script>
+</body>
+</html>

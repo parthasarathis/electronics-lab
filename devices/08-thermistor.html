@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>Thermistor | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ff44aa;--accent2:#ff88dd;--accent-rgb:255,68,170}
+
+#challenge-box {
+  background: linear-gradient(135deg, #2a0f1f, #1a050f);
+  border: 1px solid #883366;
+  padding: 12px;
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.ch-title {
+  font-size: 10px;
+  color: #ff77aa;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ch-title::before {
+  content: '★';
+  color: #ff44aa;
+  font-size: 12px;
+}
+
+.ch-txt {
+  font-size: 11px;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.ch-status {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 255, 150, 0.1);
+  color: #00ffaa;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.ch-status.done {
+  opacity: 1;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">08 / 150</span>
+    <span class="dev-name">Thermistor (NTC)</span>
+    <span class="dev-cat">Passive · Temperature Sensor</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">08 Thermistor</div>
+
+<div id="body">
+
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">Th — Temperature Sensor</div>
+    <div class="canvas-overlay" id="badge">—</div>
+  </div>
+
+  <div id="panels-section">
+
+    <div id="challenge-box">
+      <div class="ch-title">Learning Challenge</div>
+      <div class="ch-txt" id="ch-desc">Read exactly <b>25.0 °C</b> from the thermistor voltage divider circuit.</div>
+      <div class="ch-status" id="ch-stat">✔</div>
+    </div>
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Live Values</div>
+      <div class="kvgrid cols3">
+        <div class="kv"><label>Temperature T</label><div class="val c1" id="dT">—</div></div>
+        <div class="kv"><label>Resistance R</label><div class="val c2" id="dR">—</div></div>
+        <div class="kv"><label>Div Voltage</label><div class="val c3" id="dVdiv">—</div></div>
+        <div class="kv"><label>Power P</label><div class="val c4" id="dP">—</div></div>
+        <div class="kv"><label>B-coefficient</label><div class="val c5" id="dB">—</div></div>
+        <div class="kv"><label>Sensitivity</label><div class="val c6" id="dSens">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">R(T) = R₀·exp(B·(1/T - 1/T₀))</div><div class="fd">Steinhart–Hart</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">Vdiv = Vcc·Rth/(R+Rth)</div><div class="fd">Divider</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">dV/dT = -K·Vcc</div><div class="fd">Sensitivity</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Controls</div>
+      <div class="srow">
+        <span class="sl">Temperature °C</span>
+        <input type="range" id="sTemp" min="-50" max="150" value="25" step="1">
+        <span class="sval" id="vTemp">25 °C</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Supply Voltage</span>
+        <input type="range" id="sVcc" min="1" max="50" value="30" step="1">
+        <span class="sval" id="vVcc">3.0 V</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Series Resistance</span>
+        <input type="range" id="sRs" min="10" max="100" value="50" step="1">
+        <span class="sval" id="vRs">10 kΩ</span>
+      </div>
+      <div class="srow">
+        <span class="sl">B-coefficient</span>
+        <input type="range" id="sB" min="2000" max="4000" value="3950" step="100">
+        <span class="sval" id="vB">3950 K</span>
+      </div>
+    </div>
+
+    <div class="panel curve-panel-main">
+      <div class="ptitle">R–T Curve</div>
+      <canvas class="chart-canvas" id="curve1" style="flex:1;min-height:140px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">About Thermistors</div>
+      <div class="facts">
+        • NTC: <span>Negative temp coefficient, R ↓ with T ↑</span><br>
+        • PTC: <span>Positive temp coefficient, R ↑ with T ↑</span><br>
+        • B-coeff: <span>2000–4500 K (NTC typical)</span><br>
+        • Accuracy: <span>±1–5°C typical</span><br>
+        • Response: <span>1–10 sec (depends on mass)</span><br>
+        • Range: <span>−50 to +150°C typical</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="curve-section">
+    <div class="panel" style="flex:1;display:flex;flex-direction:column">
+      <div class="ptitle">Resistance vs Temperature</div>
+      <canvas class="chart-canvas" id="curve1-desk" style="flex:1;min-height:160px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Voltage Divider Output</div>
+      <div class="kv"><label>Output V</label><div class="val c3" id="dVdiv2">—</div></div>
+      <div class="bar-wrap"><div class="bar-fill" id="vbar" style="width:0%;background:var(--accent)"></div></div>
+      <div class="kv" style="margin-top:6px"><label>Max Range</label><div class="val" style="color:var(--accent2)">0–3.3V</div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── STATE
+let tempC = 25, vccRaw = 30, rsRaw = 50, bCoeff = 3950;
+
+function getVcc() { return vccRaw / 10; } // 1-50 → 0.1-5V
+function getRS() { return EL.mapRange(rsRaw, 10, 100, 1000, 100000); } // kΩ
+function getB() { return bCoeff; }
+
+// Steinhart-Hart for NTC: R(T) = R₀ * exp(B * (1/T - 1/T₀))
+// where T is in Kelvin
+function getRthAtTemp(T_celsius) {
+  const T_K = T_celsius + 273.15;
+  const T0_K = 25 + 273.15;
+  const R0 = 10000; // 10 kΩ at 25°C reference
+  const B = getB();
+  return R0 * Math.exp(B * (1 / T_K - 1 / T0_K));
+}
+
+function getTempFromR(R) {
+  const R0 = 10000;
+  const B = getB();
+  const T0_K = 25 + 273.15;
+  const T_K = 1 / (Math.log(R / R0) / B + 1 / T0_K);
+  return T_K - 273.15;
+}
+
+// ── THREE.JS SCENE
+const { renderer, scene, camera } = EL.initScene('c3d');
+EL.initLights(scene, '#ff44aa');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+scene.add(pivot);
+
+// Thermistor bead — sphere
+const beadGeo = new THREE.SphereGeometry(0.4, 32, 32);
+const beadMat = new THREE.MeshPhongMaterial({ color: 0x220a1a, shininess: 50 });
+const beadMesh = new THREE.Mesh(beadGeo, beadMat);
+pivot.add(beadMesh);
+
+// Leads
+const leadGeo = new THREE.CylinderGeometry(0.03, 0.03, 1.0, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xdddddd, shininess: 80 });
+[-0.7, 0.7].forEach(x => {
+  const lead = new THREE.Mesh(leadGeo, leadMat);
+  lead.position.set(x, 0, 0);
+  lead.rotation.z = Math.PI / 2;
+  pivot.add(lead);
+});
+
+// Thermal particles (vibrating with temperature)
+const thermCount = 30;
+const thermGeo = new THREE.SphereGeometry(0.04, 6, 6);
+const thermMat = new THREE.MeshPhongMaterial({
+  color: 0xff44aa, emissive: 0xff0066, transparent: true, opacity: 0.6
+});
+const thermInst = new THREE.InstancedMesh(thermGeo, thermMat, thermCount);
+thermInst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+pivot.add(thermInst);
+
+// Glow light
+const glow = new THREE.PointLight(0xff44aa, 0.3, 3);
+pivot.add(glow);
+
+// ── ANIMATION
+let lastTS = 0, phase = 0;
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+  phase += dt;
+
+  if (!window._dragging) pivot.rotation.y += 0.002;
+
+  // Vibrate thermal particles based on temperature
+  const T = tempC;
+  const vibrateAmp = 0.1 + Math.max(0, T) * 0.005; // More vibration at higher T
+  const vibrateFreq = 2 + Math.max(0, T) * 0.01;
+
+  const dummy = new THREE.Object3D();
+  for (let i = 0; i < thermCount; i++) {
+    const angle = (i / thermCount) * Math.PI * 2;
+    const r = 0.5;
+    const x = Math.cos(angle) * r;
+    const y = Math.sin(phase * vibrateFreq) * vibrateAmp;
+    const z = Math.sin(angle) * r;
+    dummy.position.set(x, y, z);
+    dummy.scale.set(1 + Math.sin(phase * vibrateFreq + angle) * 0.1, 1, 1);
+    dummy.updateMatrix();
+    thermInst.setMatrixAt(i, dummy.matrix);
+  }
+  thermInst.instanceMatrix.needsUpdate = true;
+
+  glow.intensity = 0.2 + Math.max(0, T / 150) * 0.6;
+  beadMat.emissiveIntensity = Math.max(0, T / 100) * 0.3;
+  beadMat.emissive.setHex(T > 50 ? 0xff4466 : 0x330011);
+
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(animate);
+
+// ── CALCULATIONS
+function updateCalc() {
+  const T = tempC;
+  const R = getRthAtTemp(T);
+  const Rs = getRS();
+  const Vcc = getVcc();
+
+  // Voltage divider: Vdiv = Vcc * Rth / (Rs + Rth)
+  const Vdiv = Vcc * R / (Rs + R);
+
+  // Power dissipated in thermistor
+  const I = Vcc / (Rs + R);
+  const P = I * I * R;
+
+  // Sensitivity at this point: dV/dT
+  const dT = 0.1;
+  const R_plus = getRthAtTemp(T + dT);
+  const Vdiv_plus = Vcc * R_plus / (Rs + R_plus);
+  const sensitivity = (Vdiv_plus - Vdiv) / dT; // V/°C
+
+  document.getElementById('dT').textContent = EL.fmtT(T);
+  document.getElementById('dR').textContent = EL.fmtR(R);
+  document.getElementById('dVdiv').textContent = EL.fmtV(Vdiv);
+  document.getElementById('dP').textContent = EL.fmtP(P);
+  document.getElementById('dB').textContent = getB() + ' K';
+  document.getElementById('dSens').textContent = (sensitivity * 1000).toFixed(1) + ' mV/°C';
+
+  const vdiv2 = document.getElementById('dVdiv2');
+  if (vdiv2) vdiv2.textContent = EL.fmtV(Vdiv);
+
+  // Voltage bar (0–3.3V range)
+  const vbar = document.getElementById('vbar');
+  if (vbar) {
+    vbar.style.width = Math.min((Vdiv / 3.3) * 100, 100) + '%';
+    vbar.style.background = Vdiv < 1.65 ? '#ff44aa' : Vdiv < 2.5 ? '#ffaa88' : '#44ffaa';
+  }
+
+  document.getElementById('badge').textContent = EL.fmtV(Vdiv);
+
+  drawRTcurve();
+  checkChallenge(T);
+}
+
+function checkChallenge(T) {
+  const isMatch = Math.abs(T - 25.0) < 0.5; // Within ±0.5°C of target
+  document.getElementById('ch-stat').classList.toggle('done', isMatch);
+  if (isMatch) {
+    document.getElementById('ch-desc').innerHTML = "<b>Challenge Complete!</b> You achieved room temperature calibration at 25°C!";
+  }
+}
+
+// ── R-T CHARACTERISTIC CHART
+function drawRTcurve() {
+  const cvs = document.getElementById('curve1');
+  if (!cvs || !cvs.offsetWidth) return;
+  const w = cvs.offsetWidth, h = cvs.offsetHeight;
+  cvs.width = w * (devicePixelRatio || 1);
+  cvs.height = h * (devicePixelRatio || 1);
+  const ctx = cvs.getContext('2d');
+  ctx.scale(devicePixelRatio || 1, devicePixelRatio || 1);
+
+  const pad = { l: 38, r: 10, t: 10, b: 28 };
+  ctx.clearRect(0, 0, w, h);
+  EL.drawGrid(ctx, w, h, pad);
+  EL.drawAxes(ctx, w, h, pad, 'Temperature (°C)', 'Resistance');
+
+  const Tmin = -40, Tmax = 140;
+  const R_Tmin = getRthAtTemp(Tmin);
+  const R_Tmax = getRthAtTemp(Tmax);
+  const Rmax = Math.max(R_Tmin, R_Tmax);
+
+  ctx.fillStyle = 'rgba(200,100,150,0.7)';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const r = Rmax * (1 - i / 4);
+    const y = pad.t + (h - pad.t - pad.b) * i / 4;
+    ctx.fillText(EL.fmtR(r), pad.l - 2, y + 3);
+  }
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 4; i++) {
+    const ti = Tmin + (Tmax - Tmin) * i / 4;
+    const x = pad.l + (w - pad.l - pad.r) * i / 4;
+    ctx.fillText(ti.toFixed(0), x, h - pad.b + 12);
+  }
+
+  // R-T curve
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(255,68,170,0.9)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i <= 60; i++) {
+    const ti = Tmin + (Tmax - Tmin) * i / 60;
+    const ri = getRthAtTemp(ti);
+    const px = pad.l + (w - pad.l - pad.r) * ((ti - Tmin) / (Tmax - Tmin));
+    const py = pad.t + (h - pad.t - pad.b) * (1 - ri / Rmax);
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Operating point
+  const T = tempC;
+  const R = getRthAtTemp(T);
+  const opX = pad.l + (w - pad.l - pad.r) * ((T - Tmin) / (Tmax - Tmin));
+  const opY = pad.t + (h - pad.t - pad.b) * (1 - R / Rmax);
+  EL.drawOpPoint(ctx, opX, opY, '#ff44aa');
+}
+
+// ── SLIDER BINDINGS
+document.getElementById('sTemp').addEventListener('input', e => {
+  tempC = parseInt(e.target.value);
+  document.getElementById('vTemp').textContent = EL.fmtT(tempC);
+  updateCalc();
+});
+
+document.getElementById('sVcc').addEventListener('input', e => {
+  vccRaw = parseInt(e.target.value);
+  const vcc = getVcc();
+  document.getElementById('vVcc').textContent = vcc.toFixed(1) + ' V';
+  updateCalc();
+});
+
+document.getElementById('sRs').addEventListener('input', e => {
+  rsRaw = parseInt(e.target.value);
+  const rs = getRS();
+  document.getElementById('vRs').textContent = EL.fmtR(rs);
+  updateCalc();
+});
+
+document.getElementById('sB').addEventListener('input', e => {
+  bCoeff = parseInt(e.target.value);
+  document.getElementById('vB').textContent = bCoeff + ' K';
+  updateCalc();
+});
+
+// Init
+updateCalc();
+</script>
+<script src="../shared/nav.js"></script>
+</body>
+</html>

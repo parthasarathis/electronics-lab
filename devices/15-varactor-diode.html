@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>Varactor Diode | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ff4488;--accent2:#ff88cc;--accent-rgb:255,68,136}
+#curve-section canvas,.curve-panel-main canvas{height:200px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">15 / 150</span>
+    <span class="dev-name">Varactor Diode</span>
+    <span class="dev-cat">Semiconductor · Voltage Variable Capacitor</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">15 Varactor Diode</div>
+
+<div id="body">
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">~ — Voltage-Variable Capacitance</div>
+    <div class="canvas-overlay" id="badge">—</div>
+  </div>
+
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Controls</div>
+      <div class="srow"><span class="sl">Reverse Bias V</span>
+        <input type="range" id="sV" min="0" max="20" value="5" step="0.1">
+        <span class="sval" id="vV">5.0 V</span></div>
+      <div class="srow"><span class="sl">Doping Profile</span>
+        <input type="range" id="sM" min="10" max="50" value="20" step="1">
+        <span class="sval" id="vM">0.5</span></div>
+      <div class="srow"><span class="sl">C0 @ 0V</span>
+        <input type="range" id="sC0" min="10" max="100" value="50" step="1">
+        <span class="sval" id="vC0">100 pF</span></div>
+      <div class="srow"><span class="sl">AC Signal Freq</span>
+        <input type="range" id="sF" min="0" max="100" value="50" step="1">
+        <span class="sval" id="vF">100 MHz</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Live Measurements</div>
+      <div class="kvgrid">
+        <div class="kv"><label>Junction Capacitance</label><div class="val c1" id="lCj">—</div></div>
+        <div class="kv"><label>Depletion Width</label><div class="val c2" id="lW">—</div></div>
+        <div class="kv"><label>Tuning Ratio</label><div class="val c3" id="lTune">—</div></div>
+        <div class="kv"><label>Series Resistance</label><div class="val c4" id="lRs">—</div></div>
+        <div class="kv"><label>Q-Factor</label><div class="val c5" id="lQ">—</div></div>
+        <div class="kv"><label>Resonant Freq</label><div class="val c6" id="lFres">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">Cj = C0(1 + V/φ)^(−m)</div><div class="fd">C-V Relation</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">W = √(2ε(φ−V)/(qN))</div><div class="fd">Depl. Width</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">Q = Cj·ωL/(Rs + Cj·ω²L·Rs)</div><div class="fd">Q-Factor</div></div>
+      </div>
+    </div>
+
+    <div class="panel curve-panel-main">
+      <div class="ptitle">C-V Characteristic (Abrupt Junction)</div>
+      <canvas id="curve1" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Teaching Points</div>
+      <div class="facts">
+        · <span>Reverse bias only</span>: C varies with voltage<br>
+        · <span>Doping profile m</span>: 0.33 (abrupt) – 0.5 (linearly graded)<br>
+        · <span>Tuning ratio</span>: 10:1 typical at ±10V swing<br>
+        · <span>Low series Rs</span>: high Q, low noise<br>
+        · <span>Applications</span>: VCO, frequency modulators, filters<br>
+        · <span>Hysteresis</span>: temperature compensation needed
+      </div>
+    </div>
+
+  </div>
+
+  <div id="curve-section">
+    <div class="panel" style="flex:1">
+      <div class="ptitle">Capacitance vs Voltage — Cj = C0(1 + V/φ)^(−m)</div>
+      <canvas id="curve1-desk" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Tuning Performance</div>
+      <div class="kv"><label>Current Cj</label><div class="val c1" id="dCj">—</div></div>
+      <div class="kv"><label>Tuning Range</label><div class="val c3" id="dTune">—</div></div>
+      <div class="kv"><label>Q @ Freq</label><div class="val c5" id="dQ">—</div></div>
+      <div class="kv"><label>Built-in φ</label><div class="val c2" id="dphi">—</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── Physics State ──
+let V_reverse = 5.0;    // Reverse bias voltage
+let m_profile = 20;     // Doping profile (10-50 maps to 0.33-0.5)
+let C0_slider = 50;     // C0 @ 0V (pF)
+let f_slider = 50;      // Frequency (0-100 maps to 100MHz - 10GHz)
+
+function getM() {
+  // Map slider 10-50 to exponent 0.33-0.5
+  return EL.mapRange(m_profile, 10, 50, 0.33, 0.5);
+}
+
+function getC0() {
+  // Map slider 10-100 to 10pF - 1000pF (log)
+  return Math.pow(10, EL.mapRange(C0_slider, 10, 100, 1, 3.3)); // 10 pF to ~2000 pF
+}
+
+function getFreq() {
+  // Map slider 0-100 to 100 MHz - 10 GHz (log)
+  return Math.pow(10, EL.mapRange(f_slider, 0, 100, 8, 10)); // 100 MHz to 10 GHz
+}
+
+function calcPhysics() {
+  const phi_B = 0.7; // Built-in potential (typical Si: 0.7V)
+  const C0 = getC0() * 1e-12; // Convert pF to F
+  const m = getM();
+
+  // Ensure safe calculation
+  const V_safe = Math.max(V_reverse, 0.01);
+
+  // Junction capacitance: Cj = C0 * (1 + V/phi)^(-m)
+  const term = 1 + V_safe / phi_B;
+  const Cj = C0 * Math.pow(term, -m);
+
+  // Depletion width: W = sqrt(2*eps*phi*(1 + V/phi) / (q*N))
+  const eps0 = 8.854e-12;
+  const eps_r = 11.7; // Silicon
+  const q = 1.602e-19;
+  const N = 1e15; // Doping concentration
+  const W = Math.sqrt(2 * eps0 * eps_r * phi_B * term / (q * N));
+
+  // Series resistance (physical limitation)
+  const Rs = 2; // 2 ohms typical
+
+  // Frequency
+  const f = getFreq();
+  const omega = 2 * Math.PI * f;
+
+  // Reactance
+  const Xc = 1 / (omega * Cj);
+
+  // Q-factor: Q = Xc / Rs (quality factor)
+  const Q = Xc / Rs;
+
+  // Resonant frequency with parasitic inductance L (estimate ~1nH)
+  const L = 1e-9;
+  const f_res = 1 / (2 * Math.PI * Math.sqrt(L * Cj));
+
+  // Tuning ratio: ratio of Cj at 0V to Cj at max V
+  const Cj_0 = C0; // At 0V
+  const tuneRatio = Cj_0 / Cj;
+
+  const dissipation = V_reverse * (Xc / 1e9); // Minimal for reverse bias
+
+  return { Cj, W, Rs, Xc, Q, f_res, tuneRatio, C0, phi_B, m, Cj_0 };
+}
+
+function updateUI() {
+  const { Cj, W, Rs, Xc, Q, f_res, tuneRatio, C0, phi_B } = calcPhysics();
+  const f = getFreq();
+
+  document.getElementById('lCj').textContent = EL.fmtC(Cj);
+  document.getElementById('lW').textContent = (W * 1e9).toFixed(2) + ' nm';
+  document.getElementById('lTune').textContent = tuneRatio.toFixed(2) + ':1';
+  document.getElementById('lRs').textContent = Rs.toFixed(2) + ' Ω';
+  document.getElementById('lQ').textContent = Q.toFixed(0);
+  document.getElementById('lFres').textContent = EL.fmtF(f_res);
+
+  // Operating display
+  document.getElementById('dCj').textContent = EL.fmtC(Cj);
+  document.getElementById('dTune').textContent = tuneRatio.toFixed(2) + ':1';
+  document.getElementById('dQ').textContent = Q.toFixed(0);
+  document.getElementById('dphi').textContent = (phi_B * 1000).toFixed(0) + ' mV';
+
+  // Badge
+  if (V_reverse > 0) {
+    document.getElementById('badge').textContent = 'VAR';
+  } else {
+    document.getElementById('badge').textContent = '0';
+  }
+
+  drawAll();
+}
+
+// ── 3D Scene ──
+const { renderer, scene, camera } = EL.initScene('c3d');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+EL.initLights(scene, '#ff4488');
+scene.add(pivot);
+
+// Varactor diode package (small SMD-like)
+const bodyGeo = new THREE.BoxGeometry(0.6, 0.3, 0.3);
+const bodyMat = new THREE.MeshPhongMaterial({ color: 0x1a1a2e, shininess: 60 });
+const body = new THREE.Mesh(bodyGeo, bodyMat);
+pivot.add(body);
+
+// Junction region (central, shows depletion)
+const juncGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.05, 32);
+const juncMat = new THREE.MeshPhongMaterial({
+  color: 0xff8800, emissive: 0xff4400, transparent: true, opacity: 0.7
+});
+const junction = new THREE.Mesh(juncGeo, juncMat);
+pivot.add(junction);
+
+// Leads
+const lead1Geo = new THREE.BoxGeometry(0.08, 0.04, 0.04);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xcccccc, shininess: 80 });
+const lead1 = new THREE.Mesh(lead1Geo, leadMat);
+lead1.position.set(-0.4, 0, 0);
+pivot.add(lead1);
+const lead2 = new THREE.Mesh(lead1Geo, leadMat);
+lead2.position.set(0.4, 0, 0);
+pivot.add(lead2);
+
+// AC signal animation (small voltage wave)
+const AC_COUNT = 20;
+const acPositions = new Float32Array(AC_COUNT * 3);
+const acGeo = new THREE.BufferGeometry();
+acGeo.setAttribute('position', new THREE.BufferAttribute(acPositions, 3));
+const acMat = new THREE.PointsMaterial({ color: 0xffff00, size: 0.06 });
+const acParticles = new THREE.Points(acGeo, acMat);
+pivot.add(acParticles);
+
+// Glow
+const glowLight = new THREE.PointLight(0xff4488, 0, 2);
+pivot.add(glowLight);
+
+// Schematic
+const spriteCanvas = document.createElement('canvas');
+spriteCanvas.width = 128; spriteCanvas.height = 64;
+const sCtx = spriteCanvas.getContext('2d');
+sCtx.fillStyle = 'rgba(255,68,136,0.9)';
+sCtx.font = 'bold 16px Courier New';
+sCtx.textAlign = 'center';
+sCtx.fillText('VARACTOR', 64, 30);
+sCtx.font = '11px Courier New';
+sCtx.fillStyle = 'rgba(255,136,204,0.8)';
+sCtx.fillText('TUNER', 64, 48);
+const spriteTex = new THREE.CanvasTexture(spriteCanvas);
+const spriteMat = new THREE.SpriteMaterial({ map: spriteTex, transparent: true });
+const sprite = new THREE.Sprite(spriteMat);
+sprite.position.set(0, -1.5, 0);
+sprite.scale.set(2, 1, 1);
+pivot.add(sprite);
+
+// ── Animation ──
+let lastTS = 0, acPhase = 0;
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+
+  if (!window._dragging) pivot.rotation.y += dt * 0.5;
+
+  const { Cj, W } = calcPhysics();
+  const f = getFreq();
+
+  // Glow based on voltage
+  glowLight.intensity = Math.min(V_reverse / 10 * 2, 1.5);
+
+  // Junction width visualization
+  junction.scale.z = Math.min(W / 1e-6, 2);
+
+  // AC signal animation
+  acPhase += dt * f * 0.000001; // Oscillate with frequency
+  for (let i = 0; i < AC_COUNT; i++) {
+    const t = (i / AC_COUNT + acPhase) % 1;
+    const x = (t - 0.5) * 1.2;
+    const amp = 0.15;
+    const y = amp * Math.sin(t * Math.PI * 4 + acPhase * 10);
+    acPositions[i * 3] = x;
+    acPositions[i * 3 + 1] = y;
+    acPositions[i * 3 + 2] = 0;
+  }
+  acGeo.attributes.position.needsUpdate = true;
+
+  renderer.render(scene, camera);
+}
+animate(0);
+
+// ── Slider Events ──
+document.getElementById('sV').addEventListener('input', e => {
+  V_reverse = parseFloat(e.target.value);
+  document.getElementById('vV').textContent = V_reverse.toFixed(1) + ' V';
+  updateUI();
+});
+document.getElementById('sM').addEventListener('input', e => {
+  m_profile = parseFloat(e.target.value);
+  const m = getM();
+  document.getElementById('vM').textContent = m.toFixed(2);
+  updateUI();
+});
+document.getElementById('sC0').addEventListener('input', e => {
+  C0_slider = parseFloat(e.target.value);
+  const C0 = getC0();
+  document.getElementById('vC0').textContent = EL.fmtC(C0);
+  updateUI();
+});
+document.getElementById('sF').addEventListener('input', e => {
+  f_slider = parseFloat(e.target.value);
+  const f = getFreq();
+  document.getElementById('vF').textContent = EL.fmtF(f);
+  updateUI();
+});
+
+// ── Chart Drawing ──
+function drawChart(canvasEl) {
+  if (!canvasEl || canvasEl.offsetWidth === 0) return;
+  const { ctx, w, h } = EL.setupChart(canvasEl, '#ff4488');
+  const pad = { l: 48, r: 12, t: 16, b: 32 };
+
+  ctx.clearRect(0, 0, w, h);
+  EL.drawGrid(ctx, w, h, pad);
+  EL.drawAxes(ctx, w, h, pad, 'Vr (V)', 'Cj (pF)');
+
+  // Axis labels
+  ctx.fillStyle = 'rgba(200,100,150,0.7)';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'right';
+  const { C0 } = calcPhysics();
+  const C0_pF = C0 * 1e12;
+  const maxC = C0_pF;
+  const minC = C0_pF * 0.1;
+  const logMaxC = Math.log10(maxC);
+  const logMinC = Math.log10(minC);
+
+  ctx.fillText(maxC.toFixed(0) + '', pad.l - 2, pad.t + 4);
+  ctx.fillText((maxC / Math.sqrt(10)).toFixed(0) + '', pad.l - 2, pad.t + (h - pad.t - pad.b) * 0.5);
+  ctx.fillText(minC.toFixed(0) + '', pad.l - 2, h - pad.b + 4);
+
+  ctx.textAlign = 'left';
+  for (let i = 0; i <= 4; i++) {
+    const x = pad.l + (w - pad.l - pad.r) * i / 4;
+    ctx.fillText((i * 5) + '', x - 4, h - pad.b + 12);
+  }
+
+  // Draw C-V curve: Cj = C0 * (1 + V/phi)^(-m)
+  ctx.beginPath();
+  ctx.strokeStyle = '#ff4488';
+  ctx.lineWidth = 2.5;
+
+  const { m, phi_B } = calcPhysics();
+
+  for (let px = 0; px <= w - pad.l - pad.r; px++) {
+    const V_pt = (px / (w - pad.l - pd.r)) * 20; // 0 to 20V
+
+    const Cj_pt = C0 * Math.pow(1 + V_pt / phi_B, -m);
+    const logCj = Math.log10(Cj_pt);
+    const yFrac = 1 - (logCj - logMinC) / (logMaxC - logMinC);
+
+    const x = pad.l + px;
+    const y = pad.t + EL.clamp(yFrac, 0, 1) * (h - pad.t - pad.b);
+    px === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Operating point
+  const { Cj } = calcPhysics();
+  const opV = V_reverse;
+  const opX = pad.l + EL.clamp(opV / 20, 0, 1) * (w - pad.l - pad.r);
+  const logOpCj = Math.log10(Cj);
+  const opYFrac = 1 - (logOpCj - logMinC) / (logMaxC - logMinC);
+  const opY = pad.t + EL.clamp(opYFrac, 0, 1) * (h - pad.t - pad.b);
+  EL.drawOpPoint(ctx, opX, opY, '#ff88cc');
+
+  // Label
+  ctx.fillStyle = '#ff88cc';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'left';
+  ctx.fillText('Cj=' + (Cj * 1e12).toFixed(0) + 'pF', pad.l + 4, pad.t + 12);
+}
+
+function drawAll() {
+  drawChart(document.getElementById('curve1'));
+  drawChart(document.getElementById('curve1-desk'));
+}
+
+updateUI();
+</script>
+<script src="../shared/nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a"><title>Avalanche Diode | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ff6600;--accent2:#ff9944;--accent-rgb:255,102,0}
+#curve-section canvas,.curve-panel-main canvas{height:200px}
+</style>
+</head><body><div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">20 / 150</span>
+    <span class="dev-name">Avalanche Diode</span>
+    <span class="dev-cat">Thyristor · High-Voltage Detector</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">20 Avalanche Diode</div>
+
+<div id="body">
+  <!-- 3D Canvas -->
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">⚠ Impact Ionization · Avalanche Breakdown</div>
+    <div class="canvas-overlay" id="badge">Safe</div>
+  </div>
+
+  <!-- Panels -->
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Controls</div>
+      <div class="srow"><span class="sl">Vr</span>
+        <input type="range" id="sVr" min="0" max="100" value="30" step="1">
+        <span class="sval" id="vVr">30.0 V</span></div>
+      <div class="srow"><span class="sl">Temp</span>
+        <input type="range" id="sT" min="-40" max="120" value="25" step="5">
+        <span class="sval" id="vT">25°C</span></div>
+      <div class="srow"><span class="sl">Doping Nd</span>
+        <input type="range" id="sNd" min="0" max="100" value="50" step="10">
+        <span class="sval" id="vNd">10¹⁶ cm⁻³</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Live Measurements</div>
+      <div class="kvgrid">
+        <div class="kv"><label>Breakdown (VBR)</label><div class="val c1" id="lVBR">—</div></div>
+        <div class="kv"><label>Depletion Width</label><div class="val c2" id="lW">—</div></div>
+        <div class="kv"><label>E-Field Peak</label><div class="val c3" id="lE">—</div></div>
+        <div class="kv"><label>Dark Current</label><div class="val c4" id="lId">—</div></div>
+        <div class="kv"><label>Multiplication M</label><div class="val c5" id="lM">—</div></div>
+        <div class="kv"><label>State</label><div class="val c6" id="lState">—</div></div>
+      </div>
+      <div style="margin-top:8px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+          <span style="font-size:7px;color:var(--sub);letter-spacing:1px;text-transform:uppercase;">Reverse Bias %</span>
+          <span style="font-size:7px;color:var(--sub);" id="barPct">0%</span>
+        </div>
+        <div class="bar-wrap"><div class="bar-fill" id="barFill" style="width:0%;background:var(--accent);"></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Physics</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">E_max = sqrt(2·q·Nd·Vr)</div><div class="fd">Peak Field</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">M(V) = 1/(1-(V/VBR)^n)</div><div class="fd">Multiplication</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">Ia = M·Il</div><div class="fd">Impact Current</div></div>
+      </div>
+    </div>
+
+    <!-- Mobile curve panel -->
+    <div class="panel curve-panel-main">
+      <div class="ptitle">Multiplication vs Bias Voltage</div>
+      <canvas id="curve1" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Teaching Points</div>
+      <div class="facts">
+        · <span>Impact ionization</span>: high-energy carriers create E-H pairs via collision<br>
+        · <span>Avalanche effect</span>: multiplication M = Ia/Il diverges at VBR<br>
+        · <span>Breakdown voltage</span> VBR ~ 1/Nd^0.5 (lighter doping → higher VBR)<br>
+        · <span>Temperature</span>: VBR increases ~0.1%/°C, M decreases with T<br>
+        · <span>Guard rings</span> prevent edge breakdown; reach constant-field profile<br>
+        · Applications: photodiodes (APD), UV detectors, Geiger counters (SMD region)
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Desktop Curve Section -->
+  <div id="curve-section">
+    <div class="panel" style="flex:1">
+      <div class="ptitle">Multiplication vs Bias Voltage</div>
+      <canvas id="curve1-desk" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Avalanche Physics</div>
+      <div class="facts">
+        · <span>Breakdown mechanisms</span>: avalanche (primary) + tunneling<br>
+        · Si VBR: 5–400V (doping-dependent)<br>
+        · <span>Geiger mode</span>: M→∞, self-sustaining discharge<br>
+        · Quenching limits recover time
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── Physics State ──
+let Vr = 30, T = 25, Nd_idx = 50;
+
+// Constants
+const q = 1.602e-19;
+const eps0 = 8.854e-12;
+const eps_r = 11.7;
+const k = 1.381e-23;
+
+// Nd mapping: 0→1e15, 100→1e17 cm-3
+function getNd(idx) {
+  const Nd_cm3 = 1e15 + idx * (1e17 - 1e15) / 100;
+  return Nd_cm3 * 1e6;  // convert to m-3
+}
+
+// Breakdown voltage: VBR ~ 1/(2*q*Nd*(Ec)^2) where Ec is critical field
+function calcBreakdown(Nd_m3) {
+  // Empirical: VBR = 1.42e10 / Nd^0.42 for Si
+  const Nd_cm3 = Nd_m3 / 1e6;
+  const VBR = 1.42e10 / Math.pow(Nd_cm3, 0.42);
+  return VBR;
+}
+
+function calcPhysics() {
+  const Nd = getNd(Nd_idx);
+  const A = 1e-10;  // 1 um^2
+  const T0 = 25;
+
+  // Temperature-dependent breakdown
+  const tempCoeff = 0.001;  // ~0.1%/°C
+  const VBR0 = calcBreakdown(Nd);
+  const VBR = VBR0 * (1 + tempCoeff * (T - T0));
+
+  // Depletion width: W = sqrt(2*eps0*eps_r*Vr / (q*Nd))
+  const W = Math.sqrt(2 * eps0 * eps_r * Vr / (q * Nd));
+
+  // Peak electric field: E_max = 2*Vr / W = sqrt(2*q*Nd*Vr / (eps0*eps_r))
+  const E_max = Math.sqrt(2 * q * Nd * Vr / (eps0 * eps_r));
+
+  // Dark current (exponential model)
+  const Il_ref = 1e-12;  // 1 pA at 25°C
+  const Eg = 1.166 - 4.73e-4 * Math.pow(T, 2) / (T + 636);  // temperature-dependent bandgap
+  const kT = k * (T + 273.15);
+  const temp_factor = Math.exp(q * Eg / (2 * k) * (1 / (273.15 + T0) - 1 / (273.15 + T)));
+  const Il = Il_ref * temp_factor;
+
+  // Multiplication factor: M = 1 / (1 - (V/VBR)^n)
+  // n ≈ 2-3 for Si. Use n=2.5
+  const n = 2.5;
+  let M = 1;
+  if (Vr < VBR) {
+    const ratio = Vr / VBR;
+    M = 1 / (1 - Math.pow(ratio, n));
+  } else {
+    M = 1000;  // breakdown
+  }
+
+  // Avalanche current
+  const Ia = M * Il;
+
+  // State
+  const ratio_VVbr = Vr / VBR;
+  let state;
+  if (ratio_VVbr < 0.7) state = 'Safe';
+  else if (ratio_VVbr < 0.95) state = 'APD Mode';
+  else if (ratio_VVbr < 1.0) state = 'Near Breakdown';
+  else state = 'BREAKDOWN!';
+
+  return { VBR, W, E_max, Il, M, Ia, state, Nd, ratio_VVbr };
+}
+
+function updateUI() {
+  const { VBR, W, E_max, Il, M, Ia, state, ratio_VVbr } = calcPhysics();
+  document.getElementById('lVBR').textContent = VBR.toFixed(0) + ' V';
+  document.getElementById('lW').textContent = (W * 1e6).toFixed(2) + ' µm';
+  document.getElementById('lE').textContent = (E_max / 1e5).toFixed(2) + ' MV/m';
+  document.getElementById('lId').textContent = EL.fmtI(Il);
+  document.getElementById('lM').textContent = M.toFixed(1) + '×';
+  document.getElementById('lState').textContent = state;
+  document.getElementById('badge').textContent = state;
+
+  // Bar: bias as % of VBR
+  const barPct = Math.min(100, ratio_VVbr * 100);
+  document.getElementById('barFill').style.width = barPct + '%';
+  document.getElementById('barPct').textContent = barPct.toFixed(0) + '%';
+
+  drawAll();
+}
+
+// ── Sliders ──
+document.getElementById('sVr').addEventListener('input', e => {
+  Vr = +e.target.value * 1.5;
+  document.getElementById('vVr').textContent = Vr.toFixed(1) + ' V';
+  updateUI();
+});
+document.getElementById('sT').addEventListener('input', e => {
+  T = +e.target.value;
+  document.getElementById('vT').textContent = T.toFixed(0) + '°C';
+  updateUI();
+});
+document.getElementById('sNd').addEventListener('input', e => {
+  Nd_idx = +e.target.value;
+  const Nd_cm3 = (1e15 + Nd_idx * (1e17 - 1e15) / 100);
+  const exp = Math.floor(Math.log10(Nd_cm3));
+  const mantissa = Nd_cm3 / Math.pow(10, exp);
+  document.getElementById('vNd').textContent = mantissa.toFixed(1) + '·10¹' + (exp - 10) + ' cm⁻³';
+  updateUI();
+});
+
+// ── 3D Scene ──
+const { renderer, scene, camera } = EL.initScene('c3d');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+EL.initLights(scene, '#ff6600');
+scene.add(pivot);
+
+// Diode package: TO-220 style
+const bodyGeo = new THREE.BoxGeometry(0.9, 1.2, 0.4);
+const bodyMat = new THREE.MeshPhongMaterial({ color: 0x2a1a1a });
+const body = new THREE.Mesh(bodyGeo, bodyMat);
+pivot.add(body);
+
+// P layer (top)
+const pGeo = new THREE.BoxGeometry(0.95, 0.3, 0.45);
+const pMat = new THREE.MeshPhongMaterial({ color: 0x6633aa });
+const pLayer = new THREE.Mesh(pGeo, pMat);
+pLayer.position.y = 0.45;
+pivot.add(pLayer);
+
+// N+ layer (bottom)
+const nGeo = new THREE.BoxGeometry(0.95, 0.3, 0.45);
+const nMat = new THREE.MeshPhongMaterial({ color: 0x0033cc });
+const nLayer = new THREE.Mesh(nGeo, nMat);
+nLayer.position.y = -0.45;
+pivot.add(nLayer);
+
+// Depletion region (middle) - transparent, glows under stress
+const deplGeo = new THREE.BoxGeometry(0.95, 0.4, 0.45);
+const deplMat = new THREE.MeshPhongMaterial({
+  color: 0xff6600,
+  transparent: true,
+  opacity: 0.3,
+  emissive: 0xff6600,
+  emissiveIntensity: 0
+});
+const deplRegion = new THREE.Mesh(deplGeo, deplMat);
+deplRegion.name = 'depl';
+pivot.add(deplRegion);
+
+// Electric field lines (animated ArrowHelpers)
+const arrows = [];
+for (let i = 0; i < 6; i++) {
+  const dir = new THREE.Vector3(0, -1, 0);
+  const origin = new THREE.Vector3((i - 2.5) * 0.25, 0, 0);
+  const arrow = new THREE.ArrowHelper(dir, origin, 0.3, 0xff6600, 0.1, 0.08);
+  pivot.add(arrow);
+  arrows.push({ helper: arrow, i });
+}
+
+// Leads
+const leadGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.8, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+const leadTop = new THREE.Mesh(leadGeo, leadMat);
+leadTop.position.set(0.35, 0.95, 0);
+pivot.add(leadTop);
+const leadBot = new THREE.Mesh(leadGeo, leadMat);
+leadBot.position.set(-0.35, -0.95, 0);
+pivot.add(leadBot);
+
+// ── Charts ──
+function drawCurve1(ts) {
+  const canvas = document.getElementById('curve1');
+  if (!canvas) return;
+  const { ctx, w, h, accent } = EL.setupChart(canvas, '#ff6600');
+
+  ctx.fillStyle = '#06080f';
+  ctx.fillRect(0, 0, w, h);
+
+  const pad = { l: 36, r: 8, t: 8, b: 28 };
+  EL.drawGrid(ctx, w, h, pad);
+
+  const { VBR } = calcPhysics();
+
+  // X: Vr as % of VBR (0-120%), Y: M (1-100)
+  const minV_pct = 0, maxV_pct = 120;
+  const minM = 1, maxM = 100;
+
+  const n = 2.5;
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= 100; i++) {
+    const V_pct = minV_pct + (maxV_pct - minV_pct) * i / 100;
+    const V = VBR * V_pct / 100;
+    let M_val = 1;
+    if (V < VBR) {
+      M_val = 1 / (1 - Math.pow(V / VBR, n));
+    } else {
+      M_val = 100;
+    }
+    const x = pad.l + (w - pad.l - pad.r) * V_pct / maxV_pct;
+    const y = h - pad.b - (h - pad.t - pad.b) * Math.min(1, Math.log(M_val) / Math.log(maxM));
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Breakdown line
+  const VBR_pct_x = pad.l + (w - pad.l - pad.r);
+  ctx.strokeStyle = 'rgba(255,102,0,0.4)';
+  ctx.setLineDash([2, 3]);
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(VBR_pct_x, pad.t);
+  ctx.lineTo(VBR_pct_x, h - pad.b);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Operating point
+  const opV_pct = (Vr / VBR) * 100;
+  const opM = 1 / (1 - Math.pow(Vr / VBR, n));
+  const opX = pad.l + (w - pad.l - pad.r) * opV_pct / maxV_pct;
+  const opY = h - pad.b - (h - pad.t - pad.b) * Math.min(1, Math.log(opM) / Math.log(maxM));
+  EL.drawOpPoint(ctx, opX, opY, accent, ts);
+
+  // Labels
+  ctx.fillStyle = 'rgba(200,221,245,0.6)';
+  ctx.font = '10px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText('Bias (% of VBR)', w/2, h - 8);
+  ctx.save();
+  ctx.translate(12, h/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center';
+  ctx.fillText('Multiplication M', 0, 0);
+  ctx.restore();
+}
+
+function drawAll(ts = 0) {
+  const canvas1 = document.getElementById('curve1');
+  const canvas1desk = document.getElementById('curve1-desk');
+  if (canvas1) drawCurve1(ts);
+  if (canvas1desk) drawCurve1(ts);
+
+  // Update 3D
+  const { ratio_VVbr, E_max, M } = calcPhysics();
+
+  // Depletion region glow
+  const deplMesh = pivot.children.find(c => c.name === 'depl');
+  if (deplMesh) {
+    deplMesh.material.emissiveIntensity = Math.min(1, ratio_VVbr * 1.5);
+    deplMesh.material.opacity = 0.2 + ratio_VVbr * 0.3;
+  }
+
+  // Animate field arrows based on bias
+  arrows.forEach((a, idx) => {
+    const intensity = Math.min(1, ratio_VVbr);
+    a.helper.setLength(0.2 + intensity * 0.5);
+    a.helper.scale.set(1, 1 + intensity * 2, 1);
+  });
+}
+
+// ── Animation Loop ──
+function animate(ts) {
+  requestAnimationFrame(animate);
+  drawAll(ts);
+  renderer.render(scene, camera);
+}
+
+updateUI();
+animate();
+</script>
+
+<!-- Navigation bar -->
+<script src="../shared/nav.js"></script>
+</body>
+</html>

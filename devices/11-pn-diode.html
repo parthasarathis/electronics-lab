@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>P-N Diode | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ff4488;--accent2:#ff88cc;--accent-rgb:255,68,136}
+#curve-section canvas,.curve-panel-main canvas{height:200px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">11 / 150</span>
+    <span class="dev-name">P-N Diode</span>
+    <span class="dev-cat">Semiconductor · Rectifier</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">11 P-N Diode</div>
+
+<div id="body">
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">⇄ — P-N Junction · Shockley Model</div>
+    <div class="canvas-overlay" id="badge">—</div>
+  </div>
+
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Controls</div>
+      <div class="srow"><span class="sl">Applied Voltage</span>
+        <input type="range" id="sV" min="-2" max="0.8" value="0" step="0.01">
+        <span class="sval" id="vV">0.00 V</span></div>
+      <div class="srow"><span class="sl">Temperature</span>
+        <input type="range" id="sT" min="-40" max="125" value="25" step="1">
+        <span class="sval" id="vT">25 °C</span></div>
+      <div class="srow"><span class="sl">Js (Saturation)</span>
+        <input type="range" id="sJs" min="0" max="100" value="30" step="1">
+        <span class="sval" id="vJs">1.0 nA</span></div>
+      <div class="srow"><span class="sl">n (Ideality)</span>
+        <input type="range" id="sN" min="10" max="30" value="10" step="1">
+        <span class="sval" id="vN">1.0</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Live Measurements</div>
+      <div class="kvgrid">
+        <div class="kv"><label>Current (I)</label><div class="val c1" id="lI">—</div></div>
+        <div class="kv"><label>Resistance Rd</label><div class="val c2" id="lRd">—</div></div>
+        <div class="kv"><label>Vt (Thermal)</label><div class="val c3" id="lVt">—</div></div>
+        <div class="kv"><label>Power P</label><div class="val c4" id="lP">—</div></div>
+        <div class="kv"><label>Depl. Width</label><div class="val c5" id="lW">—</div></div>
+        <div class="kv"><label>Cj (Junction)</label><div class="val c6" id="lCj">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">I = Is(e^(V/nVt) − 1)</div><div class="fd">Shockley</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">Vt = kT/q</div><div class="fd">Thermal</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">W = √(2εV/qN)</div><div class="fd">Depl. Width</div></div>
+      </div>
+    </div>
+
+    <div class="panel curve-panel-main">
+      <div class="ptitle">I-V Characteristic (Shockley Equation)</div>
+      <canvas id="curve1" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Teaching Points</div>
+      <div class="facts">
+        · <span>Forward bias</span>: exponential I-V curve<br>
+        · <span>Reverse bias</span>: near-zero leakage current<br>
+        · <span>Saturation current Is</span>: strongly T-dependent<br>
+        · <span>Thermal voltage Vt</span> = 26 mV at 25°C<br>
+        · <span>Ideality factor n</span>: 1 (ideal) – 2 (real)<br>
+        · <span>Depletion capacitance</span>: Cj ∝ √V reverse
+      </div>
+    </div>
+
+  </div>
+
+  <div id="curve-section">
+    <div class="panel" style="flex:1">
+      <div class="ptitle">I-V Characteristic — I = Is(e^(V/nVt) − 1)</div>
+      <canvas id="curve1-desk" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Operating Point</div>
+      <div class="kv"><label>V (Applied)</label><div class="val c1" id="dV">—</div></div>
+      <div class="kv"><label>I (Current)</label><div class="val c1" id="dI">—</div></div>
+      <div class="kv"><label>Rd (Dyn)</label><div class="val c2" id="dRd">—</div></div>
+      <div class="kv"><label>P (Power)</label><div class="val c4" id="dP">—</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── Physics State ──
+let V_applied = 0;      // Volts
+let T_celsius = 25;     // Temperature
+let Js_slider = 30;     // Saturation current slider (0-100)
+let n_slider = 10;      // Ideality factor slider (10-30 → 1.0-2.0)
+
+// Physical constants
+const k = 1.381e-23;    // Boltzmann constant J/K
+const q = 1.602e-19;    // Elementary charge C
+const T0 = 298.15;      // 25°C in Kelvin
+const Eg = 1.166;       // Silicon bandgap at 25°C
+
+function getJs() {
+  // Map slider 0-100 to 10 fA - 10 nA (log scale)
+  return Math.pow(10, EL.mapRange(Js_slider, 0, 100, -14, -9));
+}
+
+function getN() {
+  // Map slider 10-30 to n = 1.0-2.0
+  return 1.0 + (n_slider - 10) / 20;
+}
+
+function calcPhysics() {
+  const T_K = T_celsius + 273.15;
+  const Vt = k * T_K / q;  // Thermal voltage
+  const n = getN();
+  const Is = getJs();
+
+  // Shockley equation: I = Is * (exp(V/(n*Vt)) - 1)
+  let I;
+  const exponent = V_applied / (n * Vt);
+  if (exponent > 100) {
+    I = Is * Math.exp(exponent); // Forward bias high V
+  } else if (exponent < -20) {
+    I = -Is; // Reverse saturation
+  } else {
+    I = Is * (Math.exp(exponent) - 1);
+  }
+
+  // Dynamic resistance: rd = nVt / I (when forward biased)
+  let Rd = 1e12; // Reverse bias: very high
+  if (I > 1e-9) {
+    Rd = (n * Vt) / I;
+  }
+
+  // Depletion width (reverse bias only): W = sqrt(2*eps0*eps_r*|V|/(q*N))
+  const eps0 = 8.854e-12;
+  const eps_r = 11.7; // Silicon
+  const N = 1e16; // Doping concentration /cm³
+  let W_m = 0;
+  if (V_applied < 0) {
+    const term = 2 * eps0 * eps_r * Math.abs(V_applied) / (q * N);
+    W_m = Math.sqrt(Math.max(term, 0));
+  }
+
+  // Junction capacitance: Cj = eps0*eps_r*A / W
+  const A = 1e-8; // 100 µm² junction area
+  let Cj = 0;
+  if (V_applied < 0 && W_m > 0) {
+    Cj = eps0 * eps_r * A / W_m;
+  } else {
+    // Forward bias: diffusion capacitance (simplified)
+    Cj = 1e-12 * Math.exp(V_applied / (n * Vt));
+  }
+
+  const P = Math.max(V_applied * I, 0); // Power dissipation
+
+  return { I, Rd, Vt, P, W_m, Cj, Is, n, exponent };
+}
+
+function updateUI() {
+  const { I, Rd, Vt, P, W_m, Cj } = calcPhysics();
+  document.getElementById('lI').textContent = EL.fmtI(I);
+  document.getElementById('lRd').textContent = EL.fmtR(Rd);
+  document.getElementById('lVt').textContent = (Vt * 1000).toFixed(1) + ' mV';
+  document.getElementById('lP').textContent = EL.fmtP(P);
+  document.getElementById('lW').textContent = (W_m * 1e9).toFixed(2) + ' nm';
+  document.getElementById('lCj').textContent = EL.fmtC(Cj);
+
+  // Operating point display
+  document.getElementById('dV').textContent = V_applied.toFixed(3) + ' V';
+  document.getElementById('dI').textContent = EL.fmtI(I);
+  document.getElementById('dRd').textContent = EL.fmtR(Rd);
+  document.getElementById('dP').textContent = EL.fmtP(P);
+
+  // Badge state
+  if (I > 1e-3) {
+    document.getElementById('badge').textContent = 'FWD';
+  } else if (I < -1e-6) {
+    document.getElementById('badge').textContent = 'REV';
+  } else {
+    document.getElementById('badge').textContent = '0';
+  }
+
+  drawAll();
+}
+
+// ── 3D Scene ──
+const { renderer, scene, camera } = EL.initScene('c3d');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+EL.initLights(scene, '#ff4488');
+scene.add(pivot);
+
+// Diode body: cylindrical package (axial lead)
+const bodyGeo = new THREE.CylinderGeometry(0.35, 0.35, 1.6, 32);
+const bodyMat = new THREE.MeshPhongMaterial({ color: 0x1a1a2e, shininess: 60 });
+const body = new THREE.Mesh(bodyGeo, bodyMat);
+pivot.add(body);
+
+// P-side (anode) - red/pink
+const pGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.25, 32);
+const pMat = new THREE.MeshPhongMaterial({ color: 0xff3366, shininess: 80 });
+const pLayer = new THREE.Mesh(pGeo, pMat);
+pLayer.position.y = 0.67;
+pivot.add(pLayer);
+
+// N-side (cathode) - blue
+const nGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.25, 32);
+const nMat = new THREE.MeshPhongMaterial({ color: 0x2244cc, shininess: 80 });
+const nLayer = new THREE.Mesh(nGeo, nMat);
+nLayer.position.y = -0.67;
+pivot.add(nLayer);
+
+// Black stripe on cathode end
+const stripeGeo = new THREE.CylinderGeometry(0.34, 0.34, 0.08, 32);
+const stripeMat = new THREE.MeshPhongMaterial({ color: 0x222222, shininess: 40 });
+const stripe = new THREE.Mesh(stripeGeo, stripeMat);
+stripe.position.y = -0.8;
+pivot.add(stripe);
+
+// Leads
+const leadGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.2, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xcccccc, shininess: 80 });
+const leadA = new THREE.Mesh(leadGeo, leadMat);
+leadA.position.y = 1.4;
+pivot.add(leadA);
+const leadC = new THREE.Mesh(leadGeo, leadMat);
+leadC.position.y = -1.4;
+pivot.add(leadC);
+
+// Depletion region (animated)
+const deplGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.2, 32);
+const deplMat = new THREE.MeshPhongMaterial({
+  color: 0xff8800, emissive: 0xff4400, transparent: true, opacity: 0.5
+});
+const depl = new THREE.Mesh(deplGeo, deplMat);
+depl.position.y = 0;
+pivot.add(depl);
+
+// Glow light
+const glowLight = new THREE.PointLight(0xff4488, 0, 3);
+pivot.add(glowLight);
+
+// Schematic sprite
+const spriteCanvas = document.createElement('canvas');
+spriteCanvas.width = 128; spriteCanvas.height = 64;
+const sCtx = spriteCanvas.getContext('2d');
+sCtx.fillStyle = 'rgba(255,68,136,0.9)';
+sCtx.font = 'bold 18px Courier New';
+sCtx.textAlign = 'center';
+sCtx.fillText('P-N', 64, 30);
+sCtx.font = '11px Courier New';
+sCtx.fillStyle = 'rgba(255,136,204,0.8)';
+sCtx.fillText('JUNCTION', 64, 48);
+const spriteTex = new THREE.CanvasTexture(spriteCanvas);
+const spriteMat = new THREE.SpriteMaterial({ map: spriteTex, transparent: true });
+const sprite = new THREE.Sprite(spriteMat);
+sprite.position.set(0, -2.2, 0);
+sprite.scale.set(2, 1, 1);
+pivot.add(sprite);
+
+// ── Animation ──
+let lastTS = 0;
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+
+  if (!window._dragging) pivot.rotation.y += dt * 0.5;
+
+  const { I } = calcPhysics();
+
+  // Glow based on current
+  if (I > 1e-6) {
+    glowLight.intensity = Math.min(Math.log10(I) + 10, 2.0);
+    deplMat.color.setHex(0xff3300);
+  } else {
+    glowLight.intensity = 0;
+    deplMat.color.setHex(0xff8800);
+  }
+
+  // Depletion width visualization
+  const { W_m, Vt } = calcPhysics();
+  if (V_applied < 0) {
+    depl.scale.z = Math.min(W_m / 1e-6, 3);
+  } else {
+    depl.scale.z = 0.1;
+  }
+
+  renderer.render(scene, camera);
+}
+animate(0);
+
+// ── Slider Events ──
+document.getElementById('sV').addEventListener('input', e => {
+  V_applied = parseFloat(e.target.value);
+  document.getElementById('vV').textContent = V_applied.toFixed(3) + ' V';
+  updateUI();
+});
+document.getElementById('sT').addEventListener('input', e => {
+  T_celsius = parseFloat(e.target.value);
+  document.getElementById('vT').textContent = T_celsius + ' °C';
+  updateUI();
+});
+document.getElementById('sJs').addEventListener('input', e => {
+  Js_slider = parseFloat(e.target.value);
+  const Js = getJs();
+  document.getElementById('vJs').textContent = EL.fmtI(Js);
+  updateUI();
+});
+document.getElementById('sN').addEventListener('input', e => {
+  n_slider = parseFloat(e.target.value);
+  const n = getN();
+  document.getElementById('vN').textContent = n.toFixed(2);
+  updateUI();
+});
+
+// ── Chart Drawing ──
+function drawChart(canvasEl) {
+  if (!canvasEl || canvasEl.offsetWidth === 0) return;
+  const { ctx, w, h } = EL.setupChart(canvasEl, '#ff4488');
+  const pad = { l: 48, r: 12, t: 16, b: 32 };
+
+  ctx.clearRect(0, 0, w, h);
+  EL.drawGrid(ctx, w, h, pad);
+  EL.drawAxes(ctx, w, h, pad, 'V (V)', 'I (A)');
+
+  // Axis labels - log scale
+  ctx.fillStyle = 'rgba(200,100,150,0.7)';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'right';
+  ctx.fillText('1A', pad.l - 2, pad.t + 4);
+  ctx.fillText('1mA', pad.l - 2, pad.t + (h - pad.t - pad.b) * 0.33);
+  ctx.fillText('1µA', pad.l - 2, pad.t + (h - pad.t - pad.b) * 0.66);
+  ctx.fillText('1nA', pad.l - 2, h - pad.b + 4);
+
+  ctx.textAlign = 'left';
+  for (let i = 0; i <= 4; i++) {
+    const x = pad.l + (w - pad.l - pad.r) * i / 4;
+    ctx.fillText(((-2 + i * 1).toFixed(1)) + '', x - 4, h - pad.b + 12);
+  }
+
+  // Draw I-V curve
+  ctx.beginPath();
+  ctx.strokeStyle = '#ff4488';
+  ctx.lineWidth = 2;
+
+  const { Is, n, Vt } = calcPhysics();
+
+  for (let px = 0; px <= w - pad.l - pad.r; px++) {
+    // V from -2V to +0.8V
+    const V_pt = -2 + (px / (w - pad.l - pad.r)) * 2.8;
+
+    // Compute I at this V
+    let I_pt;
+    const exp_arg = V_pt / (n * Vt);
+    if (exp_arg > 100) {
+      I_pt = Is * Math.exp(exp_arg);
+    } else if (exp_arg < -20) {
+      I_pt = -Is;
+    } else {
+      I_pt = Is * (Math.exp(exp_arg) - 1);
+    }
+
+    // Clamp to visible range and convert to log
+    I_pt = Math.max(I_pt, 1e-9);
+    I_pt = Math.min(I_pt, 1);
+
+    const logI = Math.log10(I_pt);
+    const yFrac = 1 - (logI + 9) / 10; // -9 to +1 log scale
+
+    const x = pad.l + px;
+    const y = pad.t + EL.clamp(yFrac, 0, 1) * (h - pad.t - pad.b);
+    px === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Operating point
+  const { I } = calcPhysics();
+  const opV = V_applied;
+  const opX = pad.l + EL.clamp((opV + 2) / 2.8, 0, 1) * (w - pad.l - pad.r);
+  const opI = Math.max(I, 1e-9);
+  const logOpI = Math.log10(opI);
+  const opYFrac = 1 - (logOpI + 9) / 10;
+  const opY = pad.t + EL.clamp(opYFrac, 0, 1) * (h - pad.t - pad.b);
+  EL.drawOpPoint(ctx, opX, opY, '#ff88cc');
+
+  // Label
+  ctx.fillStyle = '#ff88cc';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'left';
+  ctx.fillText('I=' + EL.fmtI(I), pad.l + 4, pad.t + 12);
+}
+
+function drawAll() {
+  drawChart(document.getElementById('curve1'));
+  drawChart(document.getElementById('curve1-desk'));
+}
+
+updateUI();
+</script>
+<script src="../shared/nav.js"></script>
+</body>
+</html>

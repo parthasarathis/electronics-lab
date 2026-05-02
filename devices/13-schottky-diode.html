@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>Schottky Diode | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ff4488;--accent2:#ff88cc;--accent-rgb:255,68,136}
+#curve-section canvas,.curve-panel-main canvas{height:200px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">13 / 150</span>
+    <span class="dev-name">Schottky Diode</span>
+    <span class="dev-cat">Semiconductor · Fast Switch</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">13 Schottky Diode</div>
+
+<div id="body">
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">⇄ — Metal-Semiconductor Junction</div>
+    <div class="canvas-overlay" id="badge">—</div>
+  </div>
+
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Controls</div>
+      <div class="srow"><span class="sl">Applied Voltage</span>
+        <input type="range" id="sV" min="-2" max="0.5" value="0.2" step="0.01">
+        <span class="sval" id="vV">0.20 V</span></div>
+      <div class="srow"><span class="sl">Barrier Height</span>
+        <input type="range" id="sPhi" min="20" max="100" value="40" step="1">
+        <span class="sval" id="vPhi">0.40 V</span></div>
+      <div class="srow"><span class="sl">Temperature</span>
+        <input type="range" id="sT" min="-40" max="125" value="25" step="1">
+        <span class="sval" id="vT">25 °C</span></div>
+      <div class="srow"><span class="sl">Contact Area</span>
+        <input type="range" id="sA" min="0" max="100" value="40" step="1">
+        <span class="sval" id="vA">1 mm²</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Live Measurements</div>
+      <div class="kvgrid">
+        <div class="kv"><label>Forward Current</label><div class="val c1" id="lI">—</div></div>
+        <div class="kv"><label>Forward Voltage</label><div class="val c2" id="lVf">—</div></div>
+        <div class="kv"><label>Junction Capacitance</label><div class="val c3" id="lCj">—</div></div>
+        <div class="kv"><label>Barrier Width</label><div class="val c4" id="lW">—</div></div>
+        <div class="kv"><label>Power Loss</label><div class="val c5" id="lP">—</div></div>
+        <div class="kv"><label>Switching Speed</label><div class="val c6" id="lTs">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">I = Is·e^(V/Vt)</div><div class="fd">Lower ideality</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">Φ_B = kT/q·ln(N·A/ni²)</div><div class="fd">Barrier Height</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">Cj ∝ √(Φ − V)</div><div class="fd">Depl. Cap</div></div>
+      </div>
+    </div>
+
+    <div class="panel curve-panel-main">
+      <div class="ptitle">I-V Characteristic (Fast Recovery)</div>
+      <canvas id="curve1" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Teaching Points</div>
+      <div class="facts">
+        · <span>Lower Vf</span>: 0.2–0.4V vs 0.6–0.7V for PN<br>
+        · <span>Metal-semiconductor</span> barrier: no minority carriers<br>
+        · <span>No storage charge</span>: ultrafast switching (ps)<br>
+        · <span>Barrier tuning</span>: metal/semiconductor selection<br>
+        · <span>High-speed</span>: RF mixers, detectors, gates<br>
+        · <span>Lower Rs</span>: better high-current efficiency
+      </div>
+    </div>
+
+  </div>
+
+  <div id="curve-section">
+    <div class="panel" style="flex:1">
+      <div class="ptitle">I-V Characteristic — Schottky vs P-N</div>
+      <canvas id="curve1-desk" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Key Advantage</div>
+      <div class="kv"><label>Vf @ 1A</label><div class="val c2" id="dVf">—</div></div>
+      <div class="kv"><label>Switching τ</label><div class="val c6" id="dTs">—</div></div>
+      <div class="facts" style="margin-top:8px;font-size:11px">
+        • Low forward drop<br>
+        • Picosecond recovery<br>
+        • Ideal for fast logic
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── Physics State ──
+let V_applied = 0.2;    // Forward voltage
+let Phi_slider = 40;    // Barrier height (mV): 20-100 maps to 0.2-1.0V
+let T_celsius = 25;     // Temperature
+let A_slider = 40;      // Contact area slider
+
+function getBarrier() {
+  // Map slider 20-100 to 0.2V-1.0V
+  return EL.mapRange(Phi_slider, 20, 100, 0.2, 1.0);
+}
+
+function getArea() {
+  // Map slider 0-100 to 0.1 mm² - 10 mm²
+  return Math.pow(10, EL.mapRange(A_slider, 0, 100, -7, -6));
+}
+
+function calcPhysics() {
+  const T_K = T_celsius + 273.15;
+  const k = 1.381e-23;
+  const q = 1.602e-19;
+  const Vt = k * T_K / q;
+
+  const Phi_B = getBarrier(); // Barrier height
+  const A = getArea();        // Junction area
+
+  // Lower saturation current for Schottky (metal-semiconductor)
+  // Is scales with A and exp(-Phi_B / Vt)
+  const Is = 1e-12 * A * Math.exp(-Phi_B / Vt);
+
+  // Forward current: I = Is * exp(V / Vt)
+  // Schottky has ideality factor n ≈ 1 (vs 1-2 for PN)
+  let I = 0;
+  const n = 1.0; // Schottky ideality
+  const exponent = V_applied / (n * Vt);
+  if (exponent > 100) {
+    I = Is * Math.exp(exponent);
+  } else if (exponent < -20) {
+    I = -Is;
+  } else {
+    I = Is * (Math.exp(exponent) - 1);
+  }
+
+  // Depletion width: W = sqrt(2*eps*Phi_B / (q*N)) - sqrt(...-V)
+  const eps0 = 8.854e-12;
+  const eps_r = 11.7; // Silicon
+  const N = 1e15; // Doping
+  const W0 = Math.sqrt(2 * eps0 * eps_r * Phi_B / (q * N));
+  let W = W0;
+  if (V_applied < Phi_B) {
+    W = Math.sqrt(2 * eps0 * eps_r * (Phi_B - V_applied) / (q * N));
+  }
+
+  // Junction capacitance: Cj = eps0*eps_r*A / W
+  let Cj = 0;
+  if (W > 1e-9) {
+    Cj = eps0 * eps_r * A / W;
+  }
+
+  // Switching time (without stored charge, ultrafast)
+  const tau_s = 1e-12; // Picoseconds for Schottky
+  const Ts = tau_s * Math.sqrt(1 + I / 1e-3);
+
+  const P = Math.max(V_applied * I, 0);
+
+  // Compare with PN diode at same current
+  const PN_Vf = Vt * Math.log(I / 1e-15 + 1);
+
+  return { I, Vt, Phi_B, W, Cj, Is, P, Ts, PN_Vf, A };
+}
+
+function updateUI() {
+  const { I, Phi_B, W, Cj, P, Ts } = calcPhysics();
+  document.getElementById('lI').textContent = EL.fmtI(I);
+  document.getElementById('lVf').textContent = V_applied.toFixed(3) + ' V';
+  document.getElementById('lCj').textContent = EL.fmtC(Cj);
+  document.getElementById('lW').textContent = (W * 1e9).toFixed(2) + ' nm';
+  document.getElementById('lP').textContent = EL.fmtP(P);
+  document.getElementById('lTs').textContent = (Ts * 1e12).toFixed(1) + ' ps';
+
+  // Operating display
+  document.getElementById('dVf').textContent = V_applied.toFixed(3) + ' V';
+  document.getElementById('dTs').textContent = (Ts * 1e12).toFixed(1) + ' ps';
+
+  // Badge
+  if (I > 1e-6) {
+    document.getElementById('badge').textContent = 'FWD';
+  } else {
+    document.getElementById('badge').textContent = 'OFF';
+  }
+
+  drawAll();
+}
+
+// ── 3D Scene ──
+const { renderer, scene, camera } = EL.initScene('c3d');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+EL.initLights(scene, '#ff4488');
+scene.add(pivot);
+
+// Metal contact (gold/copper colored)
+const metalGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.3, 32);
+const metalMat = new THREE.MeshPhongMaterial({ color: 0xccaa00, shininess: 100 });
+const metal = new THREE.Mesh(metalGeo, metalMat);
+metal.position.y = 0.6;
+pivot.add(metal);
+
+// Semiconductor (silicon) - darker
+const semiGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.2, 32);
+const semiMat = new THREE.MeshPhongMaterial({ color: 0x1a2a3a, shininess: 40 });
+const semi = new THREE.Mesh(semiGeo, semiMat);
+semi.position.y = -0.3;
+pivot.add(semi);
+
+// Barrier region (animated)
+const barrierGeo = new THREE.CylinderGeometry(0.48, 0.48, 0.05, 32);
+const barrierMat = new THREE.MeshPhongMaterial({
+  color: 0xff6600, emissive: 0xff3300, transparent: true, opacity: 0.6
+});
+const barrier = new THREE.Mesh(barrierGeo, barrierMat);
+barrier.position.y = 0.5;
+pivot.add(barrier);
+
+// Leads
+const leadGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.0, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xdddddd, shininess: 80 });
+const leadM = new THREE.Mesh(leadGeo, leadMat);
+leadM.position.y = 1.5;
+pivot.add(leadM);
+const leadS = new THREE.Mesh(leadGeo, leadMat);
+leadS.position.y = -1.5;
+pivot.add(leadS);
+
+// Glow
+const glowLight = new THREE.PointLight(0xff4488, 0, 3);
+pivot.add(glowLight);
+
+// Schematic
+const spriteCanvas = document.createElement('canvas');
+spriteCanvas.width = 128; spriteCanvas.height = 64;
+const sCtx = spriteCanvas.getContext('2d');
+sCtx.fillStyle = 'rgba(255,68,136,0.9)';
+sCtx.font = 'bold 16px Courier New';
+sCtx.textAlign = 'center';
+sCtx.fillText('SCHOTTKY', 64, 30);
+sCtx.font = '11px Courier New';
+sCtx.fillStyle = 'rgba(255,136,204,0.8)';
+sCtx.fillText('FAST', 64, 48);
+const spriteTex = new THREE.CanvasTexture(spriteCanvas);
+const spriteMat = new THREE.SpriteMaterial({ map: spriteTex, transparent: true });
+const sprite = new THREE.Sprite(spriteMat);
+sprite.position.set(0, -2.2, 0);
+sprite.scale.set(2, 1, 1);
+pivot.add(sprite);
+
+// ── Animation ──
+let lastTS = 0;
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+
+  if (!window._dragging) pivot.rotation.y += dt * 0.5;
+
+  const { I, Phi_B } = calcPhysics();
+
+  // Barrier glow
+  if (I > 1e-6) {
+    glowLight.intensity = Math.min(Math.log10(I) + 10, 2.5);
+    barrierMat.color.setHex(0xff3300);
+    barrierMat.opacity = 0.7;
+  } else {
+    glowLight.intensity = 0;
+    barrierMat.color.setHex(0xff6600);
+    barrierMat.opacity = 0.3;
+  }
+
+  // Barrier height visualization (scale)
+  barrier.scale.y = Phi_B / 0.5;
+
+  renderer.render(scene, camera);
+}
+animate(0);
+
+// ── Slider Events ──
+document.getElementById('sV').addEventListener('input', e => {
+  V_applied = parseFloat(e.target.value);
+  document.getElementById('vV').textContent = V_applied.toFixed(2) + ' V';
+  updateUI();
+});
+document.getElementById('sPhi').addEventListener('input', e => {
+  Phi_slider = parseFloat(e.target.value);
+  const Phi = getBarrier();
+  document.getElementById('vPhi').textContent = Phi.toFixed(2) + ' V';
+  updateUI();
+});
+document.getElementById('sT').addEventListener('input', e => {
+  T_celsius = parseFloat(e.target.value);
+  document.getElementById('vT').textContent = T_celsius + ' °C';
+  updateUI();
+});
+document.getElementById('sA').addEventListener('input', e => {
+  A_slider = parseFloat(e.target.value);
+  const A = getArea();
+  document.getElementById('vA').textContent = (A * 1e6).toFixed(2) + ' mm²';
+  updateUI();
+});
+
+// ── Chart Drawing ──
+function drawChart(canvasEl) {
+  if (!canvasEl || canvasEl.offsetWidth === 0) return;
+  const { ctx, w, h } = EL.setupChart(canvasEl, '#ff4488');
+  const pad = { l: 48, r: 12, t: 16, b: 32 };
+
+  ctx.clearRect(0, 0, w, h);
+  EL.drawGrid(ctx, w, h, pad);
+  EL.drawAxes(ctx, w, h, pad, 'V (V)', 'I (A)');
+
+  // Axis labels
+  ctx.fillStyle = 'rgba(200,100,150,0.7)';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'right';
+  ctx.fillText('1A', pad.l - 2, pad.t + 4);
+  ctx.fillText('1mA', pad.l - 2, pad.t + (h - pad.t - pad.b) * 0.5);
+  ctx.fillText('1µA', pad.l - 2, h - pad.b);
+
+  ctx.textAlign = 'left';
+  for (let i = 0; i <= 5; i++) {
+    const x = pad.l + (w - pad.l - pad.r) * i / 5;
+    ctx.fillText(((-0.2 + i * 0.14).toFixed(2)) + '', x - 8, h - pad.b + 12);
+  }
+
+  // Schottky curve (steeper, lower Vf)
+  ctx.beginPath();
+  ctx.strokeStyle = '#ff4488';
+  ctx.lineWidth = 2.5;
+
+  const { Is, Phi_B } = calcPhysics();
+  const Vt = (T_celsius + 273.15) * 1.381e-23 / 1.602e-19;
+
+  for (let px = 0; px <= w - pad.l - pad.r; px++) {
+    const V_pt = -0.2 + (px / (w - pad.l - pad.r)) * 0.7;
+
+    let I_pt = Is * (Math.exp(Math.max(Math.min(V_pt / Vt, 100), -20)) - 1);
+    I_pt = Math.max(I_pt, 1e-9);
+    I_pt = Math.min(I_pt, 10);
+
+    const logI = Math.log10(I_pt);
+    const yFrac = 1 - (logI + 9) / 10;
+
+    const x = pad.l + px;
+    const y = pad.t + EL.clamp(yFrac, 0, 1) * (h - pad.t - pad.b);
+    px === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // PN curve for comparison (dashed, lighter)
+  ctx.strokeStyle = 'rgba(200,100,150,0.4)';
+  ctx.setLineDash([4, 4]);
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+
+  const Is_PN = 1e-15; // Typical PN saturation
+
+  for (let px = 0; px <= w - pad.l - pad.r; px++) {
+    const V_pt = -0.2 + (px / (w - pad.l - pad.r)) * 0.7;
+
+    let I_pt = Is_PN * (Math.exp(Math.max(Math.min(V_pt / Vt, 100), -20)) - 1);
+    I_pt = Math.max(I_pt, 1e-9);
+    I_pt = Math.min(I_pt, 10);
+
+    const logI = Math.log10(I_pt);
+    const yFrac = 1 - (logI + 9) / 10;
+
+    const x = pad.l + px;
+    const y = pad.t + EL.clamp(yFrac, 0, 1) * (h - pad.t - pad.b);
+    px === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Operating point
+  const { I } = calcPhysics();
+  const opV = V_applied;
+  const opX = pad.l + EL.clamp((opV + 0.2) / 0.7, 0, 1) * (w - pad.l - pad.r);
+  const opI = Math.max(I, 1e-9);
+  const logOpI = Math.log10(opI);
+  const opYFrac = 1 - (logOpI + 9) / 10;
+  const opY = pad.t + EL.clamp(opYFrac, 0, 1) * (h - pad.t - pad.b);
+  EL.drawOpPoint(ctx, opX, opY, '#ff88cc');
+
+  // Label
+  ctx.fillStyle = '#ff88cc';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'left';
+  ctx.fillText('Schottky', pad.l + 4, pad.t + 12);
+}
+
+function drawAll() {
+  drawChart(document.getElementById('curve1'));
+  drawChart(document.getElementById('curve1-desk'));
+}
+
+updateUI();
+</script>
+<script src="../shared/nav.js"></script>
+</body>
+</html>

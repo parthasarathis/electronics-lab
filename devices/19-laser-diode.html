@@ -1,0 +1,388 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a"><title>Laser Diode | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ff00ff;--accent2:#ff66ff;--accent-rgb:255,0,255}
+#curve-section canvas,.curve-panel-main canvas{height:200px}
+</style>
+</head><body><div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">19 / 150</span>
+    <span class="dev-name">Laser Diode</span>
+    <span class="dev-cat">Optoelectronics · Coherent Light</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">19 Laser Diode</div>
+
+<div id="body">
+  <!-- 3D Canvas -->
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">⚡ Stimulated Emission · Ith Threshold</div>
+    <div class="canvas-overlay" id="badge">Below Threshold</div>
+  </div>
+
+  <!-- Panels -->
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Controls</div>
+      <div class="srow"><span class="sl">If</span>
+        <input type="range" id="sIf" min="0" max="100" value="30" step="1">
+        <span class="sval" id="vIf">30.0 mA</span></div>
+      <div class="srow"><span class="sl">Case T</span>
+        <input type="range" id="sTc" min="0" max="80" value="25" step="1">
+        <span class="sval" id="vTc">25°C</span></div>
+      <div class="srow"><span class="sl">Back Facet %</span>
+        <input type="range" id="sRb" min="70" max="99" value="95" step="1">
+        <span class="sval" id="vRb">95%</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Live Measurements</div>
+      <div class="kvgrid">
+        <div class="kv"><label>Threshold (Ith)</label><div class="val c1" id="lIth">—</div></div>
+        <div class="kv"><label>Optical Power</label><div class="val c2" id="lPopt">—</div></div>
+        <div class="kv"><label>Mode</label><div class="val c3" id="lMode">—</div></div>
+        <div class="kv"><label>Slope Eff.</label><div class="val c4" id="lEta">—</div></div>
+        <div class="kv"><label>Wavelength</label><div class="val c5" id="lWave">—</div></div>
+        <div class="kv"><label>Vf</label><div class="val c6" id="lVf">—</div></div>
+      </div>
+      <div style="margin-top:8px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+          <span style="font-size:7px;color:var(--sub);letter-spacing:1px;text-transform:uppercase;">Power Output</span>
+          <span style="font-size:7px;color:var(--sub);" id="barPct">0%</span>
+        </div>
+        <div class="bar-wrap"><div class="bar-fill" id="barFill" style="width:0%;background:var(--accent);"></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Physics</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">Ith = e·B/τ</div><div class="fd">Threshold</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">Popt = ηs(If-Ith)</div><div class="fd">Lasing Power</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">Δλ < 1nm</div><div class="fd">Spectral Width</div></div>
+      </div>
+    </div>
+
+    <!-- Mobile curve panel -->
+    <div class="panel curve-panel-main">
+      <div class="ptitle">P-I Characteristic</div>
+      <canvas id="curve1" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Teaching Points</div>
+      <div class="facts">
+        · <span>Threshold current Ith</span>: spontaneous emission below, stimulated above<br>
+        · <span>Gain medium</span> (quantum well): population inversion at Ith<br>
+        · <span>Cavity</span>: Fabry-Perot resonator (cleaved facets ~95% & ~50% reflectivity)<br>
+        · <span>Slope efficiency</span> ηs = dPopt/dIf (above threshold) = 30–60% typ.<br>
+        · <span>Temperature</span>: dIth/dT ≈ +0.3–0.5 mA/°C, dλ/dT ≈ +0.3 nm/°C<br>
+        · <span>Wavelengths</span>: 780nm (AlGaAs), 850nm (GaAs), 1310nm (InGaAsP), 1550nm (InGaAs)
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Desktop Curve Section -->
+  <div id="curve-section">
+    <div class="panel" style="flex:1">
+      <div class="ptitle">P-I Characteristic</div>
+      <canvas id="curve1-desk" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Laser Diode Physics</div>
+      <div class="facts">
+        · <span>Stimulated emission</span> > spontaneous at Ith<br>
+        · Narrow spectral line &lt;1nm<br>
+        · Coherent, collimated beam<br>
+        · Temp coefficient affects Ith &amp; λ
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── Physics State ──
+let If_mA = 30, Tc = 25, Rb = 95;
+
+// Laser diode parameters @ 25°C
+const LD_TYPE = {
+  name: 'AlGaAs (780 nm)',
+  wavelength: 780,
+  Ith0: 35,      // threshold @ T0=25°C in mA
+  dIth_dT: 0.4,  // mA/°C
+  eta_s: 0.45,   // slope efficiency (W/A above threshold)
+  Vf: 1.95,
+  P0: 0.1        // residual spontaneous power at Ith (mW)
+};
+
+function calcPhysics() {
+  const T0 = 25;
+  const T = Tc;
+
+  // Temperature-adjusted threshold
+  const Ith = LD_TYPE.Ith0 + LD_TYPE.dIth_dT * (T - T0);
+
+  // Mode determination
+  const mode = If_mA >= Ith ? 'LASING' : 'LED';
+
+  // Optical power (piecewise linear)
+  let Popt_mW;
+  if (If_mA < Ith) {
+    // Below threshold: LED mode, ~10% efficiency
+    Popt_mW = (If_mA / 1000) * 1.95 * 0.10 * 1000;  // in mW
+  } else {
+    // Above threshold: laser with slope efficiency
+    const dI = (If_mA - Ith) / 1000;  // convert to A
+    Popt_mW = LD_TYPE.P0 + LD_TYPE.eta_s * 1000 * dI;  // in mW
+  }
+
+  // Cavity reflection: back facet Rb, front facet ~50%
+  const Rf = 0.50;
+  const outcoupling = 1 - (Rb / 100) * Rf;
+
+  // Temperature-adjusted wavelength: dλ/dT ≈ +0.3 nm/°C
+  const wavelength = LD_TYPE.wavelength + 0.3 * (T - T0);
+
+  // Forward voltage (slight temp dependence)
+  const dVdT = -0.0005;
+  const Vf = LD_TYPE.Vf + dVdT * (T - T0);
+
+  return { Ith, mode, Popt_mW, outcoupling, wavelength, Vf, If_mA };
+}
+
+function updateUI() {
+  const { Ith, mode, Popt_mW, wavelength, Vf } = calcPhysics();
+  document.getElementById('lIth').textContent = Ith.toFixed(1) + ' mA';
+  document.getElementById('lPopt').textContent = Popt_mW.toFixed(2) + ' mW';
+  document.getElementById('lMode').textContent = mode;
+  const eta_s = (mode === 'LASING' && If_mA > Ith) ? ((Popt_mW / (If_mA - Ith)) * 1000).toFixed(1) + '%' : '—';
+  document.getElementById('lEta').textContent = eta_s;
+  document.getElementById('lWave').textContent = wavelength.toFixed(1) + ' nm';
+  document.getElementById('lVf').textContent = Vf.toFixed(2) + ' V';
+  document.getElementById('badge').textContent = mode;
+
+  // Bar
+  const barPct = Math.min(100, (Popt_mW / 100) * 100);
+  document.getElementById('barFill').style.width = barPct + '%';
+  document.getElementById('barPct').textContent = barPct.toFixed(0) + '%';
+
+  drawAll();
+}
+
+// ── Sliders ──
+document.getElementById('sIf').addEventListener('input', e => {
+  If_mA = +e.target.value * 2;
+  document.getElementById('vIf').textContent = If_mA.toFixed(1) + ' mA';
+  updateUI();
+});
+document.getElementById('sTc').addEventListener('input', e => {
+  Tc = +e.target.value;
+  document.getElementById('vTc').textContent = Tc.toFixed(0) + '°C';
+  updateUI();
+});
+document.getElementById('sRb').addEventListener('input', e => {
+  Rb = +e.target.value;
+  document.getElementById('vRb').textContent = Rb + '%';
+  updateUI();
+});
+
+// ── 3D Scene ──
+const { renderer, scene, camera } = EL.initScene('c3d');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+EL.initLights(scene, '#ff00ff');
+scene.add(pivot);
+
+// Laser diode can: small SO8 package
+const canGeo = new THREE.BoxGeometry(0.8, 0.6, 1.6);
+const canMat = new THREE.MeshPhongMaterial({ color: 0x222222 });
+const can = new THREE.Mesh(canGeo, canMat);
+pivot.add(can);
+
+// Laser facets (front & back)
+const facetBackGeo = new THREE.PlaneGeometry(0.4, 0.35);
+const facetBackMat = new THREE.MeshPhongMaterial({
+  color: 0x442200,
+  shininess: 120,
+  emissive: 0x000000
+});
+const facetBack = new THREE.Mesh(facetBackGeo, facetBackMat);
+facetBack.position.z = 0.81;
+facetBack.name = 'facet';
+pivot.add(facetBack);
+
+const facetFrontGeo = new THREE.PlaneGeometry(0.4, 0.35);
+const facetFrontMat = new THREE.MeshPhongMaterial({
+  color: 0x8833ff,
+  shininess: 100,
+  emissive: 0x4400ff,
+  emissiveIntensity: 0
+});
+const facetFront = new THREE.Mesh(facetFrontGeo, facetFrontMat);
+facetFront.position.z = -0.81;
+pivot.add(facetFront);
+
+// Active region (quantum well)
+const activeGeo = new THREE.BoxGeometry(0.35, 0.08, 0.6);
+const activeMat = new THREE.MeshPhongMaterial({
+  color: 0xff0080,
+  emissive: 0xff0080,
+  emissiveIntensity: 0,
+  shininess: 80
+});
+const active = new THREE.Mesh(activeGeo, activeMat);
+active.name = 'active';
+pivot.add(active);
+
+// Leads
+const leadGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.9, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xccaa77 });
+const leadP = new THREE.Mesh(leadGeo, leadMat);
+leadP.position.set(0.3, -0.45, 0);
+pivot.add(leadP);
+const leadN = new THREE.Mesh(leadGeo, leadMat);
+leadN.position.set(-0.3, -0.45, 0);
+pivot.add(leadN);
+
+// Laser beam particles (only above threshold)
+const beamParticles = [];
+const particleGeo = new THREE.BufferGeometry();
+const positions = new Float32Array(60 * 3);
+particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+const particleMat = new THREE.PointsMaterial({ color: 0xff00ff, size: 0.08, sizeAttenuation: true });
+const particles = new THREE.Points(particleGeo, particleMat);
+pivot.add(particles);
+
+// ── Charts ──
+function drawCurve1(ts) {
+  const canvas = document.getElementById('curve1');
+  if (!canvas) return;
+  const { ctx, w, h, accent } = EL.setupChart(canvas, '#ff00ff');
+
+  ctx.fillStyle = '#06080f';
+  ctx.fillRect(0, 0, w, h);
+
+  const pad = { l: 36, r: 8, t: 8, b: 28 };
+  EL.drawGrid(ctx, w, h, pad);
+
+  // X: If 0-120mA, Y: Popt 0-150mW
+  const minIf = 0, maxIf = 120;
+  const minPopt = 0, maxPopt = 150;
+
+  // Threshold line
+  const { Ith } = calcPhysics();
+  const IthX = pad.l + (w - pad.l - pad.r) * Ith / maxIf;
+  ctx.strokeStyle = 'rgba(255,0,255,0.3)';
+  ctx.setLineDash([3, 2]);
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(IthX, pad.t);
+  ctx.lineTo(IthX, h - pad.b);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // P-I curve
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= 100; i++) {
+    const testIf = minIf + (maxIf - minIf) * i / 100;
+    let testP;
+    if (testIf < Ith) {
+      testP = (testIf / 1000) * 1.95 * 0.10 * 1000;
+    } else {
+      const dI = (testIf - Ith) / 1000;
+      testP = 0.1 + 0.45 * 1000 * dI;
+    }
+    const x = pad.l + (w - pad.l - pad.r) * testIf / maxIf;
+    const y = h - pad.b - (h - pad.t - pad.b) * Math.min(1, testP / maxPopt);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Operating point
+  const { Popt_mW } = calcPhysics();
+  const opX = pad.l + (w - pad.l - pad.r) * If_mA / maxIf;
+  const opY = h - pad.b - (h - pad.t - pad.b) * Math.min(1, Popt_mW / maxPopt);
+  EL.drawOpPoint(ctx, opX, opY, accent, ts);
+
+  // Labels
+  ctx.fillStyle = 'rgba(200,221,245,0.6)';
+  ctx.font = '10px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText('Forward Current (mA)', w/2, h - 8);
+  ctx.save();
+  ctx.translate(12, h/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center';
+  ctx.fillText('Optical Power (mW)', 0, 0);
+  ctx.restore();
+
+  // Ith label
+  ctx.fillStyle = 'rgba(255,0,255,0.5)';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText('Ith', IthX, pad.t - 5);
+}
+
+function drawAll(ts = 0) {
+  const canvas1 = document.getElementById('curve1');
+  const canvas1desk = document.getElementById('curve1-desk');
+  if (canvas1) drawCurve1(ts);
+  if (canvas1desk) drawCurve1(ts);
+
+  // Update 3D
+  const { mode, Popt_mW, If_mA, Ith } = calcPhysics();
+  const isLasing = mode === 'LASING';
+
+  if (isLasing) {
+    facetFrontMat.emissiveIntensity = Math.min(1, Popt_mW / 80);
+    activeMat.emissiveIntensity = Math.min(1, Popt_mW / 100);
+  } else {
+    facetFrontMat.emissiveIntensity = 0;
+    activeMat.emissiveIntensity = If_mA / 100;
+  }
+
+  // Animate laser beam particles (if above threshold)
+  const posAttr = particles.geometry.getAttribute('position');
+  const arr = posAttr.array;
+  for (let i = 0; i < 20; i++) {
+    arr[i*3] = (Math.random() - 0.5) * 0.15;
+    arr[i*3+1] = (Math.random() - 0.5) * 0.12;
+    arr[i*3+2] = -0.8 - (i / 20) * 3 * (isLasing ? 1 : 0.1);
+  }
+  posAttr.needsUpdate = true;
+  particles.visible = isLasing;
+}
+
+// ── Animation Loop ──
+function animate(ts) {
+  requestAnimationFrame(animate);
+  drawAll(ts);
+  renderer.render(scene, camera);
+}
+
+updateUI();
+animate();
+</script>
+
+<!-- Navigation bar -->
+<script src="../shared/nav.js"></script>
+</body>
+</html>

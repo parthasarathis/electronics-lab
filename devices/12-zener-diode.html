@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>Zener Diode | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ff4488;--accent2:#ff88cc;--accent-rgb:255,68,136}
+#curve-section canvas,.curve-panel-main canvas{height:200px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">12 / 150</span>
+    <span class="dev-name">Zener Diode</span>
+    <span class="dev-cat">Semiconductor · Voltage Regulator</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">12 Zener Diode</div>
+
+<div id="body">
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">⇄ — Voltage Regulation · Zener Breakdown</div>
+    <div class="canvas-overlay" id="badge">—</div>
+  </div>
+
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Controls</div>
+      <div class="srow"><span class="sl">Applied Voltage</span>
+        <input type="range" id="sV" min="-20" max="0.8" value="-10" step="0.1">
+        <span class="sval" id="vV">-10.0 V</span></div>
+      <div class="srow"><span class="sl">Zener Voltage</span>
+        <input type="range" id="sVz" min="1" max="50" value="5.1" step="0.1">
+        <span class="sval" id="vVz">5.1 V</span></div>
+      <div class="srow"><span class="sl">Dyn. Resistance</span>
+        <input type="range" id="sRz" min="0" max="100" value="30" step="1">
+        <span class="sval" id="vRz">10 Ω</span></div>
+      <div class="srow"><span class="sl">Load Current</span>
+        <input type="range" id="sIl" min="0" max="100" value="50" step="1">
+        <span class="sval" id="vIl">50 mA</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Live Measurements</div>
+      <div class="kvgrid">
+        <div class="kv"><label>Zener Current</label><div class="val c1" id="lIz">—</div></div>
+        <div class="kv"><label>Output Voltage</label><div class="val c2" id="lVout">—</div></div>
+        <div class="kv"><label>Regulation Error</label><div class="val c3" id="lReg">—</div></div>
+        <div class="kv"><label>Power Dissipation</label><div class="val c4" id="lP">—</div></div>
+        <div class="kv"><label>Line Regulation</label><div class="val c5" id="lLReg">—</div></div>
+        <div class="kv"><label>Load Regulation</label><div class="val c6" id="lLdReg">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">Vz = Vz0 + Rz·Iz</div><div class="fd">Zener V</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">Iz = (V − Vz)/Rs</div><div class="fd">Zener I</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">Iout = Iz + Il</div><div class="fd">Current Sum</div></div>
+      </div>
+    </div>
+
+    <div class="panel curve-panel-main">
+      <div class="ptitle">I-V Characteristic (Reverse Bias)</div>
+      <canvas id="curve1" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Teaching Points</div>
+      <div class="facts">
+        · <span>Reverse breakdown</span>: sharp knee voltage<br>
+        · <span>Zener voltage Vz</span>: 2.4V–200V available<br>
+        · <span>Dynamic resistance Rz</span>: low ≈ 1–100 Ω<br>
+        · <span>Regulation quality</span>: line & load regulations<br>
+        · <span>Temperature coeff</span>: ±0.05%/°C typical<br>
+        · <span>Protection application</span>: TVS diodes, clamping
+      </div>
+    </div>
+
+  </div>
+
+  <div id="curve-section">
+    <div class="panel" style="flex:1">
+      <div class="ptitle">I-V Characteristic (Reverse Bias) — Vz Regulation</div>
+      <canvas id="curve1-desk" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Regulation Summary</div>
+      <div class="kv"><label>Output V</label><div class="val c2" id="dVz">—</div></div>
+      <div class="kv"><label>Zener I</label><div class="val c1" id="dIz">—</div></div>
+      <div class="kv"><label>Power</label><div class="val c4" id="dP">—</div></div>
+      <div class="kv"><label>Stability</label><div class="val c5" id="dStab">—</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── Physics State ──
+let V_applied = -10;    // Reverse voltage (negative)
+let Vz_nominal = 5.1;   // Zener voltage
+let Rz_slider = 30;     // Dynamic resistance slider
+let Il_mA = 50;         // Load current
+
+function getRz() {
+  // Map slider 0-100 to 1 Ω - 1000 Ω
+  return Math.pow(10, EL.mapRange(Rz_slider, 0, 100, 0, 3));
+}
+
+function calcPhysics() {
+  const Rz = getRz();
+  const Il = Il_mA * 1e-3;
+
+  // Series resistance from supply to zener
+  const Rs = 50; // 50 Ω series resistor
+
+  // Zener current: Iz = (V_applied - Vz_nominal - Rz*Iz) / Rs
+  // Solving: Iz * (Rs + Rz) = V_applied - Vz_nominal
+  // Iz = (V_applied - Vz_nominal) / (Rs + Rz)
+
+  let Iz = 0;
+  if (V_applied < -Vz_nominal * 0.5) {
+    Iz = (Math.abs(V_applied) - Vz_nominal) / (Rs + Rz);
+    Iz = Math.max(Iz, 0);
+  }
+
+  // Zener output voltage with dynamic resistance
+  let Vout = Vz_nominal + Rz * Iz;
+
+  // Check if within regulation range
+  const minIz = 0.001; // 1 mA minimum holding current
+  const maxIz = 1.0;   // 1 A maximum
+
+  // Regulation error: how much does Vout deviate from Vz_nominal
+  const regError = (Vout - Vz_nominal) / Vz_nominal;
+
+  // Line regulation: change in Vout for 1V change in Vin
+  const V_test1 = V_applied;
+  const V_test2 = V_applied - 1;
+  const Iz_test2 = Math.max((Math.abs(V_test2) - Vz_nominal) / (Rs + Rz), 0);
+  const Vout_test2 = Vz_nominal + Rz * Iz_test2;
+  const lineReg = Math.abs((Vout - Vout_test2) / 1.0) * 100; // %/V
+
+  // Load regulation: change in Vout for 1mA change in load
+  const Il_test = (Il_mA + 1) * 1e-3;
+  const Iz_test_ld = Math.max(Iz - (Il_test - Il) / 1.0, 0);
+  const Vout_test_ld = Vz_nominal + Rz * Iz_test_ld;
+  const ldReg = Math.abs((Vout - Vout_test_ld) / (Il_test - Il) * 100); // mV/mA
+
+  const P = Math.abs(Vout * Iz);
+
+  // Stability indicator
+  let stability = 'GOOD';
+  if (Iz < minIz) stability = 'WEAK';
+  if (Iz > maxIz) stability = 'HOT';
+
+  return { Iz, Vout, regError, lineReg, ldReg, P, Rz, stability, Vz_nominal };
+}
+
+function updateUI() {
+  const { Iz, Vout, regError, lineReg, ldReg, P, Rz, stability } = calcPhysics();
+  document.getElementById('lIz').textContent = EL.fmtI(Iz);
+  document.getElementById('lVout').textContent = Vout.toFixed(2) + ' V';
+  document.getElementById('lReg').textContent = (regError * 100).toFixed(2) + ' %';
+  document.getElementById('lP').textContent = EL.fmtP(P);
+  document.getElementById('lLReg').textContent = lineReg.toFixed(3) + ' %/V';
+  document.getElementById('lLdReg').textContent = ldReg.toFixed(2) + ' mV/mA';
+
+  // Operating point display
+  document.getElementById('dVz').textContent = Vout.toFixed(3) + ' V';
+  document.getElementById('dIz').textContent = EL.fmtI(Iz);
+  document.getElementById('dP').textContent = EL.fmtP(P);
+  document.getElementById('dStab').textContent = stability;
+
+  // Badge
+  if (Iz > 0) {
+    document.getElementById('badge').textContent = 'ZENER';
+  } else {
+    document.getElementById('badge').textContent = 'BLOCKED';
+  }
+
+  drawAll();
+}
+
+// ── 3D Scene ──
+const { renderer, scene, camera } = EL.initScene('c3d');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+EL.initLights(scene, '#ff4488');
+scene.add(pivot);
+
+// Diode body (same as PN but with red cathode stripe)
+const bodyGeo = new THREE.CylinderGeometry(0.35, 0.35, 1.6, 32);
+const bodyMat = new THREE.MeshPhongMaterial({ color: 0x1a1a2e, shininess: 60 });
+const body = new THREE.Mesh(bodyGeo, bodyMat);
+pivot.add(body);
+
+// Anode (positive) - blue
+const aGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.25, 32);
+const aMat = new THREE.MeshPhongMaterial({ color: 0x2244cc, shininess: 80 });
+const aLayer = new THREE.Mesh(aGeo, aMat);
+aLayer.position.y = 0.67;
+pivot.add(aLayer);
+
+// Cathode (negative) - red with two stripes (Zener mark)
+const cGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.25, 32);
+const cMat = new THREE.MeshPhongMaterial({ color: 0xff3333, shininess: 80 });
+const cLayer = new THREE.Mesh(cGeo, cMat);
+cLayer.position.y = -0.67;
+pivot.add(cLayer);
+
+// Zener symbols: two thin red stripes on cathode
+const stripeGeo = new THREE.BoxGeometry(0.7, 0.06, 0.02);
+const stripeMat = new THREE.MeshPhongMaterial({ color: 0xff0000, shininess: 40 });
+const stripe1 = new THREE.Mesh(stripeGeo, stripeMat);
+stripe1.position.set(0, -0.62, 0.36);
+pivot.add(stripe1);
+const stripe2 = new THREE.Mesh(stripeGeo, stripeMat);
+stripe2.position.set(0, -0.72, 0.36);
+pivot.add(stripe2);
+
+// Leads
+const leadGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.2, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xcccccc, shininess: 80 });
+const leadA = new THREE.Mesh(leadGeo, leadMat);
+leadA.position.y = 1.4;
+pivot.add(leadA);
+const leadC = new THREE.Mesh(leadGeo, leadMat);
+leadC.position.y = -1.4;
+pivot.add(leadC);
+
+// Breakdown region (animated - shows high current state)
+const breakGeo = new THREE.SphereGeometry(0.4, 16, 16);
+const breakMat = new THREE.MeshPhongMaterial({
+  color: 0xff6600, emissive: 0xff3300, transparent: true, opacity: 0.3
+});
+const breakSphere = new THREE.Mesh(breakGeo, breakMat);
+pivot.add(breakSphere);
+
+// Glow for regulation stability
+const glowLight = new THREE.PointLight(0xff4488, 0, 3);
+pivot.add(glowLight);
+
+// Schematic sprite
+const spriteCanvas = document.createElement('canvas');
+spriteCanvas.width = 128; spriteCanvas.height = 64;
+const sCtx = spriteCanvas.getContext('2d');
+sCtx.fillStyle = 'rgba(255,68,136,0.9)';
+sCtx.font = 'bold 18px Courier New';
+sCtx.textAlign = 'center';
+sCtx.fillText('ZENER', 64, 30);
+sCtx.font = '11px Courier New';
+sCtx.fillStyle = 'rgba(255,136,204,0.8)';
+sCtx.fillText('REG', 64, 48);
+const spriteTex = new THREE.CanvasTexture(spriteCanvas);
+const spriteMat = new THREE.SpriteMaterial({ map: spriteTex, transparent: true });
+const sprite = new THREE.Sprite(spriteMat);
+sprite.position.set(0, -2.2, 0);
+sprite.scale.set(2, 1, 1);
+pivot.add(sprite);
+
+// ── Animation ──
+let lastTS = 0;
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+
+  if (!window._dragging) pivot.rotation.y += dt * 0.5;
+
+  const { Iz, stability } = calcPhysics();
+
+  // Breakdown glow
+  if (Iz > 0.01) {
+    glowLight.intensity = Math.min(Iz * 5, 2.5);
+    breakMat.emissive.setHex(0xff2200);
+    breakMat.opacity = 0.4;
+  } else {
+    glowLight.intensity = 0;
+    breakMat.opacity = 0.1;
+  }
+
+  if (stability === 'GOOD') {
+    breakMat.color.setHex(0x00ff44);
+  } else if (stability === 'HOT') {
+    breakMat.color.setHex(0xff4444);
+  } else {
+    breakMat.color.setHex(0xff8800);
+  }
+
+  renderer.render(scene, camera);
+}
+animate(0);
+
+// ── Slider Events ──
+document.getElementById('sV').addEventListener('input', e => {
+  V_applied = parseFloat(e.target.value);
+  document.getElementById('vV').textContent = V_applied.toFixed(1) + ' V';
+  updateUI();
+});
+document.getElementById('sVz').addEventListener('input', e => {
+  Vz_nominal = parseFloat(e.target.value);
+  document.getElementById('vVz').textContent = Vz_nominal.toFixed(1) + ' V';
+  updateUI();
+});
+document.getElementById('sRz').addEventListener('input', e => {
+  Rz_slider = parseFloat(e.target.value);
+  const Rz = getRz();
+  document.getElementById('vRz').textContent = EL.fmtR(Rz);
+  updateUI();
+});
+document.getElementById('sIl').addEventListener('input', e => {
+  Il_mA = parseFloat(e.target.value);
+  document.getElementById('vIl').textContent = Il_mA.toFixed(0) + ' mA';
+  updateUI();
+});
+
+// ── Chart Drawing ──
+function drawChart(canvasEl) {
+  if (!canvasEl || canvasEl.offsetWidth === 0) return;
+  const { ctx, w, h } = EL.setupChart(canvasEl, '#ff4488');
+  const pad = { l: 48, r: 12, t: 16, b: 32 };
+
+  ctx.clearRect(0, 0, w, h);
+  EL.drawGrid(ctx, w, h, pad);
+  EL.drawAxes(ctx, w, h, pad, '|V| (V)', '|Iz| (A)');
+
+  // Axis labels
+  ctx.fillStyle = 'rgba(200,100,150,0.7)';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'right';
+  ctx.fillText('1A', pad.l - 2, pad.t + 4);
+  ctx.fillText('10mA', pad.l - 2, pad.t + (h - pad.t - pad.b) * 0.33);
+  ctx.fillText('1mA', pad.l - 2, pad.t + (h - pad.t - pad.b) * 0.66);
+
+  ctx.textAlign = 'left';
+  for (let i = 0; i <= 4; i++) {
+    const x = pad.l + (w - pad.l - pad.r) * i / 4;
+    ctx.fillText(((i * 5) + '').padStart(2), x - 4, h - pad.b + 12);
+  }
+
+  // Forward region (shallow) + reverse region (sharp knee)
+  ctx.beginPath();
+  ctx.strokeStyle = '#ff4488';
+  ctx.lineWidth = 2;
+
+  const { Vz_nominal, Rz } = calcPhysics();
+
+  for (let px = 0; px <= w - pad.l - pad.r; px++) {
+    const V_mag = (px / (w - pad.l - pad.r)) * 20; // 0 - 20V
+
+    let I_mag = 0;
+    if (V_mag > Vz_nominal) {
+      // Reverse breakdown
+      I_mag = (V_mag - Vz_nominal) / Rz;
+      I_mag = Math.min(I_mag, 1.0); // Clamp at 1A
+    }
+
+    I_mag = Math.max(I_mag, 1e-8);
+    const logI = Math.log10(I_mag);
+    const yFrac = 1 - (logI + 8) / 9; // -8 to +1
+
+    const x = pad.l + px;
+    const y = pad.t + EL.clamp(yFrac, 0, 1) * (h - pad.t - pad.b);
+    px === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Operating point
+  const { Iz } = calcPhysics();
+  const opV = Math.abs(V_applied);
+  const opX = pad.l + EL.clamp(opV / 20, 0, 1) * (w - pad.l - pad.r);
+  const opI = Math.max(Iz, 1e-8);
+  const logOpI = Math.log10(opI);
+  const opYFrac = 1 - (logOpI + 8) / 9;
+  const opY = pad.t + EL.clamp(opYFrac, 0, 1) * (h - pad.t - pad.b);
+  EL.drawOpPoint(ctx, opX, opY, '#ff88cc');
+
+  // Label
+  ctx.fillStyle = '#ff88cc';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'left';
+  ctx.fillText('Iz=' + EL.fmtI(Iz), pad.l + 4, pad.t + 12);
+}
+
+function drawAll() {
+  drawChart(document.getElementById('curve1'));
+  drawChart(document.getElementById('curve1-desk'));
+}
+
+updateUI();
+</script>
+<script src="../shared/nav.js"></script>
+</body>
+</html>

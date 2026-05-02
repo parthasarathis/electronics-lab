@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>Varistor | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#44ffaa;--accent2:#88ffcc;--accent-rgb:68,255,170}
+
+#challenge-box {
+  background: linear-gradient(135deg, #0f2a1a, #051f0f);
+  border: 1px solid #339966;
+  padding: 12px;
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.ch-title {
+  font-size: 10px;
+  color: #77ffaa;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ch-title::before {
+  content: '★';
+  color: #44ffaa;
+  font-size: 12px;
+}
+
+.ch-txt {
+  font-size: 11px;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.ch-status {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 255, 150, 0.1);
+  color: #00ffaa;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.ch-status.done {
+  opacity: 1;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">07 / 150</span>
+    <span class="dev-name">Varistor (MOV)</span>
+    <span class="dev-cat">Passive · Surge Protection</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">07 Varistor</div>
+
+<div id="body">
+
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">V — Nonlinear Protector</div>
+    <div class="canvas-overlay" id="badge">—</div>
+  </div>
+
+  <div id="panels-section">
+
+    <div id="challenge-box">
+      <div class="ch-title">Learning Challenge</div>
+      <div class="ch-txt" id="ch-desc">Clamp a <b>500V surge</b> to safe <b>&lt; 400V</b> with minimal clamping voltage.</div>
+      <div class="ch-status" id="ch-stat">✔</div>
+    </div>
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Live Values</div>
+      <div class="kvgrid cols3">
+        <div class="kv"><label>Voltage V</label><div class="val c1" id="dV">—</div></div>
+        <div class="kv"><label>Current I</label><div class="val c2" id="dI">—</div></div>
+        <div class="kv"><label>Resistance R</label><div class="val c3" id="dR">—</div></div>
+        <div class="kv"><label>Power P</label><div class="val c4" id="dP">—</div></div>
+        <div class="kv"><label>V/I Ratio</label><div class="val c5" id="dRatio">—</div></div>
+        <div class="kv"><label>Clamping Level</label><div class="val c6" id="dClamp">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">V = Vc·(I/Ip)^(1/α)</div><div class="fd">Nonlinear I-V</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">P = V·I</div><div class="fd">Surge Power</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">V ∝ I^(0.25)</div><div class="fd">Metal Oxide</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Controls</div>
+      <div class="srow">
+        <span class="sl">Surge Voltage</span>
+        <input type="range" id="sVsurge" min="0" max="100" value="50" step="1">
+        <span class="sval" id="vVsurge">500 V</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Rated Voltage</span>
+        <input type="range" id="sVrated" min="0" max="6" value="3" step="1">
+        <span class="sval" id="vVrated">275 V</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Nonlinearity Coeff</span>
+        <input type="range" id="sAlpha" min="10" max="100" value="30" step="5">
+        <span class="sval" id="vAlpha">30</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Surge Duration</span>
+        <input type="range" id="sDuration" min="1" max="100" value="30" step="1">
+        <span class="sval" id="vDuration">30 µs</span>
+      </div>
+    </div>
+
+    <div class="panel curve-panel-main">
+      <div class="ptitle">V–I Characteristic</div>
+      <canvas class="chart-canvas" id="curve1" style="flex:1;min-height:140px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">About Varistors (MOVs)</div>
+      <div class="facts">
+        • Metal Oxide: <span>ZnO + Bi₂O₃, very nonlinear</span><br>
+        • Voltage range: <span>14V–680V nominal</span><br>
+        • Nonlinearity: <span>α ≈ 0.25 (1/4 power law)</span><br>
+        • Energy rating: <span>10–10k J (surge pulse)</span><br>
+        • Degradation: <span>Each surge reduces lifespan</span><br>
+        • Clamping ratio: <span>1.5–3× rated voltage</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="curve-section">
+    <div class="panel" style="flex:1;display:flex;flex-direction:column">
+      <div class="ptitle">V–I Curve (Log Scale)</div>
+      <canvas class="chart-canvas" id="curve1-desk" style="flex:1;min-height:160px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Energy Dissipation</div>
+      <div class="kv"><label>Peak Power</label><div class="val c4" id="dP2">—</div></div>
+      <div class="bar-wrap"><div class="bar-fill" id="pbar" style="width:0%;background:var(--accent)"></div></div>
+      <div class="kv" style="margin-top:6px"><label>Total Energy</label><div class="val id="dE">—</div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── STATE
+let vsurgeRaw = 50, vratedIdx = 3, alphaRaw = 30, durationRaw = 30;
+
+const VRATED_OPTIONS = [130, 200, 275, 400, 600]; // Volts
+const VRATED_LABELS = ['130V', '200V', '275V', '400V', '600V'];
+
+function getVsurge() { return EL.mapRange(vsurgeRaw, 0, 100, 0, 1000); }
+function getVrated() { return VRATED_OPTIONS[vratedIdx]; }
+function getAlpha() { return alphaRaw / 100; }
+function getDuration() { return EL.mapRange(durationRaw, 1, 100, 1, 1000); }
+
+// Nonlinear V-I for MOV: V = Vc * (I/Ip)^(1/α)
+// where Vc is clamping voltage at reference current Ip
+function calcVatI(I, Vc, Ip, alpha) {
+  if (I < 1e-6) return 0;
+  return Vc * Math.pow(I / Ip, 1 / alpha);
+}
+
+// ── THREE.JS SCENE
+const { renderer, scene, camera } = EL.initScene('c3d');
+EL.initLights(scene, '#44ffaa');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+scene.add(pivot);
+
+// Varistor body — disk
+const bodyGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.15, 32);
+const bodyMat = new THREE.MeshPhongMaterial({ color: 0x2a4a3a, shininess: 30 });
+const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+pivot.add(bodyMesh);
+
+// Top contact
+const topGeo = new THREE.CylinderGeometry(0.52, 0.52, 0.05, 32);
+const topMat = new THREE.MeshPhongMaterial({ color: 0xaaddcc, shininess: 100 });
+const topMesh = new THREE.Mesh(topGeo, topMat);
+topMesh.position.y = 0.1;
+pivot.add(topMesh);
+
+// Bottom contact
+const botMesh = topMesh.clone();
+botMesh.position.y = -0.1;
+pivot.add(botMesh);
+
+// Leads
+const leadGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.8, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xddeeee, shininess: 80 });
+[0.3, -0.3].forEach(y => {
+  const lead = new THREE.Mesh(leadGeo, leadMat);
+  lead.position.y = y;
+  pivot.add(lead);
+});
+
+// Charge carriers (showing current flow)
+const chargeCount = 20;
+const chargeGeo = new THREE.SphereGeometry(0.03, 6, 6);
+const chargeMat = new THREE.MeshPhongMaterial({
+  color: 0x44ffaa, emissive: 0x00aa55, transparent: true, opacity: 0.8
+});
+const chargeInst = new THREE.InstancedMesh(chargeGeo, chargeMat, chargeCount);
+chargeInst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+pivot.add(chargeInst);
+
+// Glow
+const glow = new THREE.PointLight(0x44ffaa, 0.3, 3);
+pivot.add(glow);
+
+// ── ANIMATION
+let lastTS = 0, phase = 0;
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+  phase += dt;
+
+  if (!window._dragging) pivot.rotation.y += 0.003;
+
+  // Animate charges through varistor
+  const dummy = new THREE.Object3D();
+  const V = getVsurge();
+  const I = V > 0.1 ? V / 500 : 0; // Rough conductance
+  for (let i = 0; i < chargeCount; i++) {
+    const t = (phase * 2 + i / chargeCount) % 1;
+    const angle = (i / chargeCount) * Math.PI * 2;
+    const r = 0.25 + Math.sin(angle) * 0.1;
+    const y = (t - 0.5) * 0.8;
+    dummy.position.set(Math.cos(angle) * r, y, Math.sin(angle) * r);
+    dummy.updateMatrix();
+    chargeInst.setMatrixAt(i, dummy.matrix);
+  }
+  chargeInst.instanceMatrix.needsUpdate = true;
+
+  glow.intensity = 0.2 + Math.min(I * 0.3, 0.5);
+  chargeMat.emissiveIntensity = 0.3 + Math.min(I * 0.5, 0.7);
+
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(animate);
+
+// ── CALCULATIONS
+function updateCalc() {
+  const Vsurge = getVsurge();
+  const Vrated = getVrated();
+  const alpha = getAlpha();
+  const duration = getDuration();
+
+  // Reference: Vc at 1mA reference current
+  const Ip = 1e-3; // 1 mA reference
+  const Vc = Vrated * 1.6; // Clamping ~1.6x rated
+
+  // Current and actual voltage
+  const I = Vsurge > 0 ? Vsurge / 500 : 0; // Rough surge impedance
+  const Vc_actual = calcVatI(I, Vc, Ip, alpha);
+  const P = Vsurge * I;
+
+  // Energy dissipated (simplified pulse energy)
+  const energy = P * (duration * 1e-6);
+
+  document.getElementById('dV').textContent = EL.fmtV(Vsurge);
+  document.getElementById('dI').textContent = EL.fmtI(I);
+  document.getElementById('dR').textContent = Vsurge > 0 ? EL.fmtR(Vsurge / I) : '—';
+  document.getElementById('dP').textContent = EL.fmtP(P);
+  document.getElementById('dRatio').textContent = (Vsurge / (Vrated || 1)).toFixed(2) + 'x';
+  document.getElementById('dClamp').textContent = EL.fmtV(Vc_actual);
+
+  const p2 = document.getElementById('dP2');
+  if (p2) p2.textContent = EL.fmtP(P);
+  const ebar = document.getElementById('pbar');
+  if (ebar) {
+    const maxP = getVrated() * 0.1; // Normalized
+    ebar.style.width = Math.min((P / maxP) * 100, 100) + '%';
+    ebar.style.background = (P / maxP) < 0.5 ? '#44ffaa' : (P / maxP) < 0.8 ? '#ffee44' : '#ff6666';
+  }
+
+  document.getElementById('badge').textContent = EL.fmtV(Vc_actual);
+
+  drawVIcurve();
+  checkChallenge(Vsurge, Vc_actual);
+}
+
+function checkChallenge(Vsurge, Vc_actual) {
+  const isClamped = Vsurge > 400 && Vc_actual < 400; // Surge above 400V, clamped below
+  document.getElementById('ch-stat').classList.toggle('done', isClamped);
+  if (isClamped) {
+    document.getElementById('ch-desc').innerHTML = "<b>Challenge Complete!</b> You clamped the surge safely below 400V!";
+  }
+}
+
+// ── V-I CHARACTERISTIC CHART
+function drawVIcurve() {
+  const cvs = document.getElementById('curve1');
+  if (!cvs || !cvs.offsetWidth) return;
+  const w = cvs.offsetWidth, h = cvs.offsetHeight;
+  cvs.width = w * (devicePixelRatio || 1);
+  cvs.height = h * (devicePixelRatio || 1);
+  const ctx = cvs.getContext('2d');
+  ctx.scale(devicePixelRatio || 1, devicePixelRatio || 1);
+
+  const pad = { l: 38, r: 10, t: 10, b: 28 };
+  ctx.clearRect(0, 0, w, h);
+  EL.drawGrid(ctx, w, h, pad);
+  EL.drawAxes(ctx, w, h, pad, 'Current (mA)', 'Voltage (V)');
+
+  const Vrated = getVrated();
+  const Vc = Vrated * 1.6;
+  const Ip = 1e-3;
+  const alpha = getAlpha();
+  const Imax = 0.5; // mA scale
+  const Vmax = Vc * 2;
+
+  ctx.fillStyle = 'rgba(100,200,150,0.7)';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const v = Vmax * (1 - i / 4);
+    const y = pad.t + (h - pad.t - pad.b) * i / 4;
+    ctx.fillText(EL.fmtV(v), pad.l - 2, y + 3);
+  }
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 4; i++) {
+    const itest = Imax * i / 4 * 1e-3;
+    const x = pad.l + (w - pad.l - pad.r) * i / 4;
+    ctx.fillText((itest * 1e3).toFixed(2), x, h - pad.b + 12);
+  }
+
+  // V-I curve
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(68,255,170,0.9)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i <= 60; i++) {
+    const itest = Imax * i / 60 * 1e-3;
+    const vtest = calcVatI(itest, Vc, Ip, alpha);
+    const px = pad.l + (w - pad.l - pad.r) * ((itest * 1e3) / Imax);
+    const py = pad.t + (h - pad.t - pad.b) * (1 - vtest / Vmax);
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Operating point
+  const Vsurge = getVsurge();
+  const I = Vsurge > 0 ? Vsurge / 500 : 0;
+  const opX = pad.l + (w - pad.l - pad.r) * ((I * 1e3) / Imax);
+  const opV = calcVatI(I, Vc, Ip, alpha);
+  const opY = pad.t + (h - pad.t - pad.b) * (1 - opV / Vmax);
+  EL.drawOpPoint(ctx, opX, opY, '#44ffaa');
+}
+
+// ── SLIDER BINDINGS
+document.getElementById('sVsurge').addEventListener('input', e => {
+  vsurgeRaw = parseInt(e.target.value);
+  const v = getVsurge();
+  document.getElementById('vVsurge').textContent = EL.fmtV(v);
+  updateCalc();
+});
+
+document.getElementById('sVrated').addEventListener('input', e => {
+  vratedIdx = parseInt(e.target.value);
+  document.getElementById('vVrated').textContent = VRATED_LABELS[vratedIdx];
+  updateCalc();
+});
+
+document.getElementById('sAlpha').addEventListener('input', e => {
+  alphaRaw = parseInt(e.target.value);
+  document.getElementById('vAlpha').textContent = (alphaRaw / 100).toFixed(2);
+  updateCalc();
+});
+
+document.getElementById('sDuration').addEventListener('input', e => {
+  durationRaw = parseInt(e.target.value);
+  const dur = getDuration();
+  document.getElementById('vDuration').textContent = dur.toFixed(0) + ' µs';
+  updateCalc();
+});
+
+// Init
+updateCalc();
+</script>
+<script src="../shared/nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a"><title>NPN BJT | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#44aaff;--accent2:#88ccff;--accent-rgb:68,170,255}
+#curve-section canvas,.curve-panel-main canvas{height:200px}
+</style>
+</head><body><div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">22 / 150</span>
+    <span class="dev-name">NPN BJT</span>
+    <span class="dev-cat">Transistor · Amplifier/Switch</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">22 NPN BJT</div>
+
+<div id="body">
+  <!-- 3D Canvas -->
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">🔀 Three-Terminal Amplifier · Ic = β·Ib</div>
+    <div class="canvas-overlay" id="badge">Active Mode</div>
+  </div>
+
+  <!-- Panels -->
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Controls</div>
+      <div class="srow"><span class="sl">Vbe</span>
+        <input type="range" id="sVbe" min="0" max="100" value="40" step="1">
+        <span class="sval" id="vVbe">0.40 V</span></div>
+      <div class="srow"><span class="sl">Vce</span>
+        <input type="range" id="sVce" min="0" max="100" value="50" step="1">
+        <span class="sval" id="vVce">5.0 V</span></div>
+      <div class="srow"><span class="sl">Load R</span>
+        <input type="range" id="sRc" min="0" max="100" value="50" step="1">
+        <span class="sval" id="vRc">100Ω</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Live Measurements</div>
+      <div class="kvgrid">
+        <div class="kv"><label>Base Current (Ib)</label><div class="val c1" id="lIb">—</div></div>
+        <div class="kv"><label>Collector Current (Ic)</label><div class="val c2" id="lIc">—</div></div>
+        <div class="kv"><label>β (Gain)</label><div class="val c3" id="lBeta">—</div></div>
+        <div class="kv"><label>Operating Mode</label><div class="val c4" id="lMode">—</div></div>
+        <div class="kv"><label>Power Diss (Pce)</label><div class="val c5" id="lPce">—</div></div>
+        <div class="kv"><label>Vce(sat)</label><div class="val c6" id="lVcesat">—</div></div>
+      </div>
+      <div style="margin-top:8px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+          <span style="font-size:7px;color:var(--sub);letter-spacing:1px;text-transform:uppercase;">Collector Current</span>
+          <span style="font-size:7px;color:var(--sub);" id="barPct">0%</span>
+        </div>
+        <div class="bar-wrap"><div class="bar-fill" id="barFill" style="width:0%;background:var(--accent);"></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Physics</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">Ic = β·Ib</div><div class="fd">Active Mode</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">Vbe ≈ 0.6–0.7V</div><div class="fd">Forward Drop</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">Vce(sat) ≈ 0.2V</div><div class="fd">Saturation</div></div>
+      </div>
+    </div>
+
+    <!-- Mobile curve panel -->
+    <div class="panel curve-panel-main">
+      <div class="ptitle">Output Characteristics (Ic vs Vce)</div>
+      <canvas id="curve1" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Teaching Points</div>
+      <div class="facts">
+        · <span>Three regions</span>: Cutoff (off), Active (amplification), Saturation (fully on)<br>
+        · <span>Current gain</span> β = Ic/Ib, typically 50–300 depending on type & design<br>
+        · <span>Base-emitter voltage</span> Vbe ≈ 0.6–0.7V (constant in active mode)<br>
+        · <span>Early effect</span>: Ic rises slightly with Vce (finite output impedance)<br>
+        · <span>Saturation voltage</span> Vce(sat) ≈ 0.1–0.3V (collector-base forward biased)<br>
+        · Applications: amplifiers (CE, CC, CB), switches, current sources
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Desktop Curve Section -->
+  <div id="curve-section">
+    <div class="panel" style="flex:1">
+      <div class="ptitle">Output Characteristics (Ic vs Vce)</div>
+      <canvas id="curve1-desk" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">BJT Operating Regions</div>
+      <div class="facts">
+        · <span>Cutoff</span>: Vbe &lt; 0.5V, Ic ≈ 0<br>
+        · <span>Active</span>: 0.6V ≤ Vbe ≤ 0.7V<br>
+        · <span>Saturation</span>: Vbe &gt; 0.7V, Vce &lt; 0.3V<br>
+        · <span>Breakdown</span>: |Vce| &gt; Bv CEO
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── Physics State ──
+let Vbe = 0.40, Vce = 5.0, Rc = 100;
+
+// BJT model parameters (2N3904 like)
+const beta0 = 100;  // nominal current gain
+const Is = 1e-14;   // reverse saturation current
+const Vt = 0.026;   // thermal voltage
+const Vcesat = 0.2; // saturation voltage
+const BV_ceo = 60;  // breakdown voltage
+
+function calcPhysics() {
+  // Ebers-Moll model (simplified)
+  // Ib: base current given Vbe
+  const Ib = Is * (Math.exp(Vbe / Vt) - 1);
+
+  // Active mode: Ic = β·Ib
+  // With Early effect: Ic = β·Ib·(1 + Vce/VA) where VA ≈ 100V
+  const VA = 100;  // Early voltage
+  let Ic = beta0 * Ib * (1 + Vce / VA);
+
+  // Mode detection
+  let mode = 'Cutoff';
+  let beta_eff = 0;
+
+  if (Vbe < 0.55) {
+    // Cutoff
+    Ic = 0;
+    mode = 'Cutoff';
+    beta_eff = 0;
+  } else if (Vbe > 0.75) {
+    // Likely saturation
+    // In saturation, Vce is clamped to Vcesat
+    const Ic_sat = (5.0 - Vcesat) / Math.max(Rc, 1);  // assume 5V supply
+    Ic = Math.min(Ic, Ic_sat);
+    mode = 'Saturation';
+    beta_eff = Ic / Math.max(Ib, 1e-9);
+  } else {
+    // Active
+    mode = 'Active';
+    beta_eff = beta0 * (1 + Vce / VA);
+  }
+
+  // Check for breakdown
+  if (Math.abs(Vce) > BV_ceo) {
+    mode = 'BREAKDOWN!';
+  }
+
+  // Power dissipation in collector-emitter
+  const Pce = Vce * Ic;
+
+  // Vce(sat) estimate (output impedance effects)
+  const Vcesat_est = (Ic > 0) ? 0.05 + Ic * 1 : 0;  // V + I*Rc effect
+
+  return { Ib, Ic, beta_eff, mode, Pce, Vcesat: Vcesat_est, Vbe, Vce };
+}
+
+function updateUI() {
+  const { Ib, Ic, beta_eff, mode, Pce, Vbe } = calcPhysics();
+  document.getElementById('lIb').textContent = EL.fmtI(Ib);
+  document.getElementById('lIc').textContent = EL.fmtI(Ic);
+  document.getElementById('lBeta').textContent = beta_eff.toFixed(0);
+  document.getElementById('lMode').textContent = mode;
+  document.getElementById('lPce').textContent = EL.fmtP(Pce);
+  document.getElementById('lVcesat').textContent = Vcesat.toFixed(2) + ' V';
+  document.getElementById('badge').textContent = mode;
+
+  // Bar: Ic as % of some reference (assume 1A max)
+  const barPct = Math.min(100, (Ic / 1) * 100);
+  document.getElementById('barFill').style.width = barPct + '%';
+  document.getElementById('barPct').textContent = barPct.toFixed(0) + '%';
+
+  drawAll();
+}
+
+// ── Sliders ──
+document.getElementById('sVbe').addEventListener('input', e => {
+  Vbe = +e.target.value * 0.01;  // 0-1V
+  document.getElementById('vVbe').textContent = Vbe.toFixed(2) + ' V';
+  updateUI();
+});
+document.getElementById('sVce').addEventListener('input', e => {
+  Vce = +e.target.value * 0.1;  // 0-10V
+  document.getElementById('vVce').textContent = Vce.toFixed(1) + ' V';
+  updateUI();
+});
+document.getElementById('sRc').addEventListener('input', e => {
+  Rc = 10 + +e.target.value * 1.9;  // 10-200Ω
+  document.getElementById('vRc').textContent = Rc.toFixed(0) + 'Ω';
+  updateUI();
+});
+
+// ── 3D Scene ──
+const { renderer, scene, camera } = EL.initScene('c3d');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+EL.initLights(scene, '#44aaff');
+scene.add(pivot);
+
+// BJT package: TO-92 (three pins)
+const caseGeo = new THREE.SphereGeometry(0.5, 32, 32);
+const caseMat = new THREE.MeshPhongMaterial({ color: 0x1a1a2e });
+const bjt_case = new THREE.Mesh(caseGeo, caseMat);
+bjt_case.scale.set(1, 0.8, 0.8);  // flatten slightly
+pivot.add(bjt_case);
+
+// Internal structure visualization
+// Base region (center, small)
+const baseGeo = new THREE.SphereGeometry(0.15, 16, 16);
+const baseMat = new THREE.MeshPhongMaterial({ color: 0xffaa00, emissive: 0xffaa00, emissiveIntensity: 0 });
+const baseRegion = new THREE.Mesh(baseGeo, baseMat);
+baseRegion.position.z = -0.1;
+baseRegion.name = 'base';
+pivot.add(baseRegion);
+
+// Collector region (top)
+const collGeo = new THREE.SphereGeometry(0.25, 16, 16);
+const collMat = new THREE.MeshPhongMaterial({ color: 0x2244aa, emissive: 0x2244aa, emissiveIntensity: 0 });
+const collRegion = new THREE.Mesh(collGeo, collMat);
+collRegion.position.y = 0.25;
+collRegion.name = 'collector';
+pivot.add(collRegion);
+
+// Emitter region (bottom)
+const emitGeo = new THREE.SphereGeometry(0.30, 16, 16);
+const emitMat = new THREE.MeshPhongMaterial({ color: 0xaa2244, emissive: 0xaa2244, emissiveIntensity: 0 });
+const emitRegion = new THREE.Mesh(emitGeo, emitMat);
+emitRegion.position.y = -0.3;
+emitRegion.name = 'emitter';
+pivot.add(emitRegion);
+
+// Leads (B, C, E)
+const leadGeo = new THREE.CylinderGeometry(0.06, 0.06, 1.0, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+
+const leadB = new THREE.Mesh(leadGeo, leadMat);
+leadB.position.set(-0.35, 0, 0);
+pivot.add(leadB);
+
+const leadC = new THREE.Mesh(leadGeo, leadMat);
+leadC.position.set(0.18, 0.8, 0);
+pivot.add(leadC);
+
+const leadE = new THREE.Mesh(leadGeo, leadMat);
+leadE.position.set(-0.18, -1.1, 0);
+pivot.add(leadE);
+
+// Electron/hole flow particles
+const particleCount = 50;
+const particlesGeo = new THREE.BufferGeometry();
+const positions = new Float32Array(particleCount * 3);
+particlesGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+const particleMat = new THREE.PointsMaterial({ color: 0x44aaff, size: 0.08, sizeAttenuation: true });
+const particles = new THREE.Points(particlesGeo, particleMat);
+pivot.add(particles);
+
+// ── Charts ──
+function drawCurve1(ts) {
+  const canvas = document.getElementById('curve1');
+  if (!canvas) return;
+  const { ctx, w, h, accent } = EL.setupChart(canvas, '#44aaff');
+
+  ctx.fillStyle = '#06080f';
+  ctx.fillRect(0, 0, w, h);
+
+  const pad = { l: 36, r: 8, t: 8, b: 28 };
+  EL.drawGrid(ctx, w, h, pad);
+
+  // X: Vce (0-10V), Y: Ic (0-500mA)
+  const minVce = 0, maxVce = 10;
+  const minIc = 0, maxIc = 0.5;  // 500mA
+
+  // Plot several Ib curves (like a datasheet)
+  const testIb_values = [10e-6, 20e-6, 30e-6, 40e-6];  // 10-40 µA
+
+  testIb_values.forEach((testIb, idx) => {
+    ctx.strokeStyle = idx === 1 ? accent : 'rgba(68,170,255,0.3)';
+    ctx.lineWidth = idx === 1 ? 2.5 : 1;
+    ctx.beginPath();
+    for (let i = 0; i <= 50; i++) {
+      const testVce = minVce + (maxVce - minVce) * i / 50;
+      const VA = 100;
+      let testIc = beta0 * testIb * (1 + testVce / VA);
+
+      // Saturation clip
+      if (testVce < 0.3) testIc = 0.02;  // low in saturation
+
+      const x = pad.l + (w - pad.l - pad.r) * testVce / maxVce;
+      const y = h - pad.b - (h - pad.t - pad.b) * Math.min(1, testIc / maxIc);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  });
+
+  // Operating point
+  const { Ic } = calcPhysics();
+  const opX = pad.l + (w - pad.l - pad.r) * Vce / maxVce;
+  const opY = h - pad.b - (h - pad.t - pad.b) * Math.min(1, Ic / maxIc);
+  EL.drawOpPoint(ctx, opX, opY, accent, ts);
+
+  // Labels
+  ctx.fillStyle = 'rgba(200,221,245,0.6)';
+  ctx.font = '10px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText('Vce (V)', w/2, h - 8);
+  ctx.save();
+  ctx.translate(12, h/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center';
+  ctx.fillText('Ic (A)', 0, 0);
+  ctx.restore();
+}
+
+function drawAll(ts = 0) {
+  const canvas1 = document.getElementById('curve1');
+  const canvas1desk = document.getElementById('curve1-desk');
+  if (canvas1) drawCurve1(ts);
+  if (canvas1desk) drawCurve1(ts);
+
+  // Update 3D
+  const { Ib, Ic, mode, Vbe } = calcPhysics();
+
+  // Base emission
+  const baseMesh = pivot.children.find(c => c.name === 'base');
+  if (baseMesh) {
+    baseMesh.material.emissiveIntensity = Math.min(1, Vbe / 0.7);
+  }
+
+  // Collector brightness
+  const collMesh = pivot.children.find(c => c.name === 'collector');
+  if (collMesh) {
+    collMesh.material.emissiveIntensity = Math.min(1, Ic / 0.1);
+  }
+
+  // Emitter brightness
+  const emitMesh = pivot.children.find(c => c.name === 'emitter');
+  if (emitMesh) {
+    emitMesh.material.emissiveIntensity = Math.min(1, Ic / 0.1);
+  }
+
+  // Animate particles (electrons flowing from emitter to collector through base)
+  const posAttr = particles.geometry.getAttribute('position');
+  const arr = posAttr.array;
+  for (let i = 0; i < particleCount; i++) {
+    if (Ic > 0.01) {
+      // Flowing
+      arr[i*3] = -0.2 + (i / particleCount) * 0.4;
+      arr[i*3+1] = -0.2 + ((i + ts * 0.01) % particleCount) / particleCount * 0.5;
+      arr[i*3+2] = (Math.sin((i + ts * 0.01) * 0.2) - 0.5) * 0.2;
+    }
+  }
+  posAttr.needsUpdate = true;
+}
+
+// ── Animation Loop ──
+function animate(ts) {
+  requestAnimationFrame(animate);
+  drawAll(ts);
+  renderer.render(scene, camera);
+}
+
+updateUI();
+animate();
+</script>
+
+<!-- Navigation bar -->
+<script src="../shared/nav.js"></script>
+</body>
+</html>

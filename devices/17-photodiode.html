@@ -1,0 +1,351 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a"><title>Photodiode | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ffdd00;--accent2:#ffee66;--accent-rgb:255,221,0}
+#curve-section canvas,.curve-panel-main canvas{height:200px}
+</style>
+</head><body><div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">17 / 150</span>
+    <span class="dev-name">Photodiode</span>
+    <span class="dev-cat">Optoelectronics · Photodetector</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">17 Photodiode</div>
+
+<div id="body">
+  <!-- 3D Canvas -->
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">✦ Photon Detection · Ip ∝ E</div>
+    <div class="canvas-overlay" id="badge">0 µA</div>
+  </div>
+
+  <!-- Panels -->
+  <div id="panels-section">
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Controls</div>
+      <div class="srow"><span class="sl">Irrad</span>
+        <input type="range" id="sIrrad" min="0" max="100" value="50" step="1">
+        <span class="sval" id="vIrrad">50.0 mW/cm²</span></div>
+      <div class="srow"><span class="sl">λ</span>
+        <input type="range" id="sWave" min="0" max="100" value="50" step="1">
+        <span class="sval" id="vWave">850 nm</span></div>
+      <div class="srow"><span class="sl">Vr</span>
+        <input type="range" id="sVr" min="0" max="100" value="50" step="1">
+        <span class="sval" id="vVr">5.0 V</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Live Measurements</div>
+      <div class="kvgrid">
+        <div class="kv"><label>Ip (Photo Current)</label><div class="val c1" id="lIp">—</div></div>
+        <div class="kv"><label>Cj (Capacity)</label><div class="val c2" id="lCj">—</div></div>
+        <div class="kv"><label>Responsivity</label><div class="val c3" id="lResp">—</div></div>
+        <div class="kv"><label>NEP</label><div class="val c4" id="lNEP">—</div></div>
+        <div class="kv"><label>Shunt R</label><div class="val c5" id="lRsh">—</div></div>
+        <div class="kv"><label>Mode</label><div class="val c6" id="lMode">—</div></div>
+      </div>
+      <div style="margin-top:8px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+          <span style="font-size:7px;color:var(--sub);letter-spacing:1px;text-transform:uppercase;">Photocurrent</span>
+          <span style="font-size:7px;color:var(--sub);" id="barPct">0%</span>
+        </div>
+        <div class="bar-wrap"><div class="bar-fill" id="barFill" style="width:0%;background:var(--accent);"></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Physics</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">Ip = R(λ)·P</div><div class="fd">Photocurrent</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">R(λ) = η·e/hν</div><div class="fd">Responsivity</div></div>
+        <div class="fsep">|</div>
+        <div class="fml"><div class="eq">NEP = Pn/R</div><div class="fd">Noise Eq Power</div></div>
+      </div>
+    </div>
+
+    <!-- Mobile curve panel -->
+    <div class="panel curve-panel-main">
+      <div class="ptitle">Responsivity vs Wavelength</div>
+      <canvas id="curve1" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Teaching Points</div>
+      <div class="facts">
+        · Reverse-biased P-N junction: zero applied current in dark<br>
+        · <span>Photons</span> create electron-hole pairs → photocurrent ∝ irradiance<br>
+        · <span>Responsivity</span> R = η·(e/hν) depends on quantum efficiency & wavelength<br>
+        · Higher reverse bias → wider depletion → faster response, lower capacitance<br>
+        · <span>NEP</span> (noise-equivalent power) = dark current noise / responsivity<br>
+        · Applications: imaging sensors, light detectors, optocouplers, rangefinders
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Desktop Curve Section -->
+  <div id="curve-section">
+    <div class="panel" style="flex:1">
+      <div class="ptitle">Responsivity vs Wavelength</div>
+      <canvas id="curve1-desk" class="chart-canvas" style="height:180px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Photodiode Physics</div>
+      <div class="facts">
+        · <span>Photoelectric effect</span>: hν > Eg<br>
+        · Quantum efficiency η typically 50-80%<br>
+        · Peak λ near bandgap (Si: 950 nm)<br>
+        · Lower capacitance with reverse bias
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── Physics State ──
+let irradiance_mW = 50, wavelength_nm = 850, Vr = 5.0;
+
+// Constants
+const h = 6.626e-34;    // Planck constant
+const c = 3e8;          // speed of light
+const e = 1.602e-19;    // electron charge
+const A_m2 = 1e-6;      // active area 1 mm²
+const eps0 = 8.854e-12;
+const eps_r = 11.7;     // Si
+
+// Spectral response: gaussian peak at 950nm for Si, η = 70%
+function respAtWave(lambda_nm) {
+  const peak = 950;
+  const sigma = 150;
+  const eta = 0.70 * Math.exp(-Math.pow((lambda_nm - peak) / sigma, 2));
+  return Math.max(0.01, eta);
+}
+
+function calcPhysics() {
+  const P_W = irradiance_mW * 1e-3;  // convert mW to W
+  const lambda = wavelength_nm * 1e-9;
+  const freq = c / lambda;
+  const eta = respAtWave(wavelength_nm);
+
+  // Responsivity: R = η * e / (h*f)  in A/W
+  const R_AW = eta * e / (h * freq);
+
+  // Photocurrent
+  const Ip = R_AW * P_W;
+
+  // Depletion width ≈ sqrt(2*eps*Vr / (e*Nd))
+  // Assume Nd ~ 1e16 cm-3 = 1e22 m-3, Vr in volts
+  const Nd = 1e22;
+  const W = Math.sqrt(2 * eps0 * eps_r * Vr / (e * Nd));
+
+  // Junction capacitance Cj = eps*A/W
+  const Cj = Math.max(1e-12, eps0 * eps_r * A_m2 / W);
+
+  // Shunt resistance (dark current model)
+  const Id_dark = 1e-9 * Math.exp(Math.pow(Vr / 0.026, 0.5)); // temperature ~300K
+  const Rsh = Vr / Math.max(1e-10, Id_dark);
+
+  // NEP = sqrt(2*e*Id) / R  in W/Hz^0.5
+  const NEP = Math.sqrt(2 * e * Id_dark) / Math.max(R_AW, 1e-10);
+
+  const mode = Vr > 2 ? 'Photoconductive' : 'Photovoltaic';
+
+  return { Ip, R_AW, Cj, NEP, Rsh, eta, mode, wavelength_nm, W };
+}
+
+function updateUI() {
+  const { Ip, R_AW, Cj, NEP, Rsh, eta, mode } = calcPhysics();
+  document.getElementById('lIp').textContent = EL.fmtI(Ip);
+  document.getElementById('lCj').textContent = EL.fmtC(Cj);
+  document.getElementById('lResp').textContent = (R_AW * 1000).toFixed(2) + ' mA/W';
+  document.getElementById('lNEP').textContent = EL.fmtP(NEP);
+  document.getElementById('lRsh').textContent = EL.fmtR(Math.min(Rsh, 1e12));
+  document.getElementById('lMode').textContent = mode;
+  document.getElementById('badge').textContent = EL.fmtI(Ip);
+
+  // Bar: photocurrent vs max
+  const barPct = Math.min(100, (Ip / 100e-6) * 100);
+  document.getElementById('barFill').style.width = barPct + '%';
+  document.getElementById('barPct').textContent = barPct.toFixed(0) + '%';
+
+  drawAll();
+}
+
+// ── Sliders ──
+document.getElementById('sIrrad').addEventListener('input', e => {
+  irradiance_mW = +e.target.value * 1;
+  document.getElementById('vIrrad').textContent = irradiance_mW.toFixed(1) + ' mW/cm²';
+  updateUI();
+});
+document.getElementById('sWave').addEventListener('input', e => {
+  wavelength_nm = 400 + +e.target.value * 5.6;  // 400-960 nm
+  document.getElementById('vWave').textContent = wavelength_nm.toFixed(0) + ' nm';
+  updateUI();
+});
+document.getElementById('sVr').addEventListener('input', e => {
+  Vr = +e.target.value * 0.1;  // 0-10V
+  document.getElementById('vVr').textContent = Vr.toFixed(1) + ' V';
+  updateUI();
+});
+
+// ── 3D Scene ──
+const { renderer, scene, camera } = EL.initScene('c3d');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+EL.initLights(scene, '#ffdd00');
+scene.add(pivot);
+
+// Photodiode package: TO-18 style cylindrical
+const bodyGeo = new THREE.CylinderGeometry(0.35, 0.35, 1.5, 32);
+const bodyMat = new THREE.MeshPhongMaterial({ color: 0x1a1a1a, shininess: 40 });
+const body = new THREE.Mesh(bodyGeo, bodyMat);
+pivot.add(body);
+
+// Window (transparent top)
+const windowGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.08, 32);
+const windowMat = new THREE.MeshPhongMaterial({
+  color: 0x4488ff,
+  shininess: 100,
+  transparent: true,
+  opacity: 0.6
+});
+const window = new THREE.Mesh(windowGeo, windowMat);
+window.position.y = 0.78;
+pivot.add(window);
+
+// Internal P-N junction (visible through window)
+const junctionGeo = new THREE.CircleGeometry(0.32, 32);
+const junctionMat = new THREE.MeshPhongMaterial({ color: 0xff9900, emissive: 0xff6600, emissiveIntensity: 0 });
+const junction = new THREE.Mesh(junctionGeo, junctionMat);
+junction.position.y = 0.72;
+junction.position.z = 0.001;
+pivot.add(junction);
+
+// Leads
+const leadGeo = new THREE.CylinderGeometry(0.06, 0.06, 1.0, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xcccc99 });
+const leadP = new THREE.Mesh(leadGeo, leadMat);
+leadP.position.set(0.25, -0.5, 0);
+pivot.add(leadP);
+const leadN = new THREE.Mesh(leadGeo, leadMat);
+leadN.position.set(-0.25, -0.5, 0);
+pivot.add(leadN);
+
+// Glow light (modulates with photocurrent)
+const glowLight = new THREE.PointLight(0xffdd00, 0, 3);
+glowLight.position.y = 0.5;
+pivot.add(glowLight);
+
+// Animated photon particles
+const particleCount = 12;
+const particlesGeo = new THREE.BufferGeometry();
+const particlePos = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount; i++) {
+  particlePos[i*3] = (Math.random() - 0.5) * 2;
+  particlePos[i*3+1] = 2 + Math.random() * 0.5;
+  particlePos[i*3+2] = (Math.random() - 0.5) * 1;
+}
+particlesGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
+const particleMat = new THREE.PointsMaterial({ color: 0xffdd00, size: 0.15, sizeAttenuation: true });
+const particles = new THREE.Points(particlesGeo, particleMat);
+pivot.add(particles);
+
+// ── Charts ──
+function drawCurve1(ts) {
+  const canvas = document.getElementById('curve1');
+  if (!canvas) return;
+  const { ctx, w, h, accent } = EL.setupChart(canvas, '#ffdd00');
+
+  ctx.fillStyle = '#06080f';
+  ctx.fillRect(0, 0, w, h);
+
+  const pad = { l: 36, r: 8, t: 8, b: 28 };
+  EL.drawGrid(ctx, w, h, pad);
+
+  // X: wavelength 400-960nm, Y: responsivity 0-0.8 A/W
+  const minLam = 400, maxLam = 960;
+  const minResp = 0, maxResp = 0.8;
+
+  // Draw curve
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= 100; i++) {
+    const lam = minLam + (maxLam - minLam) * i / 100;
+    const resp = respAtWave(lam) * 0.8;  // scale
+    const x = pad.l + (w - pad.l - pad.r) * i / 100;
+    const y = h - pad.b - (h - pad.t - pad.b) * (resp - minResp) / (maxResp - minResp);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Operating point
+  const opX = pad.l + (w - pad.l - pad.r) * (wavelength_nm - minLam) / (maxLam - minLam);
+  const opResp = respAtWave(wavelength_nm) * 0.8;
+  const opY = h - pad.b - (h - pad.t - pad.b) * (opResp - minResp) / (maxResp - minResp);
+  EL.drawOpPoint(ctx, opX, opY, accent, ts);
+
+  // Labels
+  ctx.fillStyle = 'rgba(200,221,245,0.6)';
+  ctx.font = '10px Courier New';
+  ctx.textAlign = 'center';
+  ctx.fillText('Wavelength (nm)', w/2, h - 8);
+  ctx.save();
+  ctx.translate(12, h/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center';
+  ctx.fillText('Responsivity (A/W)', 0, 0);
+  ctx.restore();
+}
+
+function drawAll(ts = 0) {
+  const canvas1 = document.getElementById('curve1');
+  const canvas1desk = document.getElementById('curve1-desk');
+  if (canvas1) drawCurve1(ts);
+  if (canvas1desk) drawCurve1(ts);
+
+  // Update 3D
+  const { Ip } = calcPhysics();
+  glowLight.intensity = Math.min(1, Ip / 10e-6);
+  junctionMat.emissiveIntensity = Math.min(0.5, Ip / 50e-6);
+
+  // Animate photons falling
+  const posAttr = particles.geometry.getAttribute('position');
+  const arr = posAttr.array;
+  for (let i = 0; i < particleCount; i++) {
+    arr[i*3+1] -= 0.03;
+    if (arr[i*3+1] < -2) arr[i*3+1] = 2;
+  }
+  posAttr.needsUpdate = true;
+}
+
+// ── Animation Loop ──
+function animate(ts) {
+  requestAnimationFrame(animate);
+  drawAll(ts);
+  renderer.render(scene, camera);
+}
+
+updateUI();
+animate();
+</script>
+
+<!-- Navigation bar -->
+<script src="../shared/nav.js"></script>
+</body>
+</html>

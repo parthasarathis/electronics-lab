@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#09071a">
+<title>Fuse | ElecLab</title>
+<link rel="stylesheet" href="../shared/device.css">
+<style>
+:root{--accent:#ff6600;--accent2:#ffaa44;--accent-rgb:255,102,0}
+
+#challenge-box {
+  background: linear-gradient(135deg, #2a1a0f, #1a0f00);
+  border: 1px solid #8b5500;
+  padding: 12px;
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.ch-title {
+  font-size: 10px;
+  color: #ffaa77;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ch-title::before {
+  content: '★';
+  color: #ff6600;
+  font-size: 12px;
+}
+
+.ch-txt {
+  font-size: 11px;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.ch-status {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 255, 150, 0.1);
+  color: #00ffaa;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.ch-status.done {
+  opacity: 1;
+}
+
+.melt-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,100,0,0.4), transparent);
+  display: none;
+  pointer-events: none;
+  z-index: 5;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="header">
+  <div id="header-left">
+    <span class="dev-tag">06 / 150</span>
+    <span class="dev-name">Fuse</span>
+    <span class="dev-cat">Passive · Overcurrent Protection</span>
+  </div>
+  <div id="header-right">
+    <a id="hd-home" href="../index.html">⊞ Home</a>
+    <span class="dev-info">Drag 3D model · Adjust sliders</span>
+  </div>
+</div>
+<div id="header-compact">06 Fuse</div>
+
+<div id="body">
+
+  <div id="canvas-section">
+    <canvas id="c3d"></canvas>
+    <div class="canvas-badge">F — Overcurrent Breaker</div>
+    <div class="canvas-overlay" id="badge">—</div>
+    <div class="melt-glow" id="melt-glow"></div>
+  </div>
+
+  <div id="panels-section">
+
+    <div id="challenge-box">
+      <div class="ch-title">Learning Challenge</div>
+      <div class="ch-txt" id="ch-desc">Deliver exactly <b>2.0 A</b> through a <b>2A</b> fuse without blowing it.</div>
+      <div class="ch-status" id="ch-stat">✔</div>
+    </div>
+
+    <div class="panel panel-accent">
+      <div class="ptitle">Live Values</div>
+      <div class="kvgrid cols3">
+        <div class="kv"><label>Current I</label><div class="val c1" id="dI">—</div></div>
+        <div class="kv"><label>Fuse Rating</label><div class="val c2" id="dR">—</div></div>
+        <div class="kv"><label>Power P</label><div class="val c3" id="dP">—</div></div>
+        <div class="kv"><label>Filament Temp</label><div class="val c4" id="dT">—</div></div>
+        <div class="kv"><label>Status</label><div class="val c5" id="dSt">—</div></div>
+        <div class="kv"><label>Blowdown Time</label><div class="val c6" id="dBD">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Governing Equations</div>
+      <div class="frow">
+        <div class="fml"><div class="eq">P = I²R</div><div class="fd">Heating</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">t ∝ 1/I²</div><div class="fd">Blowdown</div></div>
+        <div class="fsep">·</div>
+        <div class="fml"><div class="eq">I > IR ⟹ Melt</div><div class="fd">Trip</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">Controls</div>
+      <div class="srow">
+        <span class="sl">Supply Voltage</span>
+        <input type="range" id="sVolt" min="0" max="120" value="24" step="1">
+        <span class="sval" id="vVolt">24 V</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Load Resistance</span>
+        <input type="range" id="sRL" min="1" max="100" value="12" step="1">
+        <span class="sval" id="vRL">2.0 Ω</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Fuse Rating</span>
+        <input type="range" id="sFuse" min="0" max="6" value="3" step="1">
+        <span class="sval" id="vFuse">2.0 A</span>
+      </div>
+      <div class="srow">
+        <span class="sl">Ambient Temp °C</span>
+        <input type="range" id="sTemp" min="-20" max="80" value="20" step="1">
+        <span class="sval" id="vTemp">20 °C</span>
+      </div>
+    </div>
+
+    <div class="panel curve-panel-main">
+      <div class="ptitle">I–t Characteristic</div>
+      <canvas class="chart-canvas" id="curve1" style="flex:1;min-height:140px"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="ptitle">About Fuses</div>
+      <div class="facts">
+        • Cartridge: <span>250/600V, 0.1A–100A</span><br>
+        • Fast-blow: <span>Quick trip, electronics</span><br>
+        • Slow-blow: <span>Delayed trip, motors</span><br>
+        • Rated I²t: <span>500–10k A²·s</span><br>
+        • Nominal: <span>Trip at 1.5–2× rated I</span><br>
+        • Blowdown: <span>Milliseconds–seconds</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="curve-section">
+    <div class="panel" style="flex:1;display:flex;flex-direction:column">
+      <div class="ptitle">Current vs Time to Blow</div>
+      <canvas class="chart-canvas" id="curve1-desk" style="flex:1;min-height:160px"></canvas>
+    </div>
+    <div class="panel" style="flex:0 0 auto">
+      <div class="ptitle">Trip Status</div>
+      <div class="kv"><label>Margin to Trip</label><div class="val c1" id="dI2">—</div></div>
+      <div class="bar-wrap"><div class="bar-fill" id="ibar" style="width:0%;background:var(--accent)"></div></div>
+      <div class="kv" style="margin-top:6px"><label>Status</label><div class="val c5" id="dSt2">—</div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../shared/device.js"></script>
+<script>
+// ── STATE
+let voltRaw = 24, rlRaw = 12, fuseIdx = 3, tempC = 20;
+
+const FUSE_RATINGS = [0.5, 1, 2, 5, 10, 20, 50]; // Amperes
+const FUSE_LABELS = ['0.5A', '1A', '2A', '5A', '10A', '20A', '50A'];
+
+function getVolt() { return voltRaw; }
+function getRL() { return EL.mapRange(rlRaw, 1, 100, 0.5, 50); }
+function getFuseRating() { return FUSE_RATINGS[fuseIdx]; }
+function getCurrent() {
+  return getVolt() / getRL();
+}
+
+// ── THREE.JS SCENE
+const { renderer, scene, camera } = EL.initScene('c3d');
+EL.initLights(scene, '#ff6600');
+const pivot = EL.initOrbit(camera, document.getElementById('c3d'));
+scene.add(pivot);
+
+// Fuse body — ceramic cartridge
+const bodyGeo = new THREE.CylinderGeometry(0.2, 0.2, 1.2, 32);
+const bodyMat = new THREE.MeshPhongMaterial({ color: 0xd9d9d9, shininess: 40 });
+const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+bodyMesh.rotation.z = Math.PI / 2;
+pivot.add(bodyMesh);
+
+// Metal end caps
+const capGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.1, 32);
+const capMat = new THREE.MeshPhongMaterial({ color: 0xccaa77, shininess: 120 });
+[-0.65, 0.65].forEach(x => {
+  const cap = new THREE.Mesh(capGeo, capMat);
+  cap.position.x = x;
+  cap.rotation.z = Math.PI / 2;
+  pivot.add(cap);
+});
+
+// Internal filament (wire)
+const filGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.8, 8);
+const filMat = new THREE.MeshPhongMaterial({ color: 0xff8844, shininess: 50, emissive: 0x330000 });
+const filMesh = new THREE.Mesh(filGeo, filMat);
+filMesh.rotation.z = Math.PI / 2;
+pivot.add(filMesh);
+
+// Leads
+const leadGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.6, 8);
+const leadMat = new THREE.MeshPhongMaterial({ color: 0xeeeeee, shininess: 80 });
+[-0.95, 0.95].forEach(x => {
+  const lead = new THREE.Mesh(leadGeo, leadMat);
+  lead.position.x = x;
+  lead.rotation.z = Math.PI / 2;
+  pivot.add(lead);
+});
+
+// Arc particles (when blowing)
+const arcCount = 12;
+const arcGeo = new THREE.SphereGeometry(0.05, 6, 6);
+const arcMat = new THREE.MeshPhongMaterial({
+  color: 0xff6600, emissive: 0xff3300, transparent: true, opacity: 0
+});
+const arcInst = new THREE.InstancedMesh(arcGeo, arcMat, arcCount);
+arcInst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+pivot.add(arcInst);
+
+// Glow light
+const glow = new THREE.PointLight(0xff6600, 0, 3);
+pivot.add(glow);
+
+// ── ANIMATION
+let lastTS = 0, phase = 0, isCulprit = false;
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const dt = Math.min((ts - lastTS) / 1000, 0.05);
+  lastTS = ts;
+  phase += dt;
+
+  if (!window._dragging) pivot.rotation.y += 0.002;
+
+  const I = getCurrent();
+  const IR = getFuseRating();
+  const P = I * I * getRL();
+  const tripThreshold = IR * 1.5; // Blow at 1.5x rated
+  isCulprit = I > tripThreshold;
+
+  // Filament glow with current
+  const glowIntensity = Math.max(0, Math.min((I / IR - 0.5) * 0.5, 1));
+  filMat.emissiveIntensity = glowIntensity * 0.8;
+  filMat.emissive.setHex(glowIntensity > 0.3 ? 0xff6600 : 0x330000);
+  glow.intensity = 0.2 + glowIntensity * 0.6;
+
+  // Arc animation when blowing
+  const dummy = new THREE.Object3D();
+  for (let i = 0; i < arcCount; i++) {
+    const angle = (i / arcCount) * Math.PI * 2;
+    const r = 0.3 + Math.sin(phase * 10 + i) * 0.1;
+    const y = (Math.random() - 0.5) * 0.6;
+    dummy.position.set(Math.cos(angle) * r, y, Math.sin(angle) * r);
+    dummy.updateMatrix();
+    arcInst.setMatrixAt(i, dummy.matrix);
+  }
+  arcInst.instanceMatrix.needsUpdate = true;
+  arcMat.opacity = isCulprit ? Math.sin(phase * 10) * 0.5 + 0.3 : 0;
+  arcMat.emissiveIntensity = isCulprit ? 0.8 : 0;
+
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(animate);
+
+// ── CALCULATIONS
+function updateCalc() {
+  const I = getCurrent();
+  const IR = getFuseRating();
+  const P = I * I * getRL();
+  const T = tempC + P * 100; // Simplified temp rise
+  const tripThreshold = IR * 1.5;
+
+  // Blowdown time (milliseconds, inverse I² relationship)
+  let tBlow = 10000;
+  if (I > IR) {
+    const ratio = I / IR;
+    tBlow = 5000 / (ratio * ratio); // I²t envelope
+    if (tBlow < 100) tBlow = 100;
+    if (tBlow > 10000) tBlow = 10000;
+  }
+
+  const isSafe = I < IR;
+  const willTrip = I > tripThreshold;
+
+  document.getElementById('dI').textContent = EL.fmtI(I);
+  document.getElementById('dR').textContent = FUSE_LABELS[fuseIdx];
+  document.getElementById('dP').textContent = EL.fmtP(P);
+  document.getElementById('dT').textContent = EL.fmtT(T);
+  document.getElementById('dSt').textContent = willTrip ? 'BLOWN' : isSafe ? 'OK' : 'HOT';
+  document.getElementById('dBD').textContent = tBlow < 100 ? 'Instant' : tBlow.toFixed(0) + ' ms';
+
+  const i2 = document.getElementById('dI2');
+  if (i2) i2.textContent = ((IR - I) / IR * 100).toFixed(1) + '%';
+  const st2 = document.getElementById('dSt2');
+  if (st2) st2.textContent = willTrip ? 'BLOWN' : isSafe ? 'OK' : 'HOT';
+
+  document.getElementById('badge').textContent = EL.fmtI(I);
+
+  // Current bar
+  const ibar = document.getElementById('ibar');
+  if (ibar) {
+    const pct = I / (IR * 2);
+    ibar.style.width = Math.min(pct * 100, 100) + '%';
+    ibar.style.background = isSafe ? '#ff6600' : willTrip ? '#ff0000' : '#ffaa44';
+  }
+
+  drawITCurve();
+  checkChallenge(I, IR);
+}
+
+function checkChallenge(I, IR) {
+  const isMatch = Math.abs(I - IR) < 0.05 && I < IR * 1.3; // Within 50mA, not blown
+  document.getElementById('ch-stat').classList.toggle('done', isMatch);
+  if (isMatch) {
+    document.getElementById('ch-desc').innerHTML = "<b>Challenge Complete!</b> You found the safe operating point at rated current.";
+  }
+}
+
+// ── I-T CHARACTERISTIC CHART
+function drawITCurve() {
+  const cvs = document.getElementById('curve1');
+  if (!cvs || !cvs.offsetWidth) return;
+  const w = cvs.offsetWidth, h = cvs.offsetHeight;
+  cvs.width = w * (devicePixelRatio || 1);
+  cvs.height = h * (devicePixelRatio || 1);
+  const ctx = cvs.getContext('2d');
+  ctx.scale(devicePixelRatio || 1, devicePixelRatio || 1);
+
+  const pad = { l: 38, r: 10, t: 10, b: 28 };
+  ctx.clearRect(0, 0, w, h);
+  EL.drawGrid(ctx, w, h, pad);
+  EL.drawAxes(ctx, w, h, pad, 'Current (A)', 'Time to Blow (s)');
+
+  const IR = getFuseRating();
+  const Imax = IR * 3, tmax = 10;
+
+  ctx.fillStyle = 'rgba(200,150,100,0.7)';
+  ctx.font = '8px Courier New';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const t = tmax * (1 - i / 4);
+    const y = pad.t + (h - pad.t - pad.b) * i / 4;
+    ctx.fillText((t * 1000).toFixed(0) + ' ms', pad.l - 2, y + 3);
+  }
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 4; i++) {
+    const itest = Imax * i / 4;
+    const x = pad.l + (w - pad.l - pad.r) * i / 4;
+    ctx.fillText(itest.toFixed(1), x, h - pad.b + 12);
+  }
+
+  // I²t envelope curve
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(255,102,0,0.9)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i <= 60; i++) {
+    const itest = Imax * i / 60;
+    let t = 10;
+    if (itest > IR) {
+      const ratio = itest / IR;
+      t = 5 / (ratio * ratio);
+      if (t < 0.01) t = 0.01;
+    }
+    const px = pad.l + (w - pad.l - pad.r) * (itest / Imax);
+    const py = pad.t + (h - pad.t - pad.b) * (1 - t / tmax);
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+
+  // Rated current line
+  ctx.strokeStyle = 'rgba(100,255,150,0.5)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  const xr = pad.l + (w - pad.l - pad.r) * (IR / Imax);
+  ctx.beginPath();
+  ctx.moveTo(xr, pad.t);
+  ctx.lineTo(xr, h - pad.b);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Operating point
+  const I = getCurrent();
+  const opX = pad.l + (w - pad.l - pad.r) * (I / Imax);
+  let opT = 10;
+  if (I > IR) {
+    const ratio = I / IR;
+    opT = 5 / (ratio * ratio);
+    if (opT < 0.01) opT = 0.01;
+  }
+  const opY = pad.t + (h - pad.t - pad.b) * (1 - opT / tmax);
+  EL.drawOpPoint(ctx, opX, opY, '#ff6600');
+}
+
+// ── SLIDER BINDINGS
+document.getElementById('sVolt').addEventListener('input', e => {
+  voltRaw = parseInt(e.target.value);
+  document.getElementById('vVolt').textContent = voltRaw + ' V';
+  updateCalc();
+});
+
+document.getElementById('sRL').addEventListener('input', e => {
+  rlRaw = parseInt(e.target.value);
+  const rl = getRL();
+  document.getElementById('vRL').textContent = rl.toFixed(2) + ' Ω';
+  updateCalc();
+});
+
+document.getElementById('sFuse').addEventListener('input', e => {
+  fuseIdx = parseInt(e.target.value);
+  document.getElementById('vFuse').textContent = FUSE_LABELS[fuseIdx];
+  updateCalc();
+});
+
+document.getElementById('sTemp').addEventListener('input', e => {
+  tempC = parseInt(e.target.value);
+  document.getElementById('vTemp').textContent = tempC + ' °C';
+  updateCalc();
+});
+
+// Init
+updateCalc();
+</script>
+<script src="../shared/nav.js"></script>
+</body>
+</html>
