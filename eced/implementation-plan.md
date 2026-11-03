@@ -1,6 +1,10 @@
+## Latest release status — Release B — 3 November 2026
+
+Fifteen lessons are now live. Release B adds Superposition, Thevenin/Norton, Reciprocity, Maximum Power Transfer and Wye–Delta. All five were verified, reviewed, improved and frozen as version 1.0.0. The planned lesson sets for Modules 1, 2 and 3 are available; fifteen lessons remain across Modules 4–6. See `release-b-review.md` and `release-b-freeze.json`. Faculty sign-off and student piloting remain separate.
+
 # ECED interactive learning hub implementation plan
 
-## Latest release status — Release A — 3 November 2026
+## Earlier Release A milestone — Release A — 3 November 2026
 
 Ten lessons are now live. Release A added Ohm’s law/dividers, node analysis, mesh analysis, source transformation, and sinusoids/RMS/phase. Each new lesson was numerically verified, browser-tested, visually reviewed and frozen as v1.0.0 with source hashes. The planned lesson sets for Modules 1 and 3 are complete. Twenty lessons remain planned. See `release-a-review.md` for the review record and `release-a-freeze.json` for hashes. Formal faculty sign-off and student piloting remain separate from software verification.
 

@@ -1,0 +1,121 @@
+{
+  "release": "B",
+  "date": "2026-11-03",
+  "lessons": {
+    "superposition": {
+      "version": "1.0.0",
+      "status": "frozen",
+      "checks": [
+        "independent numerical reference cases",
+        "boundary and circuit identities",
+        "presets and all selector modes",
+        "two concept checks and numeric feedback",
+        "CSV export",
+        "375/390/768/1280px layouts",
+        "print render",
+        "no JavaScript errors"
+      ],
+      "sha256": {
+        "lessons/superposition/index.html": "3129fbccaae895da8ce91cde22d305647dbb0f2bb68d48bd35ea995f92aaba08",
+        "lessons/superposition/model-v1.js": "d2e7ba22f0947d302c0884907a1c8ed3ddd4e2e498724f90b224e5ca754f3da0",
+        "lessons/superposition/lesson-v1.js": "ea65dfd4023009976e5f6b01d9cab422668412d134ce6baf3438b49c8b23cf88",
+        "shared/foundation-ui-v1.js": "8ad625cada4c0213c8246eb3f8f51c9e88550489dfc6b499ee0667e5187b666f",
+        "shared/foundations-v1.css": "4869f4612760512b9552e2aa00d77ef9e75f55231f95526cf97f90b4d0672e42"
+      },
+      "review_improvement": "Added separate active-source diagrams with explicit short circuits; removed orphan print footer.",
+      "visual_review": "Phone and desktop diagrams inspected; A4 print output rendered and reviewed."
+    },
+    "thevenin-norton": {
+      "version": "1.0.0",
+      "status": "frozen",
+      "checks": [
+        "independent numerical reference cases",
+        "boundary and circuit identities",
+        "presets and all selector modes",
+        "two concept checks and numeric feedback",
+        "CSV export",
+        "375/390/768/1280px layouts",
+        "print render",
+        "no JavaScript errors"
+      ],
+      "sha256": {
+        "lessons/thevenin-norton/index.html": "cf8f9dc4e430ab6b61f640f2f736a5e9f4ad2a88388f157cc403ff22e9f6a6ed",
+        "lessons/thevenin-norton/model-v1.js": "fb528ab05ca7da2b0b93585df27e295b8152c5f754ad50512cb4d6d8ca7000c1",
+        "lessons/thevenin-norton/lesson-v1.js": "b7bf4f10f0aeefbeb0e6a8fd70bd3d0c0789a3a172d00a529618ad94cf37c8a6",
+        "shared/foundation-ui-v1.js": "8ad625cada4c0213c8246eb3f8f51c9e88550489dfc6b499ee0667e5187b666f",
+        "shared/foundations-v1.css": "4869f4612760512b9552e2aa00d77ef9e75f55231f95526cf97f90b4d0672e42"
+      },
+      "review_improvement": "Added original, Thevenin and Norton circuit drawings, with external load and port labels.",
+      "visual_review": "Phone and desktop diagrams inspected; A4 print output rendered and reviewed."
+    },
+    "reciprocity": {
+      "version": "1.0.0",
+      "status": "frozen",
+      "checks": [
+        "independent numerical reference cases",
+        "boundary and circuit identities",
+        "presets and all selector modes",
+        "two concept checks and numeric feedback",
+        "CSV export",
+        "375/390/768/1280px layouts",
+        "print render",
+        "no JavaScript errors"
+      ],
+      "sha256": {
+        "lessons/reciprocity/index.html": "eaf40fb1c57664a23c343eea27b5618bd1d59dae2ea03526f24409b71bd38acf",
+        "lessons/reciprocity/model-v1.js": "70060ffb704df9b890a0f704a347228d9add68dcda6e82fefcff9def70b7f861",
+        "lessons/reciprocity/lesson-v1.js": "e54e881462dfb1894af104ed77d1d114bf0703ad48cb83a83efeff2d2eb10ec5",
+        "shared/foundation-ui-v1.js": "8ad625cada4c0213c8246eb3f8f51c9e88550489dfc6b499ee0667e5187b666f",
+        "shared/foundations-v1.css": "4869f4612760512b9552e2aa00d77ef9e75f55231f95526cf97f90b4d0672e42"
+      },
+      "review_improvement": "Displayed both port excitations and explicit short circuits; defined response directions and unequal internal voltages.",
+      "visual_review": "Phone and desktop diagrams inspected; A4 print output rendered and reviewed."
+    },
+    "maximum-power": {
+      "version": "1.0.0",
+      "status": "frozen",
+      "checks": [
+        "independent numerical reference cases",
+        "boundary and circuit identities",
+        "presets and all selector modes",
+        "two concept checks and numeric feedback",
+        "CSV export",
+        "375/390/768/1280px layouts",
+        "print render",
+        "no JavaScript errors"
+      ],
+      "sha256": {
+        "lessons/maximum-power/index.html": "f82e772618015b2c3ce5c7e8a46326cd16641d9b846a59a86cf66ef71f954525",
+        "lessons/maximum-power/model-v1.js": "88f6889ec509d335750c36448a27c4decfe3d21dd1009ea288751b24a99acd5e",
+        "lessons/maximum-power/lesson-v1.js": "bb5fc4bc61cd91160c94bdaf6c51cc77398b4f05e2403add85000dfda640f3fc",
+        "shared/foundation-ui-v1.js": "8ad625cada4c0213c8246eb3f8f51c9e88550489dfc6b499ee0667e5187b666f",
+        "shared/foundations-v1.css": "4869f4612760512b9552e2aa00d77ef9e75f55231f95526cf97f90b4d0672e42"
+      },
+      "review_improvement": "Separated maximum power from efficiency; stated DC model and AC conjugate-match extension.",
+      "visual_review": "Phone and desktop diagrams inspected; A4 print output rendered and reviewed."
+    },
+    "wye-delta": {
+      "version": "1.0.0",
+      "status": "frozen",
+      "checks": [
+        "independent numerical reference cases",
+        "boundary and circuit identities",
+        "presets and all selector modes",
+        "two concept checks and numeric feedback",
+        "CSV export",
+        "375/390/768/1280px layouts",
+        "print render",
+        "no JavaScript errors"
+      ],
+      "sha256": {
+        "lessons/wye-delta/index.html": "deb0575ceb286d4a563c1932051ac3350f59e0074680657067cfa72bdae0818d",
+        "lessons/wye-delta/model-v1.js": "4ad3e6018953cbfe180e3e39a3d1c5163b6720a5e189a52526bda010cdc11e13",
+        "lessons/wye-delta/lesson-v1.js": "8de2185e653118fb59386548bde208c0fae9a261df180653050a6575b053e564",
+        "shared/foundation-ui-v1.js": "8ad625cada4c0213c8246eb3f8f51c9e88550489dfc6b499ee0667e5187b666f",
+        "shared/foundations-v1.css": "4869f4612760512b9552e2aa00d77ef9e75f55231f95526cf97f90b4d0672e42"
+      },
+      "review_improvement": "Aligned resistor symbols with branches and moved overlapping labels; checked all terminal pairs and arbitrary terminal currents.",
+      "visual_review": "Phone and desktop diagrams inspected; A4 print output rendered and reviewed."
+    }
+  }
+}

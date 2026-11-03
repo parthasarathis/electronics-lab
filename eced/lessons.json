@@ -96,12 +96,14 @@
     "visual": "Per-source contributions and signed total branch current",
     "challenge": "Explain why powers cannot be added by superposition",
     "prerequisite": "Node or mesh analysis",
-    "priority": "P1",
+    "priority": "LIVE",
     "complexity": "M",
     "lab": "3",
     "check": "Sum of source contributions equals full linear circuit solution; ideal source deactivation correct",
-    "live": false,
-    "href": ""
+    "live": true,
+    "href": "lessons/superposition/",
+    "version": "1.0.0",
+    "frozen": true
   },
   {
     "id": "thevenin-norton",
@@ -112,12 +114,14 @@
     "visual": "Original/equivalent circuits, open-circuit voltage and load curve",
     "challenge": "Predict load current using both equivalents",
     "prerequisite": "Source transformation; node analysis",
-    "priority": "P1",
+    "priority": "LIVE",
     "complexity": "M",
     "lab": "3",
     "check": "Vth=InRth; original, Thevenin and Norton load responses agree",
-    "live": false,
-    "href": ""
+    "live": true,
+    "href": "lessons/thevenin-norton/",
+    "version": "1.0.0",
+    "frozen": true
   },
   {
     "id": "reciprocity",
@@ -128,12 +132,14 @@
     "visual": "Swap excitation and response branches while retaining polarity",
     "challenge": "State why the theorem needs eligibility conditions",
     "prerequisite": "Linear resistor networks",
-    "priority": "P2",
+    "priority": "LIVE",
     "complexity": "M",
     "lab": "3 (extension)",
     "check": "Transfer responses agree after swapping source/measurement in valid single-source networks",
-    "live": false,
-    "href": ""
+    "live": true,
+    "href": "lessons/reciprocity/",
+    "version": "1.0.0",
+    "frozen": true
   },
   {
     "id": "maximum-power",
@@ -144,12 +150,14 @@
     "visual": "Load-power graph, operating point and efficiency",
     "challenge": "Find maximum load power and compare its efficiency",
     "prerequisite": "Thevenin equivalent",
-    "priority": "P1",
+    "priority": "LIVE",
     "complexity": "S",
     "lab": "3 (extension)",
     "check": "Peak at RL=Rth for resistive DC; efficiency at that point is 50%",
-    "live": false,
-    "href": ""
+    "live": true,
+    "href": "lessons/maximum-power/",
+    "version": "1.0.0",
+    "frozen": true
   },
   {
     "id": "wye-delta",
@@ -160,12 +168,14 @@
     "visual": "Switchable Y/Δ drawing and terminal-resistance verification",
     "challenge": "Verify equivalent resistance between two terminals",
     "prerequisite": "Series/parallel resistance",
-    "priority": "P2",
+    "priority": "LIVE",
     "complexity": "M",
     "lab": "No direct experiment",
     "check": "Round-trip conversion and all three terminal resistances agree",
-    "live": false,
-    "href": ""
+    "live": true,
+    "href": "lessons/wye-delta/",
+    "version": "1.0.0",
+    "frozen": true
   },
   {
     "id": "sinusoid-rms",
