@@ -1,0 +1,121 @@
+{
+  "release": "A",
+  "date": "2026-11-03",
+  "lessons": {
+    "ohms-law": {
+      "version": "1.0.0",
+      "status": "frozen",
+      "checks": [
+        "independent numerical reference cases",
+        "boundary and circuit identities",
+        "presets and all selector modes",
+        "two concept checks and numeric feedback",
+        "CSV export",
+        "375/390/768/1280px layouts",
+        "print render",
+        "no JavaScript errors"
+      ],
+      "sha256": {
+        "lessons/ohms-law/index.html": "14011e442da63732b98d7990a4f69d20d9ab0f798e6dd317f138eb8907a92f2b",
+        "lessons/ohms-law/model-v1.js": "b3a025ad86dc71ec8fad458cc66a047af98fb8507905e3b46adbb25e446989ab",
+        "lessons/ohms-law/lesson-v1.js": "b70ad0e8eeaf6b59caebd48ff416befd866d0e179d27b7a601f7727a382bef06",
+        "shared/foundation-ui-v1.js": "8ad625cada4c0213c8246eb3f8f51c9e88550489dfc6b499ee0667e5187b666f",
+        "shared/foundations-v1.css": "4869f4612760512b9552e2aa00d77ef9e75f55231f95526cf97f90b4d0672e42"
+      },
+      "visual_review": "Phone and print diagrams visually inspected; desktop layouts verified at 1280 px",
+      "review_improvement": "Shortened phone selector labels and corrected supply-setting terminology; divider and power calculations independently verified."
+    },
+    "node-analysis": {
+      "version": "1.0.0",
+      "status": "frozen",
+      "checks": [
+        "independent numerical reference cases",
+        "boundary and circuit identities",
+        "presets and all selector modes",
+        "two concept checks and numeric feedback",
+        "CSV export",
+        "375/390/768/1280px layouts",
+        "print render",
+        "no JavaScript errors"
+      ],
+      "sha256": {
+        "lessons/node-analysis/index.html": "ca6ec55aa1b0e7bbcd4c79d84b862778167518f3d99752e60f4e6055108ddb1a",
+        "lessons/node-analysis/model-v1.js": "afe700db62ded2b7bcf8935ce7c924af364487bb12287ca2fac020df27c44c67",
+        "lessons/node-analysis/lesson-v1.js": "accbefe389d2740d34ba7fc88e8436d1db6ffc78d6a55a9cb8a70f62be1ae3d8",
+        "shared/foundation-ui-v1.js": "8ad625cada4c0213c8246eb3f8f51c9e88550489dfc6b499ee0667e5187b666f",
+        "shared/foundations-v1.css": "4869f4612760512b9552e2aa00d77ef9e75f55231f95526cf97f90b4d0672e42"
+      },
+      "visual_review": "Phone and print diagrams visually inspected; desktop layouts verified at 1280 px",
+      "review_improvement": "Removed the voltage-chart title collision and defined matrix shorthand explicitly; verified both KCL rows and independent elimination solutions."
+    },
+    "mesh-analysis": {
+      "version": "1.0.0",
+      "status": "frozen",
+      "checks": [
+        "independent numerical reference cases",
+        "boundary and circuit identities",
+        "presets and all selector modes",
+        "two concept checks and numeric feedback",
+        "CSV export",
+        "375/390/768/1280px layouts",
+        "print render",
+        "no JavaScript errors"
+      ],
+      "sha256": {
+        "lessons/mesh-analysis/index.html": "329da9372a9354782e29baead0a7a2267d4cab8bf75f2de002c74422891a3321",
+        "lessons/mesh-analysis/model-v1.js": "c344002db779977586a28da54489e3c140245d3a3bb578fd73b790255f6e02b7",
+        "lessons/mesh-analysis/lesson-v1.js": "fed7c9f478aacb8910cb320674ef2168ed29112613e2ecce1d0f1c1285088d6f",
+        "shared/foundation-ui-v1.js": "8ad625cada4c0213c8246eb3f8f51c9e88550489dfc6b499ee0667e5187b666f",
+        "shared/foundations-v1.css": "4869f4612760512b9552e2aa00d77ef9e75f55231f95526cf97f90b4d0672e42"
+      },
+      "visual_review": "Phone and print diagrams visually inspected; desktop layouts verified at 1280 px",
+      "review_improvement": "Review confirmed explicit opposite source polarities and shared-current directions; independent nodal cross-checks and three-page worksheet passed."
+    },
+    "source-transformation": {
+      "version": "1.0.0",
+      "status": "frozen",
+      "checks": [
+        "independent numerical reference cases",
+        "boundary and circuit identities",
+        "presets and all selector modes",
+        "two concept checks and numeric feedback",
+        "CSV export",
+        "375/390/768/1280px layouts",
+        "print render",
+        "no JavaScript errors"
+      ],
+      "sha256": {
+        "lessons/source-transformation/index.html": "daf4b67328b5e706b1a7b54380a8fd74a5c6807490ef7552c6442fb6f72051ac",
+        "lessons/source-transformation/model-v1.js": "7646c25c46c493113b6c79092810de756653ba7a5629802d4652a64947ec75a1",
+        "lessons/source-transformation/lesson-v1.js": "a85630071ad3446bcb90895c6cd0db466d8b8219d41f446aa400e3be21b08654",
+        "shared/foundation-ui-v1.js": "8ad625cada4c0213c8246eb3f8f51c9e88550489dfc6b499ee0667e5187b666f",
+        "shared/foundations-v1.css": "4869f4612760512b9552e2aa00d77ef9e75f55231f95526cf97f90b4d0672e42"
+      },
+      "visual_review": "Phone and print diagrams visually inspected; desktop layouts verified at 1280 px",
+      "review_improvement": "Reviewed stacked source forms, load-line graph and unequal internal losses; terminal and power identities passed across 36 source/load combinations."
+    },
+    "sinusoid-rms": {
+      "version": "1.0.0",
+      "status": "frozen",
+      "checks": [
+        "independent numerical reference cases",
+        "boundary and circuit identities",
+        "presets and all selector modes",
+        "two concept checks and numeric feedback",
+        "CSV export",
+        "375/390/768/1280px layouts",
+        "print render",
+        "no JavaScript errors"
+      ],
+      "sha256": {
+        "lessons/sinusoid-rms/index.html": "ad279782445f39208dff8808513e17aaf9b38b26fe2dd357ba68d025efa1bc11",
+        "lessons/sinusoid-rms/model-v1.js": "1f722a88c0774e826fbe9345c0a0f0a607fe799ad0974964779ec4e2e48fc4f2",
+        "lessons/sinusoid-rms/lesson-v1.js": "5d26c53415cfc2b5d045c457a5a76e986485a951c20dc983bd8efa6dc2dd8d7b",
+        "shared/foundation-ui-v1.js": "8ad625cada4c0213c8246eb3f8f51c9e88550489dfc6b499ee0667e5187b666f",
+        "shared/foundations-v1.css": "4869f4612760512b9552e2aa00d77ef9e75f55231f95526cf97f90b4d0672e42"
+      },
+      "visual_review": "Phone and print diagrams visually inspected; desktop layouts verified at 1280 px",
+      "review_improvement": "Moved fixed phase/time labels outside the moving projection region; distinguished peak-vector length from RMS phasor magnitude and checked numerical RMS over complete periods."
+    }
+  }
+}

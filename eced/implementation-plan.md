@@ -1,12 +1,16 @@
 # ECED interactive learning hub implementation plan
 
-## Current release status — 3 November 2026
+## Latest release status — Release A — 3 November 2026
 
-Five lessons are now live: Phasor Lab; KCL/KVL; RC/RL transients; resonance, bandwidth and Q; complex power/power factor. The four new lessons include bounded controls, a worked calculation, two concept checks, one numeric check, CSV observations and a print worksheet. Twenty-five lessons remain planned. Phase 1’s four interactive pages are delivered; classroom piloting and faculty sign-off remain separate review activities. Original effort estimates below are historical planning estimates, not time spent or a promise of completion.
+Ten lessons are now live. Release A added Ohm’s law/dividers, node analysis, mesh analysis, source transformation, and sinusoids/RMS/phase. Each new lesson was numerically verified, browser-tested, visually reviewed and frozen as v1.0.0 with source hashes. The planned lesson sets for Modules 1 and 3 are complete. Twenty lessons remain planned. See `release-a-review.md` for the review record and `release-a-freeze.json` for hashes. Formal faculty sign-off and student piloting remain separate from software verification.
+
+## Earlier Phase 1 milestone — historical
+
+At that milestone, five lessons were live: Phasor Lab; KCL/KVL; RC/RL transients; resonance, bandwidth and Q; complex power/power factor. The four new lessons include bounded controls, a worked calculation, two concept checks, one numeric check, CSV observations and a print worksheet. Twenty-five lessons remained planned at that milestone. Phase 1’s four interactive pages are delivered; classroom piloting and faculty sign-off remain separate review activities. Original effort estimates below are historical planning estimates, not time spent or a promise of completion.
 
 ## Decision and scope
 
-Build a course hub with 30 focused HTML lessons across the six ECED modules. Retain Phasor Lab and the four Phase 1 lessons as live activities. Develop the remaining 25 simulations in validated releases. This is a proposed teaching design, not a claim that the entire course has been implemented.
+Build a course hub with 30 focused HTML lessons across the six ECED modules. Retain the ten live lessons and develop the remaining twenty simulations in validated releases. This is a proposed teaching design, not a claim that the entire course has been implemented.
 
 Use deterministic circuit calculations and diagrams where possible. Do not start with a general drag-and-drop circuit simulator or photorealistic 3D laboratory. Fixed, editable circuit templates make assumptions and worked solutions easier for first-year students to inspect.
 
@@ -58,7 +62,7 @@ S/M/L below mean approximate implementation complexity, not student difficulty. 
 
 #### Ohm’s law and circuit basics
 
-- Route: `/eced/lessons/ohms-law/`; status/priority: P1; complexity: S.
+- Route: `/eced/lessons/ohms-law/`; status/priority: LIVE v1.0.0 frozen; complexity: S.
 - Syllabus scope: Ohm’s law; basic electrical circuits; supporting voltage and current division.
 - Inputs: Voltage, resistance, series/parallel selector.
 - Primary visual: Circuit values, current arrows, V–I graph and resistor power.
@@ -80,7 +84,7 @@ S/M/L below mean approximate implementation complexity, not student difficulty. 
 
 #### Node analysis
 
-- Route: `/eced/lessons/node-analysis/`; status/priority: P1; complexity: M.
+- Route: `/eced/lessons/node-analysis/`; status/priority: LIVE v1.0.0 frozen; complexity: M.
 - Syllabus scope: Node analysis.
 - Inputs: Two-node resistor network, source values, reference node.
 - Primary visual: Node voltages, labelled branch currents and equation matrix.
@@ -91,7 +95,7 @@ S/M/L below mean approximate implementation complexity, not student difficulty. 
 
 #### Mesh analysis
 
-- Route: `/eced/lessons/mesh-analysis/`; status/priority: P1; complexity: M.
+- Route: `/eced/lessons/mesh-analysis/`; status/priority: LIVE v1.0.0 frozen; complexity: M.
 - Syllabus scope: Mesh analysis.
 - Inputs: Two mesh sources, shared resistor, mesh directions.
 - Primary visual: Loop equations, mesh currents and shared-branch difference.
@@ -102,7 +106,7 @@ S/M/L below mean approximate implementation complexity, not student difficulty. 
 
 #### Source transformation
 
-- Route: `/eced/lessons/source-transformation/`; status/priority: P2; complexity: S.
+- Route: `/eced/lessons/source-transformation/`; status/priority: LIVE v1.0.0 frozen; complexity: S.
 - Syllabus scope: Voltage–current source transformation.
 - Inputs: Source amplitude and positive source resistance.
 - Primary visual: Equivalent source pair and identical load V–I curves.
@@ -172,7 +176,7 @@ S/M/L below mean approximate implementation complexity, not student difficulty. 
 
 #### Sinusoids, RMS and phase
 
-- Route: `/eced/lessons/sinusoid-rms/`; status/priority: P1; complexity: M.
+- Route: `/eced/lessons/sinusoid-rms/`; status/priority: LIVE v1.0.0 frozen; complexity: M.
 - Syllabus scope: Sinusoidal waveforms; phase; RMS as enabling concept.
 - Inputs: Amplitude, frequency, phase and time cursor.
 - Primary visual: Waveform, rotating arrow and RMS/peak comparison.

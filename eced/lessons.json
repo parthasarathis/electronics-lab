@@ -8,12 +8,14 @@
     "visual": "Circuit values, current arrows, V–I graph and resistor power",
     "challenge": "Predict current before doubling resistance",
     "prerequisite": "None",
-    "priority": "P1",
+    "priority": "LIVE",
     "complexity": "S",
     "lab": "1",
     "check": "I=V/R; divider output agrees with direct circuit solution",
-    "live": false,
-    "href": ""
+    "live": true,
+    "href": "lessons/ohms-law/",
+    "version": "1.0.0",
+    "frozen": true
   },
   {
     "id": "kirchhoff-laws",
@@ -40,12 +42,14 @@
     "visual": "Node voltages, labelled branch currents and equation matrix",
     "challenge": "Write two KCL equations before revealing the solution",
     "prerequisite": "KCL; Ohm’s law",
-    "priority": "P1",
+    "priority": "LIVE",
     "complexity": "M",
     "lab": "2",
     "check": "Two-node solution matches an independent linear solver; reject singular networks",
-    "live": false,
-    "href": ""
+    "live": true,
+    "href": "lessons/node-analysis/",
+    "version": "1.0.0",
+    "frozen": true
   },
   {
     "id": "mesh-analysis",
@@ -56,12 +60,14 @@
     "visual": "Loop equations, mesh currents and shared-branch difference",
     "challenge": "Explain why the shared current is I1−I2",
     "prerequisite": "KVL; simultaneous equations",
-    "priority": "P1",
+    "priority": "LIVE",
     "complexity": "M",
     "lab": "2",
     "check": "Both mesh voltage residuals vanish; branch currents match nodal analysis",
-    "live": false,
-    "href": ""
+    "live": true,
+    "href": "lessons/mesh-analysis/",
+    "version": "1.0.0",
+    "frozen": true
   },
   {
     "id": "source-transformation",
@@ -72,12 +78,14 @@
     "visual": "Equivalent source pair and identical load V–I curves",
     "challenge": "Identify which internal quantity is not preserved",
     "prerequisite": "Ohm’s law; KCL/KVL",
-    "priority": "P2",
+    "priority": "LIVE",
     "complexity": "S",
     "lab": "2",
     "check": "Vs=IsRs; terminal voltage and current agree for at least three loads",
-    "live": false,
-    "href": ""
+    "live": true,
+    "href": "lessons/source-transformation/",
+    "version": "1.0.0",
+    "frozen": true
   },
   {
     "id": "superposition",
@@ -168,12 +176,14 @@
     "visual": "Waveform, rotating arrow and RMS/peak comparison",
     "challenge": "Distinguish frequency change from phase shift",
     "prerequisite": "Basic trigonometry",
-    "priority": "P1",
+    "priority": "LIVE",
     "complexity": "M",
     "lab": "6",
     "check": "Sine RMS=peak/√2; period=1/f; degree/radian conversion consistent",
-    "live": false,
-    "href": ""
+    "live": true,
+    "href": "lessons/sinusoid-rms/",
+    "version": "1.0.0",
+    "frozen": true
   },
   {
     "id": "phasor-lab",
