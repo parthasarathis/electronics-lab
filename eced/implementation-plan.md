@@ -1,8 +1,12 @@
 # ECED interactive learning hub implementation plan
 
+## Current release status — 3 November 2026
+
+Five lessons are now live: Phasor Lab; KCL/KVL; RC/RL transients; resonance, bandwidth and Q; complex power/power factor. The four new lessons include bounded controls, a worked calculation, two concept checks, one numeric check, CSV observations and a print worksheet. Twenty-five lessons remain planned. Phase 1’s four interactive pages are delivered; classroom piloting and faculty sign-off remain separate review activities. Original effort estimates below are historical planning estimates, not time spent or a promise of completion.
+
 ## Decision and scope
 
-Build a course hub with 30 focused HTML lessons across the six ECED modules. Retain the existing public Phasor Lab as the first live lesson. Deliver the landing page now; develop the remaining 29 simulations in validated releases. This is a proposed teaching design, not a claim that the entire course has been implemented.
+Build a course hub with 30 focused HTML lessons across the six ECED modules. Retain Phasor Lab and the four Phase 1 lessons as live activities. Develop the remaining 25 simulations in validated releases. This is a proposed teaching design, not a claim that the entire course has been implemented.
 
 Use deterministic circuit calculations and diagrams where possible. Do not start with a general drag-and-drop circuit simulator or photorealistic 3D laboratory. Fixed, editable circuit templates make assumptions and worked solutions easier for first-year students to inspect.
 
@@ -65,7 +69,7 @@ S/M/L below mean approximate implementation complexity, not student difficulty. 
 
 #### KCL and KVL
 
-- Route: `/eced/lessons/kirchhoff-laws/`; status/priority: P0; complexity: M.
+- Route: `/eced/lessons/kirchhoff-laws/`; status/priority: LIVE; complexity: M.
 - Syllabus scope: Kirchhoff’s Current Law and Voltage Law.
 - Inputs: Two source values, three resistors, node/loop selection.
 - Primary visual: Signed node currents and loop voltage drops with running residual.
@@ -190,7 +194,7 @@ S/M/L below mean approximate implementation complexity, not student difficulty. 
 
 #### Complex power and power factor
 
-- Route: `/eced/lessons/complex-power/`; status/priority: P0; complexity: M.
+- Route: `/eced/lessons/complex-power/`; status/priority: LIVE; complexity: M.
 - Syllabus scope: Complex power; active/reactive/apparent power; power factor.
 - Inputs: RLC load, RMS source, optional shunt correction capacitor.
 - Primary visual: Power triangle, instantaneous power and P/Q/S values.
@@ -203,7 +207,7 @@ S/M/L below mean approximate implementation complexity, not student difficulty. 
 
 #### RC and RL transients
 
-- Route: `/eced/lessons/first-order-transients/`; status/priority: P0; complexity: M.
+- Route: `/eced/lessons/first-order-transients/`; status/priority: LIVE; complexity: M.
 - Syllabus scope: Transient response of RC and RL circuits; time constants.
 - Inputs: R, C or L, source step, initial capacitor voltage/inductor current.
 - Primary visual: Time waveform, initial/final values, τ cursor and energy.
@@ -236,7 +240,7 @@ S/M/L below mean approximate implementation complexity, not student difficulty. 
 
 #### Resonance, bandwidth and Q
 
-- Route: `/eced/lessons/resonance-bandwidth/`; status/priority: P0; complexity: M.
+- Route: `/eced/lessons/resonance-bandwidth/`; status/priority: LIVE; complexity: M.
 - Syllabus scope: Resonance; bandwidth; quality factor.
 - Inputs: R, L, C, sweep bounds and series/parallel topology.
 - Primary visual: Frequency sweep, f0 marker, half-power points and reactive cancellation.

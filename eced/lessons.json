@@ -12,7 +12,8 @@
     "complexity": "S",
     "lab": "1",
     "check": "I=V/R; divider output agrees with direct circuit solution",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "kirchhoff-laws",
@@ -23,11 +24,12 @@
     "visual": "Signed node currents and loop voltage drops with running residual",
     "challenge": "Find the incorrect sign and close the balance",
     "prerequisite": "Ohm’s law",
-    "priority": "P0",
+    "priority": "LIVE",
     "complexity": "M",
     "lab": "1",
     "check": "KCL and KVL residuals below 1e-9 of the solution scale",
-    "live": false
+    "live": true,
+    "href": "lessons/kirchhoff-laws/"
   },
   {
     "id": "node-analysis",
@@ -42,7 +44,8 @@
     "complexity": "M",
     "lab": "2",
     "check": "Two-node solution matches an independent linear solver; reject singular networks",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "mesh-analysis",
@@ -57,7 +60,8 @@
     "complexity": "M",
     "lab": "2",
     "check": "Both mesh voltage residuals vanish; branch currents match nodal analysis",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "source-transformation",
@@ -72,7 +76,8 @@
     "complexity": "S",
     "lab": "2",
     "check": "Vs=IsRs; terminal voltage and current agree for at least three loads",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "superposition",
@@ -87,7 +92,8 @@
     "complexity": "M",
     "lab": "3",
     "check": "Sum of source contributions equals full linear circuit solution; ideal source deactivation correct",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "thevenin-norton",
@@ -102,7 +108,8 @@
     "complexity": "M",
     "lab": "3",
     "check": "Vth=InRth; original, Thevenin and Norton load responses agree",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "reciprocity",
@@ -117,7 +124,8 @@
     "complexity": "M",
     "lab": "3 (extension)",
     "check": "Transfer responses agree after swapping source/measurement in valid single-source networks",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "maximum-power",
@@ -132,7 +140,8 @@
     "complexity": "S",
     "lab": "3 (extension)",
     "check": "Peak at RL=Rth for resistive DC; efficiency at that point is 50%",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "wye-delta",
@@ -147,7 +156,8 @@
     "complexity": "M",
     "lab": "No direct experiment",
     "check": "Round-trip conversion and all three terminal resistances agree",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "sinusoid-rms",
@@ -162,7 +172,8 @@
     "complexity": "M",
     "lab": "6",
     "check": "Sine RMS=peak/√2; period=1/f; degree/radian conversion consistent",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "phasor-lab",
@@ -177,7 +188,8 @@
     "complexity": "M",
     "lab": "6; supports 5 and 8",
     "check": "Existing series/parallel regressions, KVL/KCL and lead/lag checks remain passing",
-    "live": true
+    "live": true,
+    "href": "../phasor-lab/"
   },
   {
     "id": "complex-power",
@@ -188,11 +200,12 @@
     "visual": "Power triangle, instantaneous power and P/Q/S values",
     "challenge": "Reduce reactive power without changing useful resistive power",
     "prerequisite": "Phasors; RMS",
-    "priority": "P0",
+    "priority": "LIVE",
     "complexity": "M",
     "lab": "6 (extension)",
     "check": "S=VI*; |S|²=P²+Q²; passive inductor Q positive and capacitor Q negative",
-    "live": false
+    "live": true,
+    "href": "lessons/complex-power/"
   },
   {
     "id": "first-order-transients",
@@ -203,11 +216,12 @@
     "visual": "Time waveform, initial/final values, τ cursor and energy",
     "challenge": "Locate 63.2% of the total change at one time constant",
     "prerequisite": "KVL/KCL; exponential functions",
-    "priority": "P0",
+    "priority": "LIVE",
     "complexity": "M",
     "lab": "4; 7",
     "check": "RC τ=RthC; RL τ=L/Rth; state continuity and t=0/∞ limits correct",
-    "live": false
+    "live": true,
+    "href": "lessons/first-order-transients/"
   },
   {
     "id": "rlc-transients",
@@ -222,7 +236,8 @@
     "complexity": "L",
     "lab": "4 (extension)",
     "check": "Series RLC critical R=2√(L/C); state continuity and energy balance verified",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "differential-model",
@@ -237,7 +252,8 @@
     "complexity": "M",
     "lab": "4; 5 (support)",
     "check": "Model agrees with analytic first-order response; solver converges under timestep refinement",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "resonance-bandwidth",
@@ -248,11 +264,12 @@
     "visual": "Frequency sweep, f0 marker, half-power points and reactive cancellation",
     "challenge": "Compare series maximum current with ideal parallel minimum current",
     "prerequisite": "Phasor Lab",
-    "priority": "P0",
+    "priority": "LIVE",
     "complexity": "M",
     "lab": "5; 8",
     "check": "f0=1/(2π√LC); define output before BW/Q; correct ideal series versus shunt-R parallel formulas",
-    "live": false
+    "live": true,
+    "href": "lessons/resonance-bandwidth/"
   },
   {
     "id": "bode-filters",
@@ -267,7 +284,8 @@
     "complexity": "M",
     "lab": "5; 8 (support)",
     "check": "H(jω) validated; first-order cutoff −3.0103 dB; asymptotic slope ±20 dB/decade",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "semiconductor-carriers",
@@ -282,7 +300,8 @@
     "complexity": "M",
     "lab": "9 (pre-lab)",
     "check": "Use qualitative labels unless calibrated parameters justify numerical carrier estimates",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "pn-diode",
@@ -297,7 +316,8 @@
     "complexity": "M",
     "lab": "9",
     "check": "No exponential overflow; series resistance limits current; model assumptions visible",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "zener-regulator",
@@ -312,7 +332,8 @@
     "complexity": "M",
     "lab": "9",
     "check": "KCL and resistor dissipation valid; knee/current-limit conditions handled",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "opto-devices",
@@ -327,7 +348,8 @@
     "complexity": "L",
     "lab": "9 (LED); optical devices extension",
     "check": "Current/power bounded; optical/solar models identify illustrative versus calibrated quantities",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "bjt-characteristics",
@@ -342,7 +364,8 @@
     "complexity": "M",
     "lab": "10 (pre-lab)",
     "check": "No active-region formula beyond compliance; terminal current continuity maintained",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "mosfet-characteristics",
@@ -357,7 +380,8 @@
     "complexity": "M",
     "lab": "11 (pre-lab)",
     "check": "Region boundaries continuous within chosen model; simplified square-law limitations stated",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "rectifiers",
@@ -372,7 +396,8 @@
     "complexity": "L",
     "lab": "No direct listed experiment",
     "check": "Ideal waveform mean and bridge diode drops verified; capacitor charging solved consistently",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "transistor-bias",
@@ -387,7 +412,8 @@
     "complexity": "M",
     "lab": "10 (support)",
     "check": "Divider loading included; region checked before reporting active-region solution",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "bjt-switch",
@@ -402,7 +428,8 @@
     "complexity": "M",
     "lab": "10",
     "check": "Saturation/drive limits enforced; loss calculation agrees with VI; inductive model isolated if added",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "mosfet-switch",
@@ -417,7 +444,8 @@
     "complexity": "M",
     "lab": "11",
     "check": "On-state loss=I²RDS(on); supported gate-drive assumptions explicit",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "thyristor-family",
@@ -432,7 +460,8 @@
     "complexity": "L",
     "lab": "12",
     "check": "Latching/holding currents differentiated; AC zero-current commutation and device polarity verified",
-    "live": false
+    "live": false,
+    "href": ""
   },
   {
     "id": "ujt-switching",
@@ -447,6 +476,7 @@
     "complexity": "L",
     "lab": "12 (extension)",
     "check": "Peak/valley state transitions defined; simplified timing law used only in its valid approximation",
-    "live": false
+    "live": false,
+    "href": ""
   }
 ]
