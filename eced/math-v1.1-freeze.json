@@ -1,8 +1,8 @@
 {
-  "version": "1.1.1",
+  "version": "1.2.0",
   "date": "2026-11-04",
   "status": "frozen",
-  "previous_snapshot": "5bf05e8c1d62e076dac6638e0875a1950ca24adc",
+  "previous_snapshot": "6f5369c72724e6a2a2dba3cfd73f20dadf5014da",
   "scope": {
     "live_course_topics": 15,
     "device_pages": 25,
@@ -19,7 +19,8 @@
     "TeX regression cases",
     "phone and desktop visual review",
     "A4 print review",
-    "Workbook download links absent from hub and Phasor Lab"
+    "Workbook download links absent from hub and Phasor Lab",
+    "Landing page option 3 passed design, interaction and responsive review"
   ],
   "sha256": {
     "devices/01-resistor.html": "2cb5291de63e346268936c26a9dd02cc8089cde8afd0aea6bac9b2b93b92d8f2",
@@ -50,7 +51,7 @@
     "eced/ECED_Typeset_Workbook.pdf": "89f326e3e3180387bcbe16b76daf73d5b71d3a016c272ebcc18d19691a4c513d",
     "eced/implementation-plan.html": "9fefc80d7b702d888b6d49a42aea91f8baa81fa4202d177cc4123c750ac52b3c",
     "eced/implementation-plan.md": "80979f7fe5f6cfb99684bc432329be1baacd9b9c1392a41c88ca8a0766fcc38b",
-    "eced/index.html": "8b33f0e2d32d9bb47aefa6459e5b2a9167f7e6e318552b6301864a17460c223f",
+    "eced/index.html": "bfbf96e48ad2bae21cb9c0446e6c34efc4ce57b8265c8950fbbc4b51b4031e37",
     "eced/lessons/complex-power/index.html": "a5eec2e9182e2b8ae9cda1280a0bb7f718681e1bff38315c66b77d152006a4d1",
     "eced/lessons/first-order-transients/index.html": "433e2b249c69bdce7cf23d4094be8828f4e1dee64d78fbe48473a4d4ee3f046e",
     "eced/lessons/kirchhoff-laws/index.html": "cf8cb27be3678f6870c2fbb8c8a87549a49aaa51ed8932de4bb667d25d356cc7",
@@ -94,7 +95,15 @@
     "shared/vendor/katex-0.16.22/katex.min.css": "b075123b50e51a0a7819b49efa2a62bb05bc7dac04b0d65a9a3799c2211ea48f",
     "shared/vendor/katex-0.16.22/katex.min.js": "e8d885505949f3a5f4abdd5dd0d53696bd1371ad26ffbf4f310dcd77c8cdae89",
     "shared/vendor/katex-0.16.22/LICENSE": "766ccc1f306c885aa45542a9846bbd0a505b27a0374f146778171c2254ce18e3",
-    "sw.js": "3e292977973240f9af1e5eb8c58d987a883e53b696a9e69dd32812f3fd1a1edb"
+    "sw.js": "3279ee7a50371d1779ed9f3a4a3c834b322632eed1b20fd9fd2bfbeac7f1ce99",
+    "eced/landing-v2.css": "fe66c1c4e5a1b9b7b218f21486c82e110ffc91cb1432197d11213282aea7cae2",
+    "eced/landing-v2.js": "73f9184b96fc6347686cddbb3e6990f6151eb3805d1dd80bc9787a6f90f58c7e",
+    "eced/assets/s-parthasarathi.png": "aeb16bee7bba1bdd827ba694a520037dce0ed0c6618cb4a3b07be011cc414f4b",
+    "eced/assets/pulse-24.svg": "1c638a9d5d5b58579a302d901ea8887ebb3bbb8f2f239e2be1dfd6b70ba31628",
+    "eced/assets/arrow-right-16.svg": "a1f687122417c38a382435c208d96776e7b9361b89aa114d1249fc487fff8838",
+    "eced/assets/octicons-LICENSE": "da259c8bd0de62713ccdcf88910aebca810644f98c2c912bad814fc79ea778df",
+    "eced/landing-v2-review.md": "6be7409b7441df27ac24d81b034a6b7a3676aef0d1c5858dd772a8fdd71001a6",
+    "eced/landing-v2-freeze.json": "4184644985a7e1ec98b51c26b2bd338ec686dca0ff1c4229f60808020a4db499"
   },
-  "patch_notes": "Removed the 47-page workbook download links from the hub and Phasor Lab at the author\u2019s request. Landing-page redesign is a separate pending change."
+  "patch_notes": "Landing page redesigned to the selected guided learning path, with original educator portrait and details. Workbook links remain removed. Circuit lesson assets are unchanged."
 }

@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "date": "2026-11-04",
+  "status": "frozen",
+  "selected_design": "Third displayed option: guided learning path",
+  "previous_snapshot": "6f5369c72724e6a2a2dba3cfd73f20dadf5014da",
+  "checks": [
+    "six module filters",
+    "15 live and 15 planned lessons",
+    "search, empty state, clear, details",
+    "lesson navigation and return paths",
+    "375/390/768/1280/1440px layouts",
+    "original portrait and official icons loaded",
+    "zero browser errors",
+    "side-by-side design review passed"
+  ],
+  "sha256": {
+    "eced/index.html": "bfbf96e48ad2bae21cb9c0446e6c34efc4ce57b8265c8950fbbc4b51b4031e37",
+    "eced/landing-v2.css": "fe66c1c4e5a1b9b7b218f21486c82e110ffc91cb1432197d11213282aea7cae2",
+    "eced/landing-v2.js": "73f9184b96fc6347686cddbb3e6990f6151eb3805d1dd80bc9787a6f90f58c7e",
+    "eced/assets/s-parthasarathi.png": "aeb16bee7bba1bdd827ba694a520037dce0ed0c6618cb4a3b07be011cc414f4b",
+    "eced/assets/pulse-24.svg": "1c638a9d5d5b58579a302d901ea8887ebb3bbb8f2f239e2be1dfd6b70ba31628",
+    "eced/assets/arrow-right-16.svg": "a1f687122417c38a382435c208d96776e7b9361b89aa114d1249fc487fff8838",
+    "eced/assets/octicons-LICENSE": "da259c8bd0de62713ccdcf88910aebca810644f98c2c912bad814fc79ea778df",
+    "eced/landing-v2-review.md": "6be7409b7441df27ac24d81b034a6b7a3676aef0d1c5858dd772a8fdd71001a6",
+    "sw.js": "3279ee7a50371d1779ed9f3a4a3c834b322632eed1b20fd9fd2bfbeac7f1ce99"
+  }
+}

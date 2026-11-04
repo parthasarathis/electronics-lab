@@ -1,4 +1,4 @@
-const CACHE = 'eleclab-math-v1.1';
+const CACHE = 'eleclab-landing-v2';
 const SHELL = [
   './',
   './index.html',
