@@ -1,0 +1,22 @@
+{
+  "version": "1.0.1",
+  "date": "2026-11-04",
+  "status": "frozen",
+  "module": 4,
+  "live_lessons": 5,
+  "tests": 71,
+  "sha256": {
+    "eced/lessons/rlc-transients/index.html": "03bc107466f457e0ee61af5275ac0aaf4aec8b29b59aa1729cf4efd09dafa059",
+    "eced/lessons/differential-model/index.html": "e390859b799d5bc8681401b65b950efa203f14d922e597a6e40f727529bed0f7",
+    "eced/lessons/bode-filters/index.html": "aee9e422cf3ea65aed09a528670bc35f69250974dbe73968434ea3b98cf50cc9",
+    "eced/shared/module4-models.js": "864605513539c4a711bf68570baa914888ef3d9412e2a4f301facc1d39f9cbcb",
+    "eced/shared/module4-ui.js": "b0bb9762705733777b7ca7b72e84aac27a4a42cea305aa5827850f18b67fc2e1",
+    "eced/shared/module4.css": "b4d84488b20cd8054876598554fe12bd1621f1b9a5a10dd1dbfc6401a8d00966",
+    "eced/lessons.json": "0fde8e53e1aa5f6bcdb5f12f4a0c38c442a72436067477e8acd39fb0dd7d6b3d",
+    "eced/index.html": "67665d3687fae2cb30e4b7920527346735bd2d2918e13cff7fefd6d90fcaf1be",
+    "eced/implementation-plan.html": "acb9758b73795ce1693514e4e61fbd9b2636de77ff9d6ff0ed8433b6731466de",
+    "eced/implementation-plan.md": "9959ddb6b8e9b81d1a58d9072ec332e40103a5acd09d3078fe493d416a8799ab",
+    "sw.js": "ed56b86f3316e000f9ff52e4345f5298e45afb637afa531e856e92f7e6a93bd0",
+    "eced/module4-review.md": "eb22a99f6a5aa84c46c2f8181c6694981c9b974a9e40cff5fbc882df9bb1e302"
+  }
+}

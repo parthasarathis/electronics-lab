@@ -4,7 +4,7 @@ Electrical circuits and electronic devices · B.E. Mechatronics Engineering · 2
 
 Six theory modules, 24 lecture hours and 2 theory credits. The laboratory has 12 experiments, 3 practical hours and 1.5 credits.
 
-Fifteen interactive lessons are available; fifteen more topics are planned.
+Eighteen interactive lessons are available; twelve more topics are planned.
 
 ## DC circuit fundamentals
 
@@ -36,13 +36,13 @@ Module 3 · 4 lecture hours · 3 live lessons
 
 ## Transients and frequency response
 
-Module 4 · 4 lecture hours · 2 live lessons
+Module 4 · 4 lecture hours · 5 live lessons
 
 - RC and RL transients — available
-- RLC damping and step response — planned
-- From circuit to differential equation — planned
+- RLC damping and step response — available
+- From circuit to differential equation — available
 - Resonance, bandwidth and Q — available
-- Bode plots and frequency response — planned
+- Bode plots and frequency response — available
 
 ## Semiconductor devices
 

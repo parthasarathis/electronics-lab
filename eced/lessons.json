@@ -274,12 +274,15 @@
     "visual": "Underdamped, critically damped and overdamped traces",
     "challenge": "Find the resistance that removes oscillation without slow overdamping",
     "prerequisite": "First-order transients; second-order equations",
-    "priority": "P1",
+    "priority": "LIVE",
     "complexity": "L",
     "lab": "4 (extension)",
     "check": "Series RLC critical R=2√(L/C); state continuity and energy balance verified",
-    "live": false,
-    "href": ""
+    "live": true,
+    "href": "lessons/rlc-transients/",
+    "version": "1.0.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "differential-model",
@@ -290,12 +293,15 @@
     "visual": "Circuit law → state variables → differential equation → numerical trace",
     "challenge": "Choose the correct derivative term for each component",
     "prerequisite": "KVL/KCL; derivatives",
-    "priority": "P2",
+    "priority": "LIVE",
     "complexity": "M",
     "lab": "4; 5 (support)",
     "check": "Model agrees with analytic first-order response; solver converges under timestep refinement",
-    "live": false,
-    "href": ""
+    "live": true,
+    "href": "lessons/differential-model/",
+    "version": "1.0.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "resonance-bandwidth",
@@ -325,12 +331,15 @@
     "visual": "Magnitude in dB and unwrapped phase with cutoff cursor",
     "challenge": "Explain why gain depends on the selected output node",
     "prerequisite": "Complex impedance; logarithms",
-    "priority": "P1",
+    "priority": "LIVE",
     "complexity": "M",
     "lab": "5; 8 (support)",
     "check": "H(jω) validated; first-order cutoff −3.0103 dB; asymptotic slope ±20 dB/decade",
-    "live": false,
-    "href": ""
+    "live": true,
+    "href": "lessons/bode-filters/",
+    "version": "1.0.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "semiconductor-carriers",

@@ -1,12 +1,12 @@
 {
-  "version": "1.3.0",
+  "version": "1.4.0",
   "date": "2026-11-04",
   "status": "frozen",
-  "previous_snapshot": "2aaa0a2e924ec5109035cc11f2a910683f91efc4",
+  "previous_snapshot": "e5f13b6b2b45694d2de9d4cb352f85e987be50ba",
   "scope": {
-    "live_course_topics": 15,
+    "live_course_topics": 18,
     "device_pages": 25,
-    "equation_pages": 40,
+    "equation_pages": 43,
     "workbook_pages": 47
   },
   "checks": [
@@ -21,7 +21,8 @@
     "A4 print review",
     "Workbook download links absent from hub and Phasor Lab",
     "Landing page option 3 passed design, interaction and responsive review",
-    "Lab preparation, clean overview, navigation and local-path audit passed"
+    "Lab preparation, clean overview, navigation and local-path audit passed",
+    "Module 4 complete: 71 model/catalogue checks; desktop/mobile browser review; new assets v1.0.1."
   ],
   "sha256": {
     "devices/01-resistor.html": "2cb5291de63e346268936c26a9dd02cc8089cde8afd0aea6bac9b2b93b92d8f2",
@@ -50,9 +51,9 @@
     "devices/24-n-jfet.html": "5d1122bca27017072edc0934ec320137271e08ceaa3f6eda316acb8607bbf26c",
     "devices/25-p-jfet.html": "bc77ed96454b958a02f6cd8d31e29b5a50e042004871c518faea10c5816fdc09",
     "eced/ECED_Typeset_Workbook.pdf": "89f326e3e3180387bcbe16b76daf73d5b71d3a016c272ebcc18d19691a4c513d",
-    "eced/implementation-plan.html": "fce5d824340b490c041b0dc50a6c798edd4aa0a8cdafa7dbd3189265bbb7131f",
-    "eced/implementation-plan.md": "106d6c9c389a29a82b2e48ea310af734911794f278534c6fc8dec1750d6f94e9",
-    "eced/index.html": "1e4b247ea791e76a635e0287817195f15d88676ec159227d3cc85942269d8d03",
+    "eced/implementation-plan.html": "acb9758b73795ce1693514e4e61fbd9b2636de77ff9d6ff0ed8433b6731466de",
+    "eced/implementation-plan.md": "9959ddb6b8e9b81d1a58d9072ec332e40103a5acd09d3078fe493d416a8799ab",
+    "eced/index.html": "67665d3687fae2cb30e4b7920527346735bd2d2918e13cff7fefd6d90fcaf1be",
     "eced/lessons/complex-power/index.html": "f92693f363bea91f24e749db1a7ec6caba044f49f5ae932b6a08ff83c58bf865",
     "eced/lessons/first-order-transients/index.html": "2927fb7e93d17b31aa88ccc9f672240570241123391c90340b4fe5ecf9ad0d6e",
     "eced/lessons/kirchhoff-laws/index.html": "b6a6700bbf079a1128c3b1d7060a976680356f43adea21dac2004c723e29e1dc",
@@ -67,7 +68,7 @@
     "eced/lessons/superposition/index.html": "e951e4aa76f106d08dda31d6111ff120eb2b14e5a80533411cb0dbc63eab33f6",
     "eced/lessons/thevenin-norton/index.html": "4313f9ccf5d2c115f88e860e6689098c4881b5c9f1cb874bdf6be3552a6d2261",
     "eced/lessons/wye-delta/index.html": "7f9b4064b96b04692460efa3546f575805a3439c4739ebc5037f767ae96a0a2c",
-    "eced/lessons.json": "60452a2d06f123ee9688d967de67320aae79efeb94bc5498c29bc27fc5dbd4e6",
+    "eced/lessons.json": "0fde8e53e1aa5f6bcdb5f12f4a0c38c442a72436067477e8acd39fb0dd7d6b3d",
     "eced/math-v1.1-review.md": "bb9b2f34d8df458af9607c38f09146fcaf381dd1c11c7b49600e018ec4242c03",
     "phasor-lab/index.html": "aaee678822f2badb5da6affd2fe3dbf4ee996fcc5d606a608aa4ca676f85e060",
     "shared/MATH-AUTHORING.md": "2fb6419aebf54d085d3cae771c38155e9d41d03413b0cc085a9830598acf74c2",
@@ -96,7 +97,7 @@
     "shared/vendor/katex-0.16.22/katex.min.css": "b075123b50e51a0a7819b49efa2a62bb05bc7dac04b0d65a9a3799c2211ea48f",
     "shared/vendor/katex-0.16.22/katex.min.js": "e8d885505949f3a5f4abdd5dd0d53696bd1371ad26ffbf4f310dcd77c8cdae89",
     "shared/vendor/katex-0.16.22/LICENSE": "766ccc1f306c885aa45542a9846bbd0a505b27a0374f146778171c2254ce18e3",
-    "sw.js": "ca98d583b18a36a873052854143914d63e84cd6252a88f4b568032157c51cd7b",
+    "sw.js": "ed56b86f3316e000f9ff52e4345f5298e45afb637afa531e856e92f7e6a93bd0",
     "eced/landing-v2.css": "fe66c1c4e5a1b9b7b218f21486c82e110ffc91cb1432197d11213282aea7cae2",
     "eced/landing-v2.js": "73f9184b96fc6347686cddbb3e6990f6151eb3805d1dd80bc9787a6f90f58c7e",
     "eced/assets/s-parthasarathi.png": "aeb16bee7bba1bdd827ba694a520037dce0ed0c6618cb4a3b07be011cc414f4b",
@@ -110,7 +111,15 @@
     "eced/lab-preparation/experiments.json": "96d328e37dfb62d7445f77527ba83a150e2bb1f5f8571043d980d87c284fe20a",
     "eced/lab-preparation/preparation-v1.js": "557efb299704950db5984f66b7de1e1c350b2a457c4961a8d5fe1efd097f2f73",
     "eced/lab-preparation-review.md": "e2e9a5ebe2795b4a9c0db3be8e041a66254403a100c541141ae1a4036d28fe4f",
-    "eced/lab-preparation-freeze.json": "5d54b5e55dd02e955e3b6bd12e79dfc3c5957212f3c43d2d235c63ebadd6bd55"
+    "eced/lab-preparation-freeze.json": "5d54b5e55dd02e955e3b6bd12e79dfc3c5957212f3c43d2d235c63ebadd6bd55",
+    "eced/lessons/rlc-transients/index.html": "03bc107466f457e0ee61af5275ac0aaf4aec8b29b59aa1729cf4efd09dafa059",
+    "eced/lessons/differential-model/index.html": "e390859b799d5bc8681401b65b950efa203f14d922e597a6e40f727529bed0f7",
+    "eced/lessons/bode-filters/index.html": "aee9e422cf3ea65aed09a528670bc35f69250974dbe73968434ea3b98cf50cc9",
+    "eced/shared/module4-models.js": "864605513539c4a711bf68570baa914888ef3d9412e2a4f301facc1d39f9cbcb",
+    "eced/shared/module4-ui.js": "b0bb9762705733777b7ca7b72e84aac27a4a42cea305aa5827850f18b67fc2e1",
+    "eced/shared/module4.css": "b4d84488b20cd8054876598554fe12bd1621f1b9a5a10dd1dbfc6401a8d00966",
+    "eced/module4-review.md": "eb22a99f6a5aa84c46c2f8181c6694981c9b974a9e40cff5fbc882df9bb1e302",
+    "eced/module4-freeze.json": "f818c72a8e571c78cb94413dbef20ae5ba3748c74a69cd7bae8586efab3ef67d"
   },
-  "patch_notes": "Added twelve laboratory preparation guides without manual downloads, cleaned the student-facing course overview and linked preparation from the hub and lessons. Calculation scripts are unchanged."
+  "patch_notes": "Complete Module 4; preserve all earlier lesson models, lab preparation and landing design."
 }
