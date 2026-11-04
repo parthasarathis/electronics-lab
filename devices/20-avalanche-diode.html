@@ -6,7 +6,7 @@
 :root{--accent:#ff6600;--accent2:#ff9944;--accent-rgb:255,102,0}
 #curve-section canvas,.curve-panel-main canvas{height:200px}
 </style>
-</head><body><div id="app">
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head><body><div id="app">
 
 <div id="header">
   <div id="header-left">
@@ -67,11 +67,11 @@
     <div class="panel">
       <div class="ptitle">Physics</div>
       <div class="frow">
-        <div class="fml"><div class="eq">E_max = sqrt(2·q·Nd·Vr)</div><div class="fd">Peak Field</div></div>
+        <div class="fml"><div class="eq" data-tex="E_{\max}=\sqrt{2qN_dV_r}">E_max = sqrt(2·q·Nd·Vr)</div><div class="fd">Peak Field</div></div>
         <div class="fsep">|</div>
-        <div class="fml"><div class="eq">M(V) = 1/(1-(V/VBR)^n)</div><div class="fd">Multiplication</div></div>
+        <div class="fml"><div class="eq" data-tex="M(V)=\frac{1}{1-(V/V_{BR})^n}">M(V) = 1/(1-(V/VBR)^n)</div><div class="fd">Multiplication</div></div>
         <div class="fsep">|</div>
-        <div class="fml"><div class="eq">Ia = M·Il</div><div class="fd">Impact Current</div></div>
+        <div class="fml"><div class="eq" data-tex="I_a=MI_l">Ia = M·Il</div><div class="fd">Impact Current</div></div>
       </div>
     </div>
 
@@ -393,3 +393,4 @@ animate();
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

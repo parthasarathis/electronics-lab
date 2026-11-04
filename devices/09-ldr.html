@@ -9,7 +9,7 @@
 <style>
 :root{--accent:#ffee44;--accent2:#ffff88;--accent-rgb:255,238,68}
 </style>
-</head>
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head>
 <body>
 <div id="app">
 <div id="header">
@@ -47,11 +47,11 @@
     <div class="panel">
       <div class="ptitle">Governing Equations</div>
       <div class="frow">
-        <div class="fml"><div class="eq">R = k·E<sup>-γ</sup></div><div class="fd">LDR Model</div></div>
+        <div class="fml"><div class="eq" data-tex="R=kE^{-\gamma}">R = k·E<sup>-γ</sup></div><div class="fd">LDR Model</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">V<sub>out</sub> = V<sub>cc</sub>·R₂/(R+R₂)</div><div class="fd">Voltage Divider</div></div>
+        <div class="fml"><div class="eq" data-tex="V_{\mathrm{out}}=\frac{V_{CC}R_2}{R+R_2}">V<sub>out</sub> = V<sub>cc</sub>·R₂/(R+R₂)</div><div class="fd">Voltage Divider</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">γ ≈ 0.7–0.9</div><div class="fd">Gamma Coeff</div></div>
+        <div class="fml"><div class="eq" data-tex="\gamma\approx0.7\text{–}0.9">γ ≈ 0.7–0.9</div><div class="fd">Gamma Coeff</div></div>
       </div>
     </div>
 
@@ -300,3 +300,4 @@ animate(0);
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

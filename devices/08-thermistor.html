@@ -63,7 +63,7 @@
   opacity: 1;
 }
 </style>
-</head>
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head>
 <body>
 <div id="app">
 
@@ -111,11 +111,11 @@
     <div class="panel">
       <div class="ptitle">Governing Equations</div>
       <div class="frow">
-        <div class="fml"><div class="eq">R(T) = R₀·exp(B·(1/T - 1/T₀))</div><div class="fd">Steinhart–Hart</div></div>
+        <div class="fml"><div class="eq" data-tex="R(T)=R_0\exp\!\left[B\left(\frac1T-\frac1{T_0}\right)\right]">R(T) = R₀·exp(B·(1/T - 1/T₀))</div><div class="fd">Steinhart–Hart</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">Vdiv = Vcc·Rth/(R+Rth)</div><div class="fd">Divider</div></div>
+        <div class="fml"><div class="eq" data-tex="V_{\mathrm{div}}=\frac{V_{CC}R_{\mathrm{th}}}{R+R_{\mathrm{th}}}">Vdiv = Vcc·Rth/(R+Rth)</div><div class="fd">Divider</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">dV/dT = -K·Vcc</div><div class="fd">Sensitivity</div></div>
+        <div class="fml"><div class="eq" data-tex="\frac{\mathrm dV}{\mathrm dT}=-KV_{CC}">dV/dT = -K·Vcc</div><div class="fd">Sensitivity</div></div>
       </div>
     </div>
 
@@ -419,3 +419,4 @@ updateCalc();
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

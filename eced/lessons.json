@@ -14,8 +14,9 @@
     "check": "I=V/R; divider output agrees with direct circuit solution",
     "live": true,
     "href": "lessons/ohms-law/",
-    "version": "1.0.0",
-    "frozen": true
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "kirchhoff-laws",
@@ -31,7 +32,10 @@
     "lab": "1",
     "check": "KCL and KVL residuals below 1e-9 of the solution scale",
     "live": true,
-    "href": "lessons/kirchhoff-laws/"
+    "href": "lessons/kirchhoff-laws/",
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "node-analysis",
@@ -48,8 +52,9 @@
     "check": "Two-node solution matches an independent linear solver; reject singular networks",
     "live": true,
     "href": "lessons/node-analysis/",
-    "version": "1.0.0",
-    "frozen": true
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "mesh-analysis",
@@ -66,8 +71,9 @@
     "check": "Both mesh voltage residuals vanish; branch currents match nodal analysis",
     "live": true,
     "href": "lessons/mesh-analysis/",
-    "version": "1.0.0",
-    "frozen": true
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "source-transformation",
@@ -84,8 +90,9 @@
     "check": "Vs=IsRs; terminal voltage and current agree for at least three loads",
     "live": true,
     "href": "lessons/source-transformation/",
-    "version": "1.0.0",
-    "frozen": true
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "superposition",
@@ -102,8 +109,9 @@
     "check": "Sum of source contributions equals full linear circuit solution; ideal source deactivation correct",
     "live": true,
     "href": "lessons/superposition/",
-    "version": "1.0.0",
-    "frozen": true
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "thevenin-norton",
@@ -120,8 +128,9 @@
     "check": "Vth=InRth; original, Thevenin and Norton load responses agree",
     "live": true,
     "href": "lessons/thevenin-norton/",
-    "version": "1.0.0",
-    "frozen": true
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "reciprocity",
@@ -138,8 +147,9 @@
     "check": "Transfer responses agree after swapping source/measurement in valid single-source networks",
     "live": true,
     "href": "lessons/reciprocity/",
-    "version": "1.0.0",
-    "frozen": true
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "maximum-power",
@@ -156,8 +166,9 @@
     "check": "Peak at RL=Rth for resistive DC; efficiency at that point is 50%",
     "live": true,
     "href": "lessons/maximum-power/",
-    "version": "1.0.0",
-    "frozen": true
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "wye-delta",
@@ -174,8 +185,9 @@
     "check": "Round-trip conversion and all three terminal resistances agree",
     "live": true,
     "href": "lessons/wye-delta/",
-    "version": "1.0.0",
-    "frozen": true
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "sinusoid-rms",
@@ -192,8 +204,9 @@
     "check": "Sine RMS=peak/√2; period=1/f; degree/radian conversion consistent",
     "live": true,
     "href": "lessons/sinusoid-rms/",
-    "version": "1.0.0",
-    "frozen": true
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "phasor-lab",
@@ -209,7 +222,10 @@
     "lab": "6; supports 5 and 8",
     "check": "Existing series/parallel regressions, KVL/KCL and lead/lag checks remain passing",
     "live": true,
-    "href": "../phasor-lab/"
+    "href": "../phasor-lab/",
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "complex-power",
@@ -225,7 +241,10 @@
     "lab": "6 (extension)",
     "check": "S=VI*; |S|²=P²+Q²; passive inductor Q positive and capacitor Q negative",
     "live": true,
-    "href": "lessons/complex-power/"
+    "href": "lessons/complex-power/",
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "first-order-transients",
@@ -241,7 +260,10 @@
     "lab": "4; 7",
     "check": "RC τ=RthC; RL τ=L/Rth; state continuity and t=0/∞ limits correct",
     "live": true,
-    "href": "lessons/first-order-transients/"
+    "href": "lessons/first-order-transients/",
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "rlc-transients",
@@ -289,7 +311,10 @@
     "lab": "5; 8",
     "check": "f0=1/(2π√LC); define output before BW/Q; correct ideal series versus shunt-R parallel formulas",
     "live": true,
-    "href": "lessons/resonance-bandwidth/"
+    "href": "lessons/resonance-bandwidth/",
+    "version": "1.1.0",
+    "frozen": true,
+    "math": "KaTeX 0.16.22"
   },
   {
     "id": "bode-filters",

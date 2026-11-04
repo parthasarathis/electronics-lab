@@ -6,7 +6,7 @@
 :root{--accent:#44aaff;--accent2:#88ccff;--accent-rgb:68,170,255}
 #curve-section canvas,.curve-panel-main canvas{height:200px}
 </style>
-</head><body><div id="app">
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head><body><div id="app">
 
 <div id="header">
   <div id="header-left">
@@ -67,11 +67,11 @@
     <div class="panel">
       <div class="ptitle">Physics</div>
       <div class="frow">
-        <div class="fml"><div class="eq">Ic = β·Ib</div><div class="fd">Active Mode</div></div>
+        <div class="fml"><div class="eq" data-tex="I_C=\beta I_B">Ic = β·Ib</div><div class="fd">Active Mode</div></div>
         <div class="fsep">|</div>
-        <div class="fml"><div class="eq">Vbe ≈ 0.6–0.7V</div><div class="fd">Forward Drop</div></div>
+        <div class="fml"><div class="eq" data-tex="V_{BE}\approx0.6\text{–}0.7\,\mathrm V">Vbe ≈ 0.6–0.7V</div><div class="fd">Forward Drop</div></div>
         <div class="fsep">|</div>
-        <div class="fml"><div class="eq">Vce(sat) ≈ 0.2V</div><div class="fd">Saturation</div></div>
+        <div class="fml"><div class="eq" data-tex="V_{CE(\mathrm{sat})}\approx0.2\,\mathrm V">Vce(sat) ≈ 0.2V</div><div class="fd">Saturation</div></div>
       </div>
     </div>
 
@@ -385,3 +385,4 @@ animate();
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

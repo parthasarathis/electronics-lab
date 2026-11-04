@@ -9,7 +9,7 @@
 <style>
 :root{--accent:#ffcc33;--accent2:#ffee88;--accent-rgb:255,204,51}
 </style>
-</head>
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head>
 <body>
 <div id="app">
 
@@ -51,13 +51,13 @@
     <div class="panel">
       <div class="ptitle">Governing Equations</div>
       <div class="frow">
-        <div class="fml"><div class="eq">V = L·dI/dt</div><div class="fd">Back-EMF</div></div>
+        <div class="fml"><div class="eq" data-tex="V=L\frac{\mathrm dI}{\mathrm dt}">V = L·dI/dt</div><div class="fd">Back-EMF</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">E = ½LI²</div><div class="fd">Energy</div></div>
+        <div class="fml"><div class="eq" data-tex="E=\frac12 LI^2">E = ½LI²</div><div class="fd">Energy</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">XL = 2πfL</div><div class="fd">Reactance</div></div>
+        <div class="fml"><div class="eq" data-tex="X_L=2\pi fL">XL = 2πfL</div><div class="fd">Reactance</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">Q = XL/R</div><div class="fd">Quality</div></div>
+        <div class="fml"><div class="eq" data-tex="Q=\frac{X_L}{R}">Q = XL/R</div><div class="fd">Quality</div></div>
       </div>
     </div>
 
@@ -335,3 +335,4 @@ window.addEventListener('resize', drawCurve);
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

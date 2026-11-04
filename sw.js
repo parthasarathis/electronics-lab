@@ -1,4 +1,4 @@
-const CACHE = 'eleclab-v1';
+const CACHE = 'eleclab-math-v1.1';
 const SHELL = [
   './',
   './index.html',
@@ -54,3 +54,4 @@ self.addEventListener('fetch', e => {
     ).catch(() => caches.match('./offline.html'))
   );
 });
+

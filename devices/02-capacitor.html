@@ -9,7 +9,7 @@
 <style>
 :root{--accent:#33ffcc;--accent2:#88ffee;--accent-rgb:51,255,204}
 </style>
-</head>
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head>
 <body>
 <div id="app">
 
@@ -51,13 +51,13 @@
     <div class="panel">
       <div class="ptitle">Governing Equations</div>
       <div class="frow">
-        <div class="fml"><div class="eq">Q = C·V</div><div class="fd">Charge</div></div>
+        <div class="fml"><div class="eq" data-tex="Q=CV">Q = C·V</div><div class="fd">Charge</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">E = ½CV²</div><div class="fd">Energy</div></div>
+        <div class="fml"><div class="eq" data-tex="E=\frac12 CV^2">E = ½CV²</div><div class="fd">Energy</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">Xc = 1/(2πfC)</div><div class="fd">Reactance</div></div>
+        <div class="fml"><div class="eq" data-tex="X_C=\frac{1}{2\pi fC}">Xc = 1/(2πfC)</div><div class="fd">Reactance</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">τ = RC</div><div class="fd">Time Const</div></div>
+        <div class="fml"><div class="eq" data-tex="\tau=RC">τ = RC</div><div class="fd">Time Const</div></div>
       </div>
     </div>
 
@@ -366,3 +366,4 @@ window.addEventListener('resize', drawCurve);
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

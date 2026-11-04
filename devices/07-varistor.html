@@ -63,7 +63,7 @@
   opacity: 1;
 }
 </style>
-</head>
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head>
 <body>
 <div id="app">
 
@@ -111,11 +111,11 @@
     <div class="panel">
       <div class="ptitle">Governing Equations</div>
       <div class="frow">
-        <div class="fml"><div class="eq">V = Vc·(I/Ip)^(1/α)</div><div class="fd">Nonlinear I-V</div></div>
+        <div class="fml"><div class="eq" data-tex="V=V_C\left(\frac{I}{I_p}\right)^{1/\alpha}">V = Vc·(I/Ip)^(1/α)</div><div class="fd">Nonlinear I-V</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">P = V·I</div><div class="fd">Surge Power</div></div>
+        <div class="fml"><div class="eq" data-tex="P=VI">P = V·I</div><div class="fd">Surge Power</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">V ∝ I^(0.25)</div><div class="fd">Metal Oxide</div></div>
+        <div class="fml"><div class="eq" data-tex="V\propto I^{0.25}">V ∝ I^(0.25)</div><div class="fd">Metal Oxide</div></div>
       </div>
     </div>
 
@@ -419,3 +419,4 @@ updateCalc();
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

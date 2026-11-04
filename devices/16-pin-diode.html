@@ -6,7 +6,7 @@
 :root{--accent:#5588ff;--accent2:#88aaff;--accent-rgb:85,136,255}
 #curve-section canvas,.curve-panel-main canvas{height:200px}
 </style>
-</head><body><div id="app">
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head><body><div id="app">
 
 <div id="header">
   <div id="header-left">
@@ -63,11 +63,11 @@
     <div class="panel">
       <div class="ptitle">Physics</div>
       <div class="frow">
-        <div class="fml"><div class="eq">Cj = ε·A/Wᵢ</div><div class="fd">Junction Cap</div></div>
+        <div class="fml"><div class="eq" data-tex="C_j=\frac{\varepsilon A}{W_i}">Cj = ε·A/Wᵢ</div><div class="fd">Junction Cap</div></div>
         <div class="fsep">|</div>
-        <div class="fml"><div class="eq">Rs = Wᵢ²/(μτI)</div><div class="fd">RF Resistance</div></div>
+        <div class="fml"><div class="eq" data-tex="R_s=\frac{W_i^2}{\mu\tau I}">Rs = Wᵢ²/(μτI)</div><div class="fd">RF Resistance</div></div>
         <div class="fsep">|</div>
-        <div class="fml"><div class="eq">IL = 20·log(…)</div><div class="fd">Insert Loss</div></div>
+        <div class="fml"><div class="eq" data-tex="\mathrm{IL}=20\log(\ldots)">IL = 20·log(…)</div><div class="fd">Insert Loss</div></div>
       </div>
     </div>
 
@@ -359,3 +359,4 @@ updateUI();
 </script>
 <script src="../shared/nav.js"></script>
 </body></html>
+

@@ -139,7 +139,7 @@
       z-index: 5;
     }
   </style>
-</head>
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head>
 
 <body>
   <div id="app">
@@ -218,17 +218,17 @@
           <div class="ptitle">Governing Equations</div>
           <div class="frow">
             <div class="fml">
-              <div class="eq">V = I·R</div>
+              <div class="eq" data-tex="V=IR">V = I·R</div>
               <div class="fd">Ohm's Law</div>
             </div>
             <div class="fsep">·</div>
             <div class="fml">
-              <div class="eq">P = I²R</div>
+              <div class="eq" data-tex="P=I^2R">P = I²R</div>
               <div class="fd">Power</div>
             </div>
             <div class="fsep">·</div>
             <div class="fml">
-              <div class="eq">R(T) = R₀(1+αΔT)</div>
+              <div class="eq" data-tex="R(T)=R_0(1+\alpha\Delta T)">R(T) = R₀(1+αΔT)</div>
               <div class="fd">Tempco</div>
             </div>
           </div>

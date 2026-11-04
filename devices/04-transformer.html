@@ -9,7 +9,7 @@
 <style>
 :root{--accent:#ff8844;--accent2:#ffaa66;--accent-rgb:255,136,68}
 </style>
-</head>
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head>
 <body>
 <div id="app">
 
@@ -51,11 +51,11 @@
     <div class="panel">
       <div class="ptitle">Governing Equations</div>
       <div class="frow">
-        <div class="fml"><div class="eq">Vs/Vp = Ns/Np = n</div><div class="fd">Turns ratio</div></div>
+        <div class="fml"><div class="eq" data-tex="\frac{V_s}{V_p}=\frac{N_s}{N_p}=n">Vs/Vp = Ns/Np = n</div><div class="fd">Turns ratio</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">Ip/Is = Ns/Np</div><div class="fd">Current ratio</div></div>
+        <div class="fml"><div class="eq" data-tex="\frac{I_p}{I_s}=\frac{N_s}{N_p}">Ip/Is = Ns/Np</div><div class="fd">Current ratio</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">η = Pout/Pin</div><div class="fd">Efficiency</div></div>
+        <div class="fml"><div class="eq" data-tex="\eta=\frac{P_{\mathrm{out}}}{P_{\mathrm{in}}}">η = Pout/Pin</div><div class="fd">Efficiency</div></div>
       </div>
     </div>
 
@@ -339,3 +339,4 @@ window.addEventListener('resize', drawCurve);
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

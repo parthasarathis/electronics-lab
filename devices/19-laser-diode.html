@@ -6,7 +6,7 @@
 :root{--accent:#ff00ff;--accent2:#ff66ff;--accent-rgb:255,0,255}
 #curve-section canvas,.curve-panel-main canvas{height:200px}
 </style>
-</head><body><div id="app">
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head><body><div id="app">
 
 <div id="header">
   <div id="header-left">
@@ -67,11 +67,11 @@
     <div class="panel">
       <div class="ptitle">Physics</div>
       <div class="frow">
-        <div class="fml"><div class="eq">Ith = e·B/τ</div><div class="fd">Threshold</div></div>
+        <div class="fml"><div class="eq" data-tex="I_{\mathrm{th}}=\frac{eB}{\tau}">Ith = e·B/τ</div><div class="fd">Threshold</div></div>
         <div class="fsep">|</div>
-        <div class="fml"><div class="eq">Popt = ηs(If-Ith)</div><div class="fd">Lasing Power</div></div>
+        <div class="fml"><div class="eq" data-tex="P_{\mathrm{opt}}=\eta_s(I_f-I_{\mathrm{th}})">Popt = ηs(If-Ith)</div><div class="fd">Lasing Power</div></div>
         <div class="fsep">|</div>
-        <div class="fml"><div class="eq">Δλ < 1nm</div><div class="fd">Spectral Width</div></div>
+        <div class="fml"><div class="eq" data-tex="\Delta\lambda&lt;1\,\mathrm{nm}">Δλ < 1nm</div><div class="fd">Spectral Width</div></div>
       </div>
     </div>
 
@@ -386,3 +386,4 @@ animate();
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

@@ -6,7 +6,7 @@
 :root{--accent:#ffdd00;--accent2:#ffee66;--accent-rgb:255,221,0}
 #curve-section canvas,.curve-panel-main canvas{height:200px}
 </style>
-</head><body><div id="app">
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head><body><div id="app">
 
 <div id="header">
   <div id="header-left">
@@ -67,11 +67,11 @@
     <div class="panel">
       <div class="ptitle">Physics</div>
       <div class="frow">
-        <div class="fml"><div class="eq">Ip = R(λ)·P</div><div class="fd">Photocurrent</div></div>
+        <div class="fml"><div class="eq" data-tex="I_p=R(\lambda)P">Ip = R(λ)·P</div><div class="fd">Photocurrent</div></div>
         <div class="fsep">|</div>
-        <div class="fml"><div class="eq">R(λ) = η·e/hν</div><div class="fd">Responsivity</div></div>
+        <div class="fml"><div class="eq" data-tex="R(\lambda)=\frac{\eta e}{h\nu}">R(λ) = η·e/hν</div><div class="fd">Responsivity</div></div>
         <div class="fsep">|</div>
-        <div class="fml"><div class="eq">NEP = Pn/R</div><div class="fd">Noise Eq Power</div></div>
+        <div class="fml"><div class="eq" data-tex="\mathrm{NEP}=\frac{P_n}{R}">NEP = Pn/R</div><div class="fd">Noise Eq Power</div></div>
       </div>
     </div>
 
@@ -349,3 +349,4 @@ animate();
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

@@ -63,7 +63,7 @@
   opacity: 1;
 }
 </style>
-</head>
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head>
 <body>
 <div id="app">
 
@@ -111,11 +111,11 @@
     <div class="panel">
       <div class="ptitle">Governing Equations</div>
       <div class="frow">
-        <div class="fml"><div class="eq">f = 1/(2π√LC)</div><div class="fd">Resonance</div></div>
+        <div class="fml"><div class="eq" data-tex="f=\frac{1}{2\pi\sqrt{LC}}">f = 1/(2π√LC)</div><div class="fd">Resonance</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">Q = ω₀L/R</div><div class="fd">Quality</div></div>
+        <div class="fml"><div class="eq" data-tex="Q=\frac{\omega_0L}{R}">Q = ω₀L/R</div><div class="fd">Quality</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">Δf ∝ CL</div><div class="fd">Tuning</div></div>
+        <div class="fml"><div class="eq" data-tex="\Delta f\propto C_L">Δf ∝ CL</div><div class="fd">Tuning</div></div>
       </div>
     </div>
 
@@ -417,3 +417,4 @@ updateCalc();
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

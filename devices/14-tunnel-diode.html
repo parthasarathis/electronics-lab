@@ -10,7 +10,7 @@
 :root{--accent:#ff4488;--accent2:#ff88cc;--accent-rgb:255,68,136}
 #curve-section canvas,.curve-panel-main canvas{height:200px}
 </style>
-</head>
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head>
 <body>
 <div id="app">
 
@@ -67,11 +67,11 @@
     <div class="panel">
       <div class="ptitle">Governing Equations</div>
       <div class="frow">
-        <div class="fml"><div class="eq">I = Ip·sin(π·V/Vp)</div><div class="fd">NDR Region</div></div>
+        <div class="fml"><div class="eq" data-tex="I=I_p\sin\!\left(\frac{\pi V}{V_p}\right)">I = Ip·sin(π·V/Vp)</div><div class="fd">NDR Region</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">Rd = dV/dI &lt; 0</div><div class="fd">Negative Res.</div></div>
+        <div class="fml"><div class="eq" data-tex="R_d=\frac{\mathrm dV}{\mathrm dI}&lt;0">Rd = dV/dI &lt; 0</div><div class="fd">Negative Res.</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">T ∝ e^(−2W√E)</div><div class="fd">WKB Tunneling</div></div>
+        <div class="fml"><div class="eq" data-tex="T\propto e^{-2W\sqrt E}">T ∝ e^(−2W√E)</div><div class="fd">WKB Tunneling</div></div>
       </div>
     </div>
 
@@ -459,3 +459,4 @@ updateUI();
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

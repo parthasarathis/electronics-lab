@@ -10,7 +10,7 @@
 :root{--accent:#ff4488;--accent2:#ff88cc;--accent-rgb:255,68,136}
 #curve-section canvas,.curve-panel-main canvas{height:200px}
 </style>
-</head>
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head>
 <body>
 <div id="app">
 
@@ -67,11 +67,11 @@
     <div class="panel">
       <div class="ptitle">Governing Equations</div>
       <div class="frow">
-        <div class="fml"><div class="eq">Vz = Vz0 + Rz·Iz</div><div class="fd">Zener V</div></div>
+        <div class="fml"><div class="eq" data-tex="V_Z=V_{Z0}+R_ZI_Z">Vz = Vz0 + Rz·Iz</div><div class="fd">Zener V</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">Iz = (V − Vz)/Rs</div><div class="fd">Zener I</div></div>
+        <div class="fml"><div class="eq" data-tex="I_Z=\frac{V-V_Z}{R_s}">Iz = (V − Vz)/Rs</div><div class="fd">Zener I</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">Iout = Iz + Il</div><div class="fd">Current Sum</div></div>
+        <div class="fml"><div class="eq" data-tex="I_{\mathrm{out}}=I_Z+I_l">Iout = Iz + Il</div><div class="fd">Current Sum</div></div>
       </div>
     </div>
 
@@ -409,3 +409,4 @@ updateUI();
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

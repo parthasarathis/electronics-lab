@@ -1,3 +1,7 @@
+## Typography release 1.1 — 4 November 2026
+
+All 15 live course topics now use typeset mathematics; 25 existing device-reference pages are included. The course still has 15 live topics and 15 planned topics. The printable typeset workbook is available from the hub. See `math-v1.1-review.md` for checks, scope and historical freeze notes.
+
 ## Latest release status — Release B — 3 November 2026
 
 Fifteen lessons are now live. Release B adds Superposition, Thevenin/Norton, Reciprocity, Maximum Power Transfer and Wye–Delta. All five were verified, reviewed, improved and frozen as version 1.0.0. The planned lesson sets for Modules 1, 2 and 3 are available; fifteen lessons remain across Modules 4–6. See `release-b-review.md` and `release-b-freeze.json`. Faculty sign-off and student piloting remain separate.

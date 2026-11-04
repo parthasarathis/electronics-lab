@@ -72,7 +72,7 @@
   z-index: 5;
 }
 </style>
-</head>
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head>
 <body>
 <div id="app">
 
@@ -121,11 +121,11 @@
     <div class="panel">
       <div class="ptitle">Governing Equations</div>
       <div class="frow">
-        <div class="fml"><div class="eq">P = I²R</div><div class="fd">Heating</div></div>
+        <div class="fml"><div class="eq" data-tex="P=I^2R">P = I²R</div><div class="fd">Heating</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">t ∝ 1/I²</div><div class="fd">Blowdown</div></div>
+        <div class="fml"><div class="eq" data-tex="t\propto\frac{1}{I^2}">t ∝ 1/I²</div><div class="fd">Blowdown</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">I > IR ⟹ Melt</div><div class="fd">Trip</div></div>
+        <div class="fml"><div class="eq" data-tex="I&gt;I_R\Longrightarrow\text{melt}">I > IR ⟹ Melt</div><div class="fd">Trip</div></div>
       </div>
     </div>
 
@@ -459,3 +459,4 @@ updateCalc();
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

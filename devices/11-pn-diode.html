@@ -10,7 +10,7 @@
 :root{--accent:#ff4488;--accent2:#ff88cc;--accent-rgb:255,68,136}
 #curve-section canvas,.curve-panel-main canvas{height:200px}
 </style>
-</head>
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head>
 <body>
 <div id="app">
 
@@ -67,11 +67,11 @@
     <div class="panel">
       <div class="ptitle">Governing Equations</div>
       <div class="frow">
-        <div class="fml"><div class="eq">I = Is(e^(V/nVt) − 1)</div><div class="fd">Shockley</div></div>
+        <div class="fml"><div class="eq" data-tex="I=I_s\left(e^{V/(nV_T)}-1\right)">I = Is(e^(V/nVt) − 1)</div><div class="fd">Shockley</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">Vt = kT/q</div><div class="fd">Thermal</div></div>
+        <div class="fml"><div class="eq" data-tex="V_T=\frac{kT}{q}">Vt = kT/q</div><div class="fd">Thermal</div></div>
         <div class="fsep">·</div>
-        <div class="fml"><div class="eq">W = √(2εV/qN)</div><div class="fd">Depl. Width</div></div>
+        <div class="fml"><div class="eq" data-tex="W=\sqrt{\frac{2\varepsilon V}{qN}}">W = √(2εV/qN)</div><div class="fd">Depl. Width</div></div>
       </div>
     </div>
 
@@ -427,3 +427,4 @@ updateUI();
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+

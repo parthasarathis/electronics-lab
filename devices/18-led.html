@@ -6,7 +6,7 @@
 :root{--accent:#ffdd00;--accent2:#ffee66;--accent-rgb:255,221,0}
 #curve-section canvas,.curve-panel-main canvas{height:200px}
 </style>
-</head><body><div id="app">
+<link rel="stylesheet" href="../shared/vendor/katex-0.16.22/katex.min.css"><link rel="stylesheet" href="../shared/math-v1.css"><script defer src="../shared/vendor/katex-0.16.22/katex.min.js"></script><script defer src="../shared/math-v1.js"></script></head><body><div id="app">
 
 <div id="header">
   <div id="header-left">
@@ -67,11 +67,11 @@
     <div class="panel">
       <div class="ptitle">Physics</div>
       <div class="frow">
-        <div class="fml"><div class="eq">Popt = η·e·If</div><div class="fd">Optical Power</div></div>
+        <div class="fml"><div class="eq" data-tex="P_{\mathrm{opt}}=\eta eI_f">Popt = η·e·If</div><div class="fd">Optical Power</div></div>
         <div class="fsep">|</div>
-        <div class="fml"><div class="eq">Vf = Eg/e + …</div><div class="fd">Forward Drop</div></div>
+        <div class="fml"><div class="eq" data-tex="V_f=\frac{E_g}{e}+\cdots">Vf = Eg/e + …</div><div class="fd">Forward Drop</div></div>
         <div class="fsep">|</div>
-        <div class="fml"><div class="eq">λ = hc/Eg</div><div class="fd">Peak Wavelength</div></div>
+        <div class="fml"><div class="eq" data-tex="\lambda=\frac{hc}{E_g}">λ = hc/Eg</div><div class="fd">Peak Wavelength</div></div>
       </div>
     </div>
 
@@ -388,3 +388,4 @@ animate();
 <script src="../shared/nav.js"></script>
 </body>
 </html>
+
