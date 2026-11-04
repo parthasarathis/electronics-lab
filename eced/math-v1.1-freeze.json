@@ -1,8 +1,8 @@
 {
-  "version": "1.1.0",
+  "version": "1.1.1",
   "date": "2026-11-04",
   "status": "frozen",
-  "previous_snapshot": "c8a5e5d7107fbc22def96516bbb2eba9d6c6f0d0",
+  "previous_snapshot": "5bf05e8c1d62e076dac6638e0875a1950ca24adc",
   "scope": {
     "live_course_topics": 15,
     "device_pages": 25,
@@ -18,7 +18,8 @@
     "77 explicit device formulas",
     "TeX regression cases",
     "phone and desktop visual review",
-    "A4 print review"
+    "A4 print review",
+    "Workbook download links absent from hub and Phasor Lab"
   ],
   "sha256": {
     "devices/01-resistor.html": "2cb5291de63e346268936c26a9dd02cc8089cde8afd0aea6bac9b2b93b92d8f2",
@@ -49,7 +50,7 @@
     "eced/ECED_Typeset_Workbook.pdf": "89f326e3e3180387bcbe16b76daf73d5b71d3a016c272ebcc18d19691a4c513d",
     "eced/implementation-plan.html": "9fefc80d7b702d888b6d49a42aea91f8baa81fa4202d177cc4123c750ac52b3c",
     "eced/implementation-plan.md": "80979f7fe5f6cfb99684bc432329be1baacd9b9c1392a41c88ca8a0766fcc38b",
-    "eced/index.html": "633481fca3b69900ade3043fb33893093145d9e2093b188b6e03714684964a7b",
+    "eced/index.html": "8b33f0e2d32d9bb47aefa6459e5b2a9167f7e6e318552b6301864a17460c223f",
     "eced/lessons/complex-power/index.html": "a5eec2e9182e2b8ae9cda1280a0bb7f718681e1bff38315c66b77d152006a4d1",
     "eced/lessons/first-order-transients/index.html": "433e2b249c69bdce7cf23d4094be8828f4e1dee64d78fbe48473a4d4ee3f046e",
     "eced/lessons/kirchhoff-laws/index.html": "cf8cb27be3678f6870c2fbb8c8a87549a49aaa51ed8932de4bb667d25d356cc7",
@@ -66,7 +67,7 @@
     "eced/lessons/wye-delta/index.html": "f8360e66d0416ae19b953030017c74cf940dfc86f0dee1a235bebf3c0fb5dd3a",
     "eced/lessons.json": "60452a2d06f123ee9688d967de67320aae79efeb94bc5498c29bc27fc5dbd4e6",
     "eced/math-v1.1-review.md": "bb9b2f34d8df458af9607c38f09146fcaf381dd1c11c7b49600e018ec4242c03",
-    "phasor-lab/index.html": "747b42b5df587aaa876eedf6e523c043ce8ea95fcff8f1631468c3e85c775141",
+    "phasor-lab/index.html": "1cdaf40c3a73df0aef09d5f6cb61f159b0fba2f7063fe1a0667cf3dc6e471579",
     "shared/MATH-AUTHORING.md": "2fb6419aebf54d085d3cae771c38155e9d41d03413b0cc085a9830598acf74c2",
     "shared/math-v1.css": "8903679720c585b3cd0b3bbc9a318fa5417ac31fa1463db798eb5592dcec3afb",
     "shared/math-v1.js": "8da465aff6e221083f7ed3287fb66e8c22f5fa9a7e57e5bf369f38506789ec12",
@@ -94,5 +95,6 @@
     "shared/vendor/katex-0.16.22/katex.min.js": "e8d885505949f3a5f4abdd5dd0d53696bd1371ad26ffbf4f310dcd77c8cdae89",
     "shared/vendor/katex-0.16.22/LICENSE": "766ccc1f306c885aa45542a9846bbd0a505b27a0374f146778171c2254ce18e3",
     "sw.js": "3e292977973240f9af1e5eb8c58d987a883e53b696a9e69dd32812f3fd1a1edb"
-  }
+  },
+  "patch_notes": "Removed the 47-page workbook download links from the hub and Phasor Lab at the author\u2019s request. Landing-page redesign is a separate pending change."
 }
