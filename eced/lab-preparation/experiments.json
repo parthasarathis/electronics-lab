@@ -1,0 +1,416 @@
+[
+  {
+    "number": 1,
+    "title": "Verification of KCL and KVL using LTspice",
+    "co": "CO1",
+    "kind": "Simulation",
+    "topic": "Circuit laws",
+    "objective": "Verify signed current and voltage balances in the assigned circuit.",
+    "prerequisite": "Ohm’s law; reference directions; voltage polarity.",
+    "prelab": [
+      "Mark a reference node, current arrows and voltage polarities before writing equations.",
+      "Write one node equation and one independent loop equation for the assigned circuit.",
+      "Predict what a negative current reading would mean."
+    ],
+    "observe": [
+      "Use the assigned component values and the same reference directions in the calculation and simulation.",
+      "Measure the required branch currents and voltage drops at the operating point.",
+      "Calculate a signed KCL residual and a signed KVL residual; include units."
+    ],
+    "record": [
+      "Branch current and reference arrow (A or mA)",
+      "Element voltage and polarity (V)",
+      "Node-current sum (A); loop-voltage sum (V)"
+    ],
+    "postlab": [
+      "Compare calculated and simulated values. Does rounding explain the residual?",
+      "Explain a negative reading using the chosen reference direction.",
+      "If a balance fails, identify one connection or sign convention to check first."
+    ],
+    "lessons": [
+      "ohms-law",
+      "kirchhoff-laws"
+    ],
+    "formula": [
+      "\\sum I_{\\mathrm{node}}=0,\\qquad \\sum V_{\\mathrm{loop}}=0",
+      "Signed current and voltage sums must balance."
+    ]
+  },
+  {
+    "number": 2,
+    "title": "Node and mesh analysis using LTspice",
+    "co": "CO1",
+    "kind": "Simulation",
+    "topic": "Circuit laws",
+    "objective": "Solve the assigned network using node voltages and mesh currents, then compare with simulation.",
+    "prerequisite": "KCL; KVL; simultaneous equations.",
+    "prelab": [
+      "Identify unknown node voltages and any voltage already fixed by a grounded source.",
+      "Choose mesh-current directions and write the shared-branch current with consistent signs.",
+      "Decide whether the assigned circuit needs a supernode or supermesh. Explain why."
+    ],
+    "observe": [
+      "Solve the simultaneous equations before checking the simulator output.",
+      "Record node voltages relative to the same reference node.",
+      "Convert mesh currents into physical branch currents, then compare those branch currents with simulation."
+    ],
+    "record": [
+      "Node voltage and reference (V)",
+      "Mesh current and direction (A or mA)",
+      "Shared-branch current; KCL/KVL residuals"
+    ],
+    "postlab": [
+      "Do node and mesh methods predict the same physical branch currents?",
+      "Why can a mesh current differ from the current in a shared branch?",
+      "Which measurement would help locate an incorrect equation sign?"
+    ],
+    "lessons": [
+      "node-analysis",
+      "mesh-analysis"
+    ],
+    "formula": null
+  },
+  {
+    "number": 3,
+    "title": "Superposition, Thevenin’s and Norton’s theorems using LTspice",
+    "co": "CO2",
+    "kind": "Simulation",
+    "topic": "Network theorems",
+    "objective": "Validate source contributions and terminal-equivalent circuits under the same load.",
+    "prerequisite": "Node or mesh analysis; source transformation.",
+    "prelab": [
+      "Define the response quantity and the two load terminals.",
+      "Explain how each independent source is deactivated in an ideal circuit model.",
+      "Predict which quantities must agree between the original circuit and its equivalent."
+    ],
+    "observe": [
+      "Record each independent-source contribution with its sign, then add voltage or current responses.",
+      "Find the open-circuit voltage and equivalent resistance seen from the load port.",
+      "Reconnect the same load to the original, Thevenin and Norton circuits and compare terminal quantities."
+    ],
+    "record": [
+      "Individual and total response (V or A)",
+      "Thevenin voltage (V); equivalent resistance (Ω); Norton current (A)",
+      "Load voltage, load current and load resistance"
+    ],
+    "postlab": [
+      "Does the sum of source contributions match the full-circuit response?",
+      "Why must the load remain outside the equivalent-source boundary?",
+      "Explain why separate source powers generally cannot be added using superposition."
+    ],
+    "lessons": [
+      "superposition",
+      "thevenin-norton",
+      "source-transformation"
+    ],
+    "formula": [
+      "I_N=\\frac{V_{\\mathrm{th}}}{R_{\\mathrm{th}}}",
+      "The two equivalent forms use the same terminal resistance."
+    ]
+  },
+  {
+    "number": 4,
+    "title": "Transient analysis of RL and RC circuits",
+    "co": "CO3",
+    "kind": "Simulation",
+    "topic": "Transients and AC",
+    "objective": "Analyse initial values, final values and time constants of the assigned first-order circuits.",
+    "prerequisite": "KVL/KCL; exponential response; capacitor and inductor state variables.",
+    "prelab": [
+      "State the capacitor voltage or inductor current immediately before switching.",
+      "Predict the state immediately after switching and the eventual DC value.",
+      "Find the resistance seen by the storage element for the assigned source conditions."
+    ],
+    "observe": [
+      "Choose a simulation interval and time resolution that show both the early response and settling trend.",
+      "Mark the theoretical time constant on the waveform.",
+      "Compare initial, one-time-constant and late-time values without assuming exact finite-time settling."
+    ],
+    "record": [
+      "Time (s); capacitor voltage (V) or inductor current (A)",
+      "Initial and final state values; theoretical time constant (s)",
+      "State at one time constant; simulated time-constant estimate"
+    ],
+    "postlab": [
+      "Compare the time-constant estimate with the theoretical value.",
+      "Explain why a charging curve and a discharging curve use different absolute voltage readings at one time constant.",
+      "How could initial stored energy change the observed response?"
+    ],
+    "lessons": [
+      "first-order-transients"
+    ],
+    "formula": [
+      "\\tau_{RC}=R_{\\mathrm{seen}}C,\\qquad \\tau_{RL}=\\frac{L}{R_{\\mathrm{seen}}}",
+      "Use the resistance seen by the storage element for the stated switching condition."
+    ]
+  },
+  {
+    "number": 5,
+    "title": "Resonance analysis of RLC circuits using LTspice",
+    "co": "CO4",
+    "kind": "Simulation",
+    "topic": "Transients and AC",
+    "objective": "Examine resonance and frequency response with a clearly defined circuit topology and plotted quantity.",
+    "prerequisite": "Complex impedance; frequency sweeps; RMS quantities.",
+    "prelab": [
+      "State whether the assigned RLC circuit is series or parallel.",
+      "Name the quantity plotted in the frequency sweep and its units.",
+      "Predict whether source-current magnitude should rise or fall near resonance for the selected drive and topology."
+    ],
+    "observe": [
+      "Sweep across a range that includes both sides of resonance.",
+      "Record the resonant frequency and the response magnitude there.",
+      "If finding bandwidth, state the response and drive condition used to define its half-power points."
+    ],
+    "record": [
+      "Frequency (Hz); selected response and units",
+      "Resonant frequency (Hz); peak or minimum response",
+      "If applicable: lower/upper boundary frequencies (Hz)"
+    ],
+    "postlab": [
+      "Compare resonance with the ideal LC estimate and explain the assumptions.",
+      "Why is a source-current maximum not a universal definition of resonance?",
+      "Explain which measurement would justify a reported bandwidth or Q value."
+    ],
+    "lessons": [
+      "resonance-bandwidth",
+      "phasor-lab"
+    ],
+    "formula": [
+      "f_0=\\frac{1}{2\\pi\\sqrt{LC}}",
+      "Ideal LC resonance estimate; state the topology and component model used."
+    ]
+  },
+  {
+    "number": 6,
+    "title": "AC circuit and phasor analysis using LTspice",
+    "co": "CO3",
+    "kind": "Simulation",
+    "topic": "Transients and AC",
+    "objective": "Compare RMS magnitudes, phase angles and phasor sums in the assigned AC network.",
+    "prerequisite": "Sine waves; RMS; complex impedance.",
+    "prelab": [
+      "Choose one phase reference and label the current/voltage directions.",
+      "Predict whether the relevant current leads or lags the reference voltage.",
+      "Write the appropriate phasor KVL or KCL equation before adding magnitudes."
+    ],
+    "observe": [
+      "Use the same frequency and RMS/peak convention in your calculation and simulation comparison.",
+      "Record voltage and current phase angles against the same reference.",
+      "Add rectangular phasor components and check the resulting magnitude and angle."
+    ],
+    "record": [
+      "Frequency (Hz); voltage convention (RMS or peak)",
+      "Voltage/current magnitudes (V, A) and phase angles (°)",
+      "Phasor sum and the reference directions used"
+    ],
+    "postlab": [
+      "Why can the sum of component-voltage magnitudes exceed the source magnitude?",
+      "Compare the phasor result with the time-domain lead/lag observation.",
+      "Explain how a reversed current reference changes the reported phase angle."
+    ],
+    "lessons": [
+      "sinusoid-rms",
+      "phasor-lab",
+      "complex-power"
+    ],
+    "formula": null
+  },
+  {
+    "number": 7,
+    "title": "Measurement of RC and RL time constants",
+    "co": "CO3",
+    "kind": "Hardware",
+    "topic": "Transients and AC",
+    "objective": "Estimate time constants from measured charging or decay waveforms.",
+    "prerequisite": "First-order response; oscilloscope time/voltage scales.",
+    "prelab": [
+      "Predict initial and final values for the assigned switching condition.",
+      "Calculate the theoretical time constant, including relevant source or winding resistance.",
+      "Identify the waveform level corresponding to 63.2% of a rising change or 36.8% of a remaining decay."
+    ],
+    "observe": [
+      "Use the instructor-approved circuit, instrument settings and supply limits.",
+      "Measure the waveform relative to its actual initial and final values.",
+      "Repeat the time-constant estimate and record relevant component tolerances or loading effects."
+    ],
+    "record": [
+      "Measured resistance, capacitance or inductance, with units",
+      "Initial/final state values; selected threshold level",
+      "Measured time interval (s); repeated estimates"
+    ],
+    "postlab": [
+      "Compare measured and predicted time constants using a stated percentage difference.",
+      "How might probe loading, component tolerance or coil resistance affect the result?",
+      "Why is one fixed voltage threshold unsuitable for every charging/discharging case?"
+    ],
+    "lessons": [
+      "first-order-transients"
+    ],
+    "formula": null
+  },
+  {
+    "number": 8,
+    "title": "Resonance characteristics of an RLC circuit",
+    "co": "CO4",
+    "kind": "Hardware",
+    "topic": "Transients and AC",
+    "objective": "Measure resonance, bandwidth and quality factor for a defined response.",
+    "prerequisite": "RLC frequency response; impedance; instrument measurement conventions.",
+    "prelab": [
+      "Identify the circuit topology, source type and measured output.",
+      "Predict resonance using the stated component model.",
+      "Define how the relevant half-power boundaries will be identified from that output."
+    ],
+    "observe": [
+      "Use the assigned circuit and approved instrument ranges.",
+      "Take enough points near resonance to locate the relevant peak or minimum.",
+      "Record boundary frequencies only when the selected measurement supports the stated bandwidth definition."
+    ],
+    "record": [
+      "Frequency (Hz); measured response and units",
+      "Resonant frequency (Hz); lower/upper boundaries (Hz)",
+      "Bandwidth (Hz); Q; component/model assumptions"
+    ],
+    "postlab": [
+      "Compare measured resonance with the ideal estimate and discuss possible nonideal effects.",
+      "Explain how the chosen output and source determine the bandwidth measurement.",
+      "What is the effect of additional damping in your measured response?"
+    ],
+    "lessons": [
+      "resonance-bandwidth",
+      "phasor-lab"
+    ],
+    "formula": [
+      "\\mathrm{BW}=f_2-f_1,\\qquad Q=\\frac{f_0}{\\mathrm{BW}}",
+      "Apply these to the specified resonant response and its appropriate boundary frequencies."
+    ]
+  },
+  {
+    "number": 9,
+    "title": "PN junction diode, Zener diode and LED characteristics",
+    "co": "CO5",
+    "kind": "Hardware",
+    "topic": "Semiconductor devices",
+    "objective": "Measure and compare device characteristics within the approved operating ranges.",
+    "prerequisite": "Diode polarity; current limiting; voltage/current measurement.",
+    "prelab": [
+      "Identify each device and its terminal polarity from its datasheet or lab instructions.",
+      "Explain how ratings determine the allowed sweep range and current-limiting resistor.",
+      "Sketch the expected qualitative characteristic of each assigned device."
+    ],
+    "observe": [
+      "Use the instructor-approved circuit and current limits for each device.",
+      "Record device voltage and current with signs and units.",
+      "Keep measurement conditions consistent when comparing characteristics."
+    ],
+    "record": [
+      "Device type; polarity; approved operating range",
+      "Device voltage (V); device current (mA)",
+      "Current-limiting resistance (Ω); observed operating region"
+    ],
+    "postlab": [
+      "How do the measured characteristics differ among the three devices?",
+      "Why is a single fixed forward-voltage approximation only a limited model?",
+      "Explain why the resistor and device ratings remain important near a characteristic knee."
+    ],
+    "lessons": [],
+    "formula": null
+  },
+  {
+    "number": 10,
+    "title": "BJT as a switch",
+    "co": "CO6",
+    "kind": "Hardware",
+    "topic": "Switching devices",
+    "objective": "Relate base drive, collector current and collector-emitter voltage to switching state.",
+    "prerequisite": "BJT terminals; cutoff and saturation; resistive load behaviour.",
+    "prelab": [
+      "Identify the assigned transistor terminals and reference polarities.",
+      "Estimate the load current required in the on state.",
+      "Explain why active-region current gain alone does not guarantee saturation."
+    ],
+    "observe": [
+      "Use the assigned base-drive and load circuit with approved supply/current limits.",
+      "Measure base current, collector current and collector-emitter voltage in each input state.",
+      "Use the measured quantities to identify cutoff or saturation."
+    ],
+    "record": [
+      "Input state; base current (mA)",
+      "Collector current (mA); collector-emitter voltage (V)",
+      "Load state; transistor power estimate (W)"
+    ],
+    "postlab": [
+      "What measured evidence supports your on/off state labels?",
+      "How does insufficient base drive alter the collector-emitter voltage and load response?",
+      "Compare the measured collector-to-base current ratio with the assumption used to design the drive."
+    ],
+    "lessons": [],
+    "formula": null
+  },
+  {
+    "number": 11,
+    "title": "MOSFET as a switch",
+    "co": "CO6",
+    "kind": "Hardware",
+    "topic": "Switching devices",
+    "objective": "Relate gate-source drive, load current and drain-source voltage to switching behaviour.",
+    "prerequisite": "MOSFET terminals; gate-source voltage; on-state resistance.",
+    "prelab": [
+      "Identify the device terminals and channel type.",
+      "Distinguish threshold voltage from a gate drive at which on-state resistance is specified.",
+      "Predict the on-state current and conduction loss using the assigned load and stated device data."
+    ],
+    "observe": [
+      "Use the instructor-approved gate-drive and load circuit.",
+      "Measure gate-source voltage, drain-source voltage and load current in each input state.",
+      "Compare the observed on-state behaviour with the device data at the actual gate drive."
+    ],
+    "record": [
+      "Input state; gate-source voltage (V)",
+      "Drain-source voltage (V); drain/load current (A)",
+      "On-state power estimate (W); stated device conditions"
+    ],
+    "postlab": [
+      "Why can a MOSFET conduct some current near threshold without being a good on-state switch?",
+      "Why must gate voltage be referenced to the source terminal?",
+      "Discuss differences between a resistive conduction-loss estimate and total switching loss."
+    ],
+    "lessons": [],
+    "formula": [
+      "P_{\\mathrm{cond}}=I_D^2R_{\\mathrm{DS(on)}}",
+      "Use on-state resistance specified for the actual gate-drive and operating conditions."
+    ]
+  },
+  {
+    "number": 12,
+    "title": "SCR, DIAC and TRIAC characteristics",
+    "co": "CO6",
+    "kind": "Hardware",
+    "topic": "Switching devices",
+    "objective": "Compare triggering, conduction polarity and holding behaviour of the assigned power devices.",
+    "prerequisite": "Diode polarity; AC waveforms; switching states.",
+    "prelab": [
+      "Sketch the expected qualitative characteristic and conduction polarity of each device.",
+      "Distinguish triggering, latching current and holding current where applicable.",
+      "Predict whether removing a gate signal alone will stop conduction in the assigned circuit."
+    ],
+    "observe": [
+      "Use only the approved trainer, circuit and instrument settings under the lab instructor’s supervision.",
+      "Record the device, excitation conditions and measured voltages/currents for each observation.",
+      "Identify triggering and turn-off behaviour from the measured response rather than gate signal alone."
+    ],
+    "record": [
+      "Device and polarity of excitation",
+      "Device voltage (V); current (mA or A); trigger condition",
+      "Observed latching, holding or commutation behaviour"
+    ],
+    "postlab": [
+      "Compare the conduction directions and triggering mechanisms of the three devices.",
+      "Explain the difference between latching and holding behaviour for the observed device.",
+      "How can a current zero affect turn-off in the approved AC experiment?"
+    ],
+    "lessons": [],
+    "formula": null
+  }
+]

@@ -1,0 +1,51 @@
+{
+  "version": "1.0.0",
+  "date": "2026-11-04",
+  "status": "frozen",
+  "previous_snapshot": "2aaa0a2e924ec5109035cc11f2a910683f91efc4",
+  "scope": {
+    "experiments": 12,
+    "simulation": 6,
+    "hardware": 6,
+    "experiments_with_live_links": 8,
+    "new_manuals": 0
+  },
+  "checks": [
+    "syllabus order and lab CO mapping",
+    "three preparation stages per experiment",
+    "filters, search, empty state and clear",
+    "experiment jumps reset filters",
+    "lesson and overview navigation",
+    "six rendered formula reminders",
+    "375/390/768/1280/1440px course layouts",
+    "no browser errors",
+    "18 course HTML pages scanned for local paths",
+    "relative links and fragments resolve"
+  ],
+  "sha256": {
+    "eced/index.html": "1e4b247ea791e76a635e0287817195f15d88676ec159227d3cc85942269d8d03",
+    "eced/resources-v1.css": "114502326878534916d1ed0d61b448886b37a728402b11699c9e5d62463cec0a",
+    "eced/lab-preparation/index.html": "bc1df6be1733e208f24317ffb20670fa198ff15c6f3dfc266c3c987f31037c5a",
+    "eced/lab-preparation/experiments.json": "96d328e37dfb62d7445f77527ba83a150e2bb1f5f8571043d980d87c284fe20a",
+    "eced/lab-preparation/preparation-v1.js": "557efb299704950db5984f66b7de1e1c350b2a457c4961a8d5fe1efd097f2f73",
+    "eced/implementation-plan.html": "fce5d824340b490c041b0dc50a6c798edd4aa0a8cdafa7dbd3189265bbb7131f",
+    "eced/implementation-plan.md": "106d6c9c389a29a82b2e48ea310af734911794f278534c6fc8dec1750d6f94e9",
+    "phasor-lab/index.html": "aaee678822f2badb5da6affd2fe3dbf4ee996fcc5d606a608aa4ca676f85e060",
+    "sw.js": "ca98d583b18a36a873052854143914d63e84cd6252a88f4b568032157c51cd7b",
+    "eced/lab-preparation-review.md": "e2e9a5ebe2795b4a9c0db3be8e041a66254403a100c541141ae1a4036d28fe4f",
+    "eced/lessons/complex-power/index.html": "f92693f363bea91f24e749db1a7ec6caba044f49f5ae932b6a08ff83c58bf865",
+    "eced/lessons/first-order-transients/index.html": "2927fb7e93d17b31aa88ccc9f672240570241123391c90340b4fe5ecf9ad0d6e",
+    "eced/lessons/kirchhoff-laws/index.html": "b6a6700bbf079a1128c3b1d7060a976680356f43adea21dac2004c723e29e1dc",
+    "eced/lessons/maximum-power/index.html": "2e48a7d2b4eb86fe7e20f1ea28cebbf92cda877ed2609851c330fde203b1d27d",
+    "eced/lessons/mesh-analysis/index.html": "506bd6ab3cc606243b7f87065db943569281049c6685a8a7dac7345e9d3e9682",
+    "eced/lessons/node-analysis/index.html": "b8b57ed1a8dfc6f250942522bff42489c1cd8fb5b446e2f19f5961448737c071",
+    "eced/lessons/ohms-law/index.html": "1a6836bd57c6dfaf888141fc92a614ce2e98d4997809e55c68f4de6d290bed1e",
+    "eced/lessons/reciprocity/index.html": "7b17346b60d9fbbf9ed7b8db167042eaa860fc6a79e4ced646db8c98c10b637b",
+    "eced/lessons/resonance-bandwidth/index.html": "bac660a3438b7732a325cba844392fc1d360b329f6fbe7b829b5faa5c7784841",
+    "eced/lessons/sinusoid-rms/index.html": "a3f79c865d58bd47e928c9660086385dcf4ffe160bb2139d83d103529e0deb27",
+    "eced/lessons/source-transformation/index.html": "983b6e9f3f37fba9402e1d67fe7480bbde00e8929f28ed49c5c854cf5cbfd260",
+    "eced/lessons/superposition/index.html": "e951e4aa76f106d08dda31d6111ff120eb2b14e5a80533411cb0dbc63eab33f6",
+    "eced/lessons/thevenin-norton/index.html": "4313f9ccf5d2c115f88e860e6689098c4881b5c9f1cb874bdf6be3552a6d2261",
+    "eced/lessons/wye-delta/index.html": "7f9b4064b96b04692460efa3546f575805a3439c4739ebc5037f767ae96a0a2c"
+  }
+}
